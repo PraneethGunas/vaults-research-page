@@ -1,0 +1,603 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1200 800" width="1200" height="800"
+     font-family="system-ui, -apple-system, sans-serif">
+  <title>Trigger Key Theft — Three Vaults Compared</title>
+  <desc>Animated diagram showing what happens when the trigger/hot key is compromised across all three vault designs. Each vault defends differently: CTV uses cold sweep, CCV uses keyless recovery, OP_VAULT uses authorized recovery. CTV has an escalation risk if fee key is also compromised.</desc>
+
+  <defs>
+    <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1" fill="#c9cdd3" opacity="0.45"/>
+    </pattern>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#9ca3b0" flood-opacity="0.18"/>
+    </filter>
+    <filter id="blueGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#3b82f6" flood-opacity="0.3"/>
+    </filter>
+    <filter id="greenGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#22c55e" flood-opacity="0.3"/>
+    </filter>
+    <filter id="redGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="#ef4444" flood-opacity="0.35"/>
+    </filter>
+    <filter id="amberGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#f59e0b" flood-opacity="0.3"/>
+    </filter>
+    <filter id="purpleGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#8b5cf6" flood-opacity="0.3"/>
+    </filter>
+    <filter id="cyanGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#06b6d4" flood-opacity="0.3"/>
+    </filter>
+
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="amberGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="#f3f4f6"/>
+  <rect width="1200" height="800" fill="url(#dots)"/>
+
+  <!-- ============================================================
+       TRIGGER KEY THEFT (TM3 + TM5)
+
+       Layout (3 horizontal lanes):
+         Shared attacker card (left, red)
+         Lane 1 (y~180): CTV    — Vault → Unvault → cold sweep ✓
+         Lane 2 (y~380): CCV    — Vault → Unvault → keyless recovery ✓ (fastest)
+         Lane 3 (y~560): OP_VAULT — Vault → Trigger Out → auth recovery ✓
+
+       Timing (20s cycle):
+         0.00–0.06  Attacker card activates (key compromised)
+         0.06–0.14  All 3 vaults receive unauthorized trigger simultaneously
+         0.14–0.22  All 3 transition to unvaulting state
+         0.22–0.28  Watchtower detects across all lanes
+         0.28–0.36  CTV: cold sweep races
+         0.30–0.36  CCV: keyless recovery fires (fastest — 122 vB)
+         0.32–0.38  OP_VAULT: authorized recovery fires (246 vB + auth)
+         0.38–0.48  All 3 recover successfully → green confirmation
+         0.48–0.58  CTV escalation callout: "But if fee key ALSO compromised..."
+         0.58–0.68  CTV lane flashes red
+         0.68–0.78  Summary comparison
+         0.78–0.88  Hold
+         0.88–1.00  Reset
+       ============================================================ -->
+
+  <!-- ============ TITLE ============ -->
+  <text x="600" y="36" fill="#1e293b" font-size="18" text-anchor="middle" font-weight="700">Trigger Key Theft — Three Vaults Compared</text>
+  <text x="600" y="56" fill="#64748b" font-size="11" text-anchor="middle">TM3+TM5: Hot/trigger key compromised — each vault defends differently</text>
+
+  <!-- ============ LANE LABELS ============ -->
+  <rect x="30" y="158" width="60" height="26" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="60" y="176" fill="#1e40af" font-size="10" text-anchor="middle" font-weight="700">CTV</text>
+
+  <rect x="30" y="350" width="60" height="26" rx="8" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1.2"/>
+  <text x="60" y="368" fill="#5b21b6" font-size="10" text-anchor="middle" font-weight="700">CCV</text>
+
+  <rect x="30" y="530" width="86" height="26" rx="8" fill="#ecfdf5" stroke="#06b6d4" stroke-width="1.2"/>
+  <text x="73" y="548" fill="#0e7490" font-size="10" text-anchor="middle" font-weight="700">OP_VAULT</text>
+
+  <!-- ============ ATTACKER CARD (shared, left) ============ -->
+  <g aria-label="Attacker — Key Compromised">
+    <g transform="translate(120, 330)">
+      <rect width="96" height="96" rx="22" fill="url(#redGrad)" filter="url(#redGlow)"/>
+      <!-- Key icon (broken) -->
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <circle cx="-8" cy="-8" r="8"/>
+        <path d="M-2,-2 L14,14"/>
+        <path d="M10,10 L14,6"/>
+        <path d="M6,6 L10,2"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.03;0.05;0.14;0.78;0.88;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.03;0.05;0.14;0.78;0.88;1" dur="20s" repeatCount="indefinite"/>
+        <circle cx="-8" cy="-8" r="8"/>
+        <path d="M-2,-2 L14,14"/>
+        <path d="M10,10 L14,6"/>
+        <path d="M6,6 L10,2"/>
+      </g>
+      <!-- Breathing ring -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="#ef4444" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.05;0.07;0.56;0.60;1" dur="20s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="0.9s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="0.9s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="0.9s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="0.9s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="168" y="443" fill="#ef4444" font-size="11" text-anchor="middle" font-weight="700">Attacker</text>
+    <text x="168" y="456" fill="#ef4444" font-size="9" text-anchor="middle">key compromised</text>
+  </g>
+
+  <!-- ============ STATIC CONNECTIONS ============ -->
+  <!-- Attacker → all 3 vaults (fan-out) -->
+  <path d="M216,355 Q260,180 300,175" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <line x1="216" y1="378" x2="300" y2="365" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M216,400 Q260,540 300,545" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+
+  <!-- CTV lane: Vault → Unvault → Watchtower → Outcome -->
+  <line x1="396" y1="175" x2="470" y2="175" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="566" y1="175" x2="670" y2="175" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="766" y1="175" x2="870" y2="175" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- CCV lane -->
+  <line x1="396" y1="365" x2="470" y2="365" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="566" y1="365" x2="670" y2="365" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="766" y1="365" x2="870" y2="365" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- OP_VAULT lane -->
+  <line x1="396" y1="545" x2="470" y2="545" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="566" y1="545" x2="670" y2="545" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="766" y1="545" x2="870" y2="545" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- ============ DASHED OVERLAYS ============ -->
+  <!-- Attacker → vaults (red, simultaneous) -->
+  <path d="M216,355 Q260,180 300,175"
+        stroke="#ef4444" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.06;0.08;0.14;0.16;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </path>
+  <line x1="216" y1="378" x2="300" y2="365"
+        stroke="#ef4444" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.06;0.08;0.14;0.16;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </line>
+  <path d="M216,400 Q260,540 300,545"
+        stroke="#ef4444" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.06;0.08;0.14;0.16;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- Vault → Unvault (all 3, amber) -->
+  <line x1="396" y1="175" x2="470" y2="175"
+        stroke="#f59e0b" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.12;0.14;0.22;0.24;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
+  </line>
+  <line x1="396" y1="365" x2="470" y2="365"
+        stroke="#f59e0b" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.12;0.14;0.22;0.24;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
+  </line>
+  <line x1="396" y1="545" x2="470" y2="545"
+        stroke="#f59e0b" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.12;0.14;0.22;0.24;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Watchtower responses (green, staggered) -->
+  <!-- CTV cold sweep -->
+  <line x1="566" y1="175" x2="670" y2="175"
+        stroke="#22c55e" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.28;0.30;0.38;0.40;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.45s" repeatCount="indefinite"/>
+  </line>
+  <!-- CCV keyless recovery (fastest) -->
+  <line x1="566" y1="365" x2="670" y2="365"
+        stroke="#22c55e" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.26;0.28;0.36;0.38;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </line>
+  <!-- OP_VAULT auth recovery -->
+  <line x1="566" y1="545" x2="670" y2="545"
+        stroke="#22c55e" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.30;0.32;0.40;0.42;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.5s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Outcome connections (green) -->
+  <line x1="766" y1="175" x2="870" y2="175"
+        stroke="#22c55e" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.36;0.38;0.48;0.50;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.5s" repeatCount="indefinite"/>
+  </line>
+  <line x1="766" y1="365" x2="870" y2="365"
+        stroke="#22c55e" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.36;0.38;0.48;0.50;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.5s" repeatCount="indefinite"/>
+  </line>
+  <line x1="766" y1="545" x2="870" y2="545"
+        stroke="#22c55e" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.38;0.40;0.50;0.52;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.5s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- ============ PARTICLES ============ -->
+  <!-- Attacker → CTV (red) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.08;0.14;0.16;1" dur="20s" repeatCount="indefinite"/>
+    <circle r="3" fill="#ef4444">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.4s" repeatCount="indefinite"/>
+      <animateMotion path="M0,0 Q44,-175 84,-180" dur="0.4s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <!-- Attacker → CCV (red) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.08;0.14;0.16;1" dur="20s" repeatCount="indefinite"/>
+    <circle r="3" fill="#ef4444">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.4s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="216" to="300" dur="0.4s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="378" to="365" dur="0.4s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <!-- Attacker → OP_VAULT (red) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.08;0.14;0.16;1" dur="20s" repeatCount="indefinite"/>
+    <circle r="3" fill="#ef4444">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.4s" repeatCount="indefinite"/>
+      <animateMotion path="M0,0 Q44,162 84,167" dur="0.4s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <!-- CCV watchtower recovery (green, fastest) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.26;0.28;0.36;0.38;1" dur="20s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.35s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="566" to="670" dur="0.35s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="365;365" dur="0.35s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#86efac">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.35s" repeatCount="indefinite" begin="0.17s"/>
+      <animate attributeName="cx" from="566" to="670" dur="0.35s" repeatCount="indefinite" begin="0.17s"/>
+      <animate attributeName="cy" values="365;365" dur="0.35s" repeatCount="indefinite" begin="0.17s"/>
+    </circle>
+  </g>
+  <!-- CTV cold sweep (green) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.28;0.30;0.38;0.40;1" dur="20s" repeatCount="indefinite"/>
+    <circle r="3" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.7;0.7;0.1" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="566" to="670" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="175;175" dur="0.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <!-- OP_VAULT auth recovery (green, slowest) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.30;0.32;0.40;0.42;1" dur="20s" repeatCount="indefinite"/>
+    <circle r="3" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.7;0.7;0.1" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="566" to="670" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="545;545" dur="0.6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- ============ CARDS — CTV LANE ============ -->
+
+  <!-- CTV Vault -->
+  <g aria-label="CTV Vault">
+    <g transform="translate(300, 135)">
+      <rect width="96" height="80" rx="18" fill="url(#blueGrad)" filter="url(#blueGlow)"/>
+      <g transform="translate(48, 40)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <rect x="-12" y="-5" width="24" height="16" rx="3"/>
+        <path d="M-5,-5 L-5,-11 a5,5 0 0,1 10,0 L5,-5"/>
+      </g>
+      <rect width="96" height="80" rx="18" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
+                 keyTimes="0;0.10;0.12;0.22;0.24;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 40)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
+                 keyTimes="0;0.10;0.12;0.22;0.24;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+        <rect x="-12" y="-5" width="24" height="16" rx="3"/>
+        <path d="M-5,-5 L-5,-11 a5,5 0 0,1 10,0 L5,-5"/>
+      </g>
+    </g>
+    <text x="348" y="228" fill="#9ca3af" font-size="9" text-anchor="middle">Vault</text>
+  </g>
+
+  <!-- CTV Unvault -->
+  <g aria-label="CTV Unvault">
+    <g transform="translate(470, 135)">
+      <rect width="96" height="80" rx="18" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <rect width="96" height="80" rx="18" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.18;0.20;0.38;0.40;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <text x="48" y="46" fill="#374151" font-size="9" text-anchor="middle" font-weight="500" opacity="0">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.18;0.20;0.38;0.40;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+        unvaulting
+      </text>
+    </g>
+    <text x="518" y="228" fill="#9ca3af" font-size="9" text-anchor="middle">Unvault</text>
+  </g>
+
+  <!-- CTV Watchtower (cold sweep) -->
+  <g aria-label="CTV Cold Sweep">
+    <g transform="translate(670, 135)">
+      <rect width="96" height="80" rx="18" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(48, 40)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <path d="M0,-16 L14,-8 L14,4 C14,12 0,18 0,18 C0,18 -14,12 -14,4 L-14,-8 Z"/>
+      </g>
+      <rect width="96" height="80" rx="18" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.26;0.28;0.48;0.50;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 40)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.26;0.28;0.48;0.50;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+        <path d="M0,-16 L14,-8 L14,4 C14,12 0,18 0,18 C0,18 -14,12 -14,4 L-14,-8 Z"/>
+      </g>
+    </g>
+    <text x="718" y="228" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600">cold sweep</text>
+  </g>
+
+  <!-- CTV Outcome (green check) -->
+  <g aria-label="CTV Recovered">
+    <g transform="translate(870, 135)">
+      <rect width="96" height="80" rx="18" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(48, 40)" stroke="white" stroke-width="3" stroke-linecap="round" fill="none">
+        <path d="M-12,0 L-4,8 L12,-8"/>
+      </g>
+      <rect width="96" height="80" rx="18" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.40;0.42;0.48;0.78;0.88;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 40)" stroke="#374151" stroke-width="3" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.40;0.42;0.48;0.78;0.88;1" dur="20s" repeatCount="indefinite"/>
+        <path d="M-12,0 L-4,8 L12,-8"/>
+      </g>
+      <!-- CTV escalation: red flash overlay -->
+      <rect width="96" height="80" rx="18" fill="none" stroke="#ef4444" stroke-width="2.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.8;0;0.7;0;0.6;0;0"
+                 keyTimes="0;0.50;0.51;0.52;0.53;0.54;0.55;0.56;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="918" y="228" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="700" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0"
+               keyTimes="0;0.42;0.44;0.48;0.50;1" dur="20s" repeatCount="indefinite"/>
+      SAFE ✓
+    </text>
+    <!-- Escalation warning text -->
+    <text x="918" y="228" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="700" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+               keyTimes="0;0.50;0.54;0.66;0.70;1" dur="20s" repeatCount="indefinite"/>
+      ⚠ if fee key too...
+    </text>
+  </g>
+
+  <!-- ============ CARDS — CCV LANE ============ -->
+
+  <!-- CCV Vault -->
+  <g aria-label="CCV Vault">
+    <g transform="translate(300, 325)">
+      <rect width="96" height="80" rx="18" fill="url(#purpleGrad)" filter="url(#purpleGlow)"/>
+      <g transform="translate(48, 40)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <rect x="-12" y="-5" width="24" height="16" rx="3"/>
+        <path d="M-5,-5 L-5,-11 a5,5 0 0,1 10,0 L5,-5"/>
+      </g>
+      <rect width="96" height="80" rx="18" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
+                 keyTimes="0;0.10;0.12;0.22;0.24;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 40)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
+                 keyTimes="0;0.10;0.12;0.22;0.24;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+        <rect x="-12" y="-5" width="24" height="16" rx="3"/>
+        <path d="M-5,-5 L-5,-11 a5,5 0 0,1 10,0 L5,-5"/>
+      </g>
+    </g>
+    <text x="348" y="418" fill="#9ca3af" font-size="9" text-anchor="middle">Vault</text>
+  </g>
+
+  <!-- CCV Unvault -->
+  <g aria-label="CCV Unvault">
+    <g transform="translate(470, 325)">
+      <rect width="96" height="80" rx="18" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <rect width="96" height="80" rx="18" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.18;0.20;0.36;0.38;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <text x="48" y="46" fill="#374151" font-size="9" text-anchor="middle" font-weight="500" opacity="0">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.18;0.20;0.36;0.38;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+        unvaulting
+      </text>
+    </g>
+    <text x="518" y="418" fill="#9ca3af" font-size="9" text-anchor="middle">Unvault</text>
+  </g>
+
+  <!-- CCV Watchtower (keyless, fastest) -->
+  <g aria-label="CCV Keyless Recovery">
+    <g transform="translate(670, 325)">
+      <rect width="96" height="80" rx="18" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(48, 40)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <path d="M0,-16 L14,-8 L14,4 C14,12 0,18 0,18 C0,18 -14,12 -14,4 L-14,-8 Z"/>
+      </g>
+      <rect width="96" height="80" rx="18" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.24;0.26;0.48;0.50;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 40)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.24;0.26;0.48;0.50;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+        <path d="M0,-16 L14,-8 L14,4 C14,12 0,18 0,18 C0,18 -14,12 -14,4 L-14,-8 Z"/>
+      </g>
+    </g>
+    <text x="718" y="418" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600">keyless · 122 vB</text>
+    <text x="718" y="430" fill="#22c55e" font-size="8" text-anchor="middle">(fastest)</text>
+  </g>
+
+  <!-- CCV Outcome -->
+  <g aria-label="CCV Recovered">
+    <g transform="translate(870, 325)">
+      <rect width="96" height="80" rx="18" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(48, 40)" stroke="white" stroke-width="3" stroke-linecap="round" fill="none">
+        <path d="M-12,0 L-4,8 L12,-8"/>
+      </g>
+      <rect width="96" height="80" rx="18" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.40;0.42;0.48;0.78;0.88;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 40)" stroke="#374151" stroke-width="3" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.40;0.42;0.48;0.78;0.88;1" dur="20s" repeatCount="indefinite"/>
+        <path d="M-12,0 L-4,8 L12,-8"/>
+      </g>
+    </g>
+    <text x="918" y="418" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="700" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0"
+               keyTimes="0;0.42;0.44;0.68;0.78;1" dur="20s" repeatCount="indefinite"/>
+      SAFE ✓
+    </text>
+  </g>
+
+  <!-- ============ CARDS — OP_VAULT LANE ============ -->
+
+  <!-- OP_VAULT Vault -->
+  <g aria-label="OP_VAULT Vault">
+    <g transform="translate(300, 505)">
+      <rect width="96" height="80" rx="18" fill="url(#cyanGrad)" filter="url(#cyanGlow)"/>
+      <g transform="translate(48, 40)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <rect x="-12" y="-5" width="24" height="16" rx="3"/>
+        <path d="M-5,-5 L-5,-11 a5,5 0 0,1 10,0 L5,-5"/>
+      </g>
+      <rect width="96" height="80" rx="18" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
+                 keyTimes="0;0.10;0.12;0.22;0.24;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 40)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
+                 keyTimes="0;0.10;0.12;0.22;0.24;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+        <rect x="-12" y="-5" width="24" height="16" rx="3"/>
+        <path d="M-5,-5 L-5,-11 a5,5 0 0,1 10,0 L5,-5"/>
+      </g>
+    </g>
+    <text x="348" y="598" fill="#9ca3af" font-size="9" text-anchor="middle">Vault</text>
+  </g>
+
+  <!-- OP_VAULT Trigger Out -->
+  <g aria-label="OP_VAULT Trigger Output">
+    <g transform="translate(470, 505)">
+      <rect width="96" height="80" rx="18" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <rect width="96" height="80" rx="18" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.18;0.20;0.40;0.42;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <text x="48" y="46" fill="#374151" font-size="9" text-anchor="middle" font-weight="500" opacity="0">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.18;0.20;0.40;0.42;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+        trigger out
+      </text>
+    </g>
+    <text x="518" y="598" fill="#9ca3af" font-size="9" text-anchor="middle">Trigger Out</text>
+  </g>
+
+  <!-- OP_VAULT Watchtower (auth recovery, slowest) -->
+  <g aria-label="OP_VAULT Auth Recovery">
+    <g transform="translate(670, 505)">
+      <rect width="96" height="80" rx="18" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(48, 40)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <path d="M0,-16 L14,-8 L14,4 C14,12 0,18 0,18 C0,18 -14,12 -14,4 L-14,-8 Z"/>
+      </g>
+      <rect width="96" height="80" rx="18" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.28;0.30;0.50;0.52;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 40)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.28;0.30;0.50;0.52;0.80;0.90;1" dur="20s" repeatCount="indefinite"/>
+        <path d="M0,-16 L14,-8 L14,4 C14,12 0,18 0,18 C0,18 -14,12 -14,4 L-14,-8 Z"/>
+      </g>
+    </g>
+    <text x="718" y="598" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600">auth recovery · 246 vB</text>
+    <text x="718" y="610" fill="#22c55e" font-size="8" text-anchor="middle">(requires recoveryauth key)</text>
+  </g>
+
+  <!-- OP_VAULT Outcome -->
+  <g aria-label="OP_VAULT Recovered">
+    <g transform="translate(870, 505)">
+      <rect width="96" height="80" rx="18" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(48, 40)" stroke="white" stroke-width="3" stroke-linecap="round" fill="none">
+        <path d="M-12,0 L-4,8 L12,-8"/>
+      </g>
+      <rect width="96" height="80" rx="18" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.42;0.44;0.50;0.78;0.88;1" dur="20s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 40)" stroke="#374151" stroke-width="3" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.42;0.44;0.50;0.78;0.88;1" dur="20s" repeatCount="indefinite"/>
+        <path d="M-12,0 L-4,8 L12,-8"/>
+      </g>
+    </g>
+    <text x="918" y="598" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="700" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0"
+               keyTimes="0;0.44;0.46;0.68;0.78;1" dur="20s" repeatCount="indefinite"/>
+      SAFE ✓
+    </text>
+  </g>
+
+  <!-- ============ CTV ESCALATION CALLOUT ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.95;0.95;0;0"
+             keyTimes="0;0.48;0.52;0.66;0.70;1" dur="20s" repeatCount="indefinite"/>
+    <rect x="980" y="110" width="200" height="100" rx="12" fill="white" stroke="#ef4444" stroke-width="2" filter="url(#cardShadow)"/>
+    <text x="1080" y="132" fill="#ef4444" font-size="11" text-anchor="middle" font-weight="800">⚠ CTV Escalation</text>
+    <text x="1080" y="150" fill="#374151" font-size="9" text-anchor="middle">If fee key ALSO stolen:</text>
+    <text x="1080" y="166" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="700">→ attacker pins CPFP anchor</text>
+    <text x="1080" y="180" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="700">→ cold sweep BLOCKED</text>
+    <text x="1080" y="196" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="800">= FUND THEFT (TM1)</text>
+    <!-- Red pulse border -->
+    <rect x="980" y="110" width="200" height="100" rx="12" fill="none" stroke="#ef4444" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0.5;0;0.4;0" dur="1.5s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- ============ SUMMARY COMPARISON ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+             keyTimes="0;0.62;0.66;0.78;0.82;1" dur="20s" repeatCount="indefinite"/>
+    <rect x="980" y="290" width="200" height="140" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="1080" y="312" fill="#1e293b" font-size="10" text-anchor="middle" font-weight="700">Recovery Speed</text>
+    <!-- CCV -->
+    <rect x="1000" y="322" width="120" height="6" rx="3" fill="#f1f5f9"/>
+    <rect x="1000" y="322" width="120" height="6" rx="3" fill="#8b5cf6"/>
+    <text x="1130" y="330" fill="#8b5cf6" font-size="8" text-anchor="start">CCV 122vB</text>
+    <!-- CTV -->
+    <rect x="1000" y="342" width="120" height="6" rx="3" fill="#f1f5f9"/>
+    <rect x="1000" y="342" width="90" height="6" rx="3" fill="#3b82f6"/>
+    <text x="1100" y="350" fill="#3b82f6" font-size="8" text-anchor="start">CTV ~cold</text>
+    <!-- OP_VAULT -->
+    <rect x="1000" y="362" width="120" height="6" rx="3" fill="#f1f5f9"/>
+    <rect x="1000" y="362" width="60" height="6" rx="3" fill="#06b6d4"/>
+    <text x="1070" y="370" fill="#06b6d4" font-size="8" text-anchor="start">OP_V 246vB</text>
+    <text x="1080" y="395" fill="#64748b" font-size="8" text-anchor="middle">CCV fastest (keyless)</text>
+    <text x="1080" y="408" fill="#64748b" font-size="8" text-anchor="middle">OP_VAULT slowest (auth needed)</text>
+    <text x="1080" y="421" fill="#ef4444" font-size="8" text-anchor="middle" font-weight="600">CTV: only one that can escalate to theft</text>
+  </g>
+
+</svg>

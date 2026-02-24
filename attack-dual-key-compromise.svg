@@ -1,0 +1,422 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1200 800" width="1200" height="800"
+     font-family="system-ui, -apple-system, sans-serif">
+  <title>Dual-Key Compromise — DoS Not Theft</title>
+  <desc>Animated diagram showing how OP_VAULT's worst case — trigger key plus recoveryauth key compromised — results in a denial-of-service loop but NOT fund theft, because recovery always goes to the pre-committed immutable address.</desc>
+
+  <defs>
+    <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1" fill="#c9cdd3" opacity="0.45"/>
+    </pattern>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#9ca3b0" flood-opacity="0.18"/>
+    </filter>
+    <filter id="activeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="18" flood-color="#ffffff" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#e0e7ff" flood-opacity="0.4"/>
+    </filter>
+    <filter id="blueGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#3b82f6" flood-opacity="0.3"/>
+    </filter>
+    <filter id="greenGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#22c55e" flood-opacity="0.3"/>
+    </filter>
+    <filter id="redGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="#ef4444" flood-opacity="0.35"/>
+    </filter>
+    <filter id="amberGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#f59e0b" flood-opacity="0.3"/>
+    </filter>
+    <filter id="purpleGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#8b5cf6" flood-opacity="0.3"/>
+    </filter>
+
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="amberGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="#f3f4f6"/>
+  <rect width="1200" height="800" fill="url(#dots)"/>
+
+  <!-- ============================================================
+       DUAL-KEY COMPROMISE DoS (TM6) — OP_VAULT SPECIFIC
+
+       Layout (linear with loop-back):
+         x=90:   Vault UTXO (blue)
+         x=350:  Trigger Output (amber) — attacker-initiated
+         x=620:  Watchtower vs Attacker race zone
+         x=890:  Recovery Address (green) — funds SAFE
+         Loop:   Curved path from recovery back to vault (arching over top)
+
+       Key story: trigger + recoveryauth compromised = DoS only.
+       Recovery ALWAYS goes to immutable pre-committed address.
+
+       Timing (18s cycle):
+         0.00–0.06  Vault activates
+         0.06–0.16  Attacker triggers with stolen trigger key (red particles)
+         0.16–0.22  Trigger output activates
+         0.22–0.30  Watchtower detects, prepares recovery (green starts)
+         0.28–0.36  Attacker front-runs with recoveryauth (fast red overtakes)
+         0.36–0.44  Recovery address receives funds (green glow — SAFE!)
+         0.44–0.54  "DoS Not Theft" callout pulses
+         0.54–0.66  Loop arrow glows — attacker can repeat
+         0.66–0.76  Comparison callout: CTV dual-key = THEFT
+         0.76–0.86  Defense banner
+         0.86–1.00  Hold + reset
+       ============================================================ -->
+
+  <!-- ============ TITLE ============ -->
+  <text x="600" y="45" fill="#1e293b" font-size="20" text-anchor="middle" font-weight="700">Dual-Key Compromise — DoS Not Theft</text>
+  <text x="600" y="68" fill="#64748b" font-size="12" text-anchor="middle">TM6: Even with trigger + recoveryauth keys stolen, OP_VAULT funds cycle to safety</text>
+  <rect x="520" y="80" width="160" height="26" rx="13" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="600" y="98" fill="#92400e" font-size="11" text-anchor="middle" font-weight="700">HIGH — LIVENESS DoS</text>
+
+  <!-- ============ ATTACKER KEY BADGES (top, always visible) ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+             keyTimes="0;0.06;0.10;0.66;0.76;1" dur="18s" repeatCount="indefinite"/>
+    <!-- trigger key -->
+    <rect x="200" y="130" width="140" height="30" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="1.2"/>
+    <text x="204" y="150" fill="#ef4444" font-size="10" font-weight="600">🔑 trigger key</text>
+    <text x="335" y="150" fill="#dc2626" font-size="9" font-weight="700">STOLEN</text>
+    <!-- recoveryauth key -->
+    <rect x="370" y="130" width="170" height="30" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="1.2"/>
+    <text x="374" y="150" fill="#ef4444" font-size="10" font-weight="600">🔑 recoveryauth key</text>
+    <text x="533" y="150" fill="#dc2626" font-size="9" font-weight="700">STOLEN</text>
+    <!-- recovery address -->
+    <rect x="570" y="130" width="200" height="30" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.2"/>
+    <text x="574" y="150" fill="#22c55e" font-size="10" font-weight="600">📍 recovery address</text>
+    <text x="764" y="150" fill="#16a34a" font-size="9" font-weight="700">IMMUTABLE</text>
+  </g>
+
+  <!-- ============ STATIC CONNECTIONS ============ -->
+  <!-- Vault → Trigger Output -->
+  <line x1="186" y1="330" x2="330" y2="330" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Trigger Output → Race zone (fork) -->
+  <line x1="446" y1="330" x2="550" y2="330" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Race zone → upper: watchtower recovery (green, gets overtaken) -->
+  <path d="M550,330 Q590,270 640,270 L780,270" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <!-- Race zone → lower: attacker recovery (red, faster) -->
+  <path d="M550,330 Q590,390 640,390 L780,390" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <!-- Both converge → Recovery Address -->
+  <path d="M780,270 Q830,270 870,300" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <path d="M780,390 Q830,390 870,360" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <!-- Recovery Address → Loop back (arching over top) -->
+  <path d="M986,282 Q1040,250 1060,200 Q1080,130 1000,110 Q800,80 600,80 Q300,80 160,180 Q130,210 138,282"
+        stroke="#d1d5db" stroke-width="1.2" stroke-dasharray="4,4" stroke-linecap="round" fill="none"/>
+
+  <!-- ============ DASHED OVERLAYS ============ -->
+  <!-- Vault → Trigger Output (red — attacker initiates) -->
+  <line x1="186" y1="330" x2="330" y2="330"
+        stroke="#ef4444" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.06;0.08;0.16;0.18;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.35s" repeatCount="indefinite"/>
+  </line>
+  <!-- Trigger Output → fork point -->
+  <line x1="446" y1="330" x2="550" y2="330"
+        stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.20;0.22;0.30;0.32;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
+  </line>
+  <!-- Upper: watchtower recovery attempt (green, slower) -->
+  <path d="M550,330 Q590,270 640,270 L780,270"
+        stroke="#22c55e" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.5;0.5;0;0;0"
+             keyTimes="0;0.22;0.24;0.34;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.7s" repeatCount="indefinite"/>
+  </path>
+  <!-- Lower: attacker recovery (red, faster, overtakes) -->
+  <path d="M550,330 Q590,390 640,390 L780,390"
+        stroke="#ef4444" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.28;0.30;0.38;0.40;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.25s" repeatCount="indefinite"/>
+  </path>
+  <!-- Attacker path → Recovery Address -->
+  <path d="M780,390 Q830,390 870,360"
+        stroke="#ef4444" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.34;0.36;0.42;0.44;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </path>
+  <!-- Loop path (amber) -->
+  <path d="M986,282 Q1040,250 1060,200 Q1080,130 1000,110 Q800,80 600,80 Q300,80 160,180 Q130,210 138,282"
+        stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,5" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.4;0.4;0;0"
+             keyTimes="0;0.54;0.58;0.72;0.76;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-11" dur="1.2s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- ============ RACE ZONE LABELS ============ -->
+  <!-- Watchtower label (upper path) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
+             keyTimes="0;0.22;0.26;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    <text x="710" y="258" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600">watchtower recovery</text>
+  </g>
+  <!-- Attacker label (lower path) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
+             keyTimes="0;0.28;0.32;0.40;0.42;1" dur="18s" repeatCount="indefinite"/>
+    <text x="710" y="410" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="700">attacker front-runs!</text>
+  </g>
+  <!-- "overtakes" indicator -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0;0.8;0;0"
+             keyTimes="0;0.32;0.33;0.34;0.35;0.36;1" dur="18s" repeatCount="indefinite"/>
+    <text x="660" y="340" fill="#ef4444" font-size="14" text-anchor="middle" font-weight="700">⚡</text>
+  </g>
+
+  <!-- ============ PARTICLES ============ -->
+  <!-- Vault → Trigger Output (red, attacker-initiated) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.08;0.16;0.18;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#ef4444">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="186" to="330" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="330;330" dur="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#fca5a5">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
+      <animate attributeName="cx" from="186" to="330" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
+      <animate attributeName="cy" values="330;330" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
+    </circle>
+  </g>
+  <!-- Trigger Output → fork (amber) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.20;0.22;0.30;0.32;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3" fill="#f59e0b">
+      <animate attributeName="opacity" values="0.1;0.7;0.7;0.1" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="446" to="550" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="330;330" dur="0.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <!-- Upper: watchtower recovery (green, slower) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.22;0.24;0.34;0.36;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="1.0s" repeatCount="indefinite"/>
+      <animateMotion path="M0,0 Q40,-60 90,-60 L230,-60" dur="1.0s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="1.5" fill="#86efac">
+      <animate attributeName="opacity" values="0.1;0.4;0.4;0.1" dur="1.0s" repeatCount="indefinite" begin="0.5s"/>
+      <animateMotion path="M0,0 Q40,-60 90,-60 L230,-60" dur="1.0s" repeatCount="indefinite" begin="0.5s"/>
+    </circle>
+  </g>
+  <!-- Lower: attacker recovery (red, very fast) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.28;0.30;0.40;0.42;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="4" fill="#ef4444">
+      <animate attributeName="opacity" values="0.1;0.9;0.9;0.1" dur="0.4s" repeatCount="indefinite"/>
+      <animateMotion path="M0,0 Q40,60 90,60 L230,60" dur="0.4s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2.5" fill="#fca5a5">
+      <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
+      <animateMotion path="M0,0 Q40,60 90,60 L230,60" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
+    </circle>
+    <circle r="1.5" fill="#fca5a5">
+      <animate attributeName="opacity" values="0.1;0.4;0.4;0.1" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
+      <animateMotion path="M0,0 Q40,60 90,60 L230,60" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
+    </circle>
+  </g>
+  <!-- Attacker → Recovery Address (red) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.34;0.36;0.42;0.44;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#ef4444">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.35s" repeatCount="indefinite"/>
+      <animateMotion path="M0,0 Q50,0 90,-30" dur="0.35s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- ============ CARDS ============ -->
+
+  <!-- Card 1: Vault UTXO (blue) -->
+  <g aria-label="Vault UTXO">
+    <g transform="translate(90, 282)">
+      <rect width="96" height="96" rx="22" fill="url(#blueGrad)" filter="url(#blueGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <rect x="-16" y="-6" width="32" height="22" rx="3"/>
+        <path d="M-8,-6 L-8,-14 a8,8 0 0,1 16,0 L8,-6"/>
+        <circle cx="0" cy="5" r="2.5" fill="white"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
+                 keyTimes="0;0.03;0.05;0.16;0.18;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
+                 keyTimes="0;0.03;0.05;0.16;0.18;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <rect x="-16" y="-6" width="32" height="22" rx="3"/>
+        <path d="M-8,-6 L-8,-14 a8,8 0 0,1 16,0 L8,-6"/>
+        <circle cx="0" cy="5" r="2.5" fill="#374151"/>
+      </g>
+    </g>
+    <text x="138" y="395" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Vault UTXO</text>
+  </g>
+
+  <!-- Card 2: Trigger Output (amber) — attacker-initiated -->
+  <g aria-label="Trigger Output">
+    <g transform="translate(350, 282)">
+      <rect width="96" height="96" rx="22" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <!-- trigger/lightning icon -->
+        <path d="M4,-18 L-8,2 L2,2 L-4,18 L8,-2 L-2,-2 Z"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.14;0.16;0.44;0.46;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.14;0.16;0.44;0.46;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M4,-18 L-8,2 L2,2 L-4,18 L8,-2 L-2,-2 Z"/>
+      </g>
+      <!-- Breathing ring while active -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="#f59e0b" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.16;0.18;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.4s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="398" y="395" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Trigger Output</text>
+    <text x="398" y="408" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="500">attacker-initiated</text>
+  </g>
+
+  <!-- Card 3: Recovery Address (green, large — the SAFE destination) -->
+  <g aria-label="Recovery Address">
+    <g transform="translate(890, 282)">
+      <rect width="108" height="108" rx="26" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <!-- Shield icon -->
+      <g transform="translate(54, 54)" stroke="white" stroke-width="2.4" stroke-linecap="round" fill="none">
+        <path d="M0,-22 L20,-12 L20,6 C20,18 0,28 0,28 C0,28 -20,18 -20,6 L-20,-12 Z"/>
+        <!-- Checkmark inside shield -->
+        <path d="M-8,2 L-2,8 L8,-4" stroke-width="2.8"/>
+      </g>
+      <rect width="108" height="108" rx="26" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.38;0.40;0.54;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(54, 54)" stroke="#374151" stroke-width="2.4" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.38;0.40;0.54;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M0,-22 L20,-12 L20,6 C20,18 0,28 0,28 C0,28 -20,18 -20,6 L-20,-12 Z"/>
+        <path d="M-8,2 L-2,8 L8,-4" stroke-width="2.8"/>
+      </g>
+      <!-- Sonar ripple on fund arrival -->
+      <rect x="54" y="54" width="0" height="0" rx="0" fill="none" stroke="#22c55e" stroke-width="2" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0;0" keyTimes="0;0.40;0.42;0.48;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="54;54;-15;-15;54" keyTimes="0;0.40;0.48;0.50;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="54;54;-15;-15;54" keyTimes="0;0.40;0.48;0.50;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;138;138;0" keyTimes="0;0.40;0.48;0.50;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;138;138;0" keyTimes="0;0.40;0.48;0.50;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;42;42;0" keyTimes="0;0.40;0.48;0.50;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Second sonar ring (delayed) -->
+      <rect x="54" y="54" width="0" height="0" rx="0" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0;0" keyTimes="0;0.43;0.45;0.51;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="54;54;-25;-25;54" keyTimes="0;0.43;0.51;0.53;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="54;54;-25;-25;54" keyTimes="0;0.43;0.51;0.53;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;158;158;0" keyTimes="0;0.43;0.51;0.53;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;158;158;0" keyTimes="0;0.43;0.51;0.53;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;48;48;0" keyTimes="0;0.43;0.51;0.53;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Breathing ring -->
+      <rect x="-5" y="-5" width="118" height="118" rx="31" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.40;0.44;0.66;0.70;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="118;126;118" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="118;126;118" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="944" y="408" fill="#22c55e" font-size="12" text-anchor="middle" font-weight="700">Recovery Address</text>
+    <text x="944" y="422" fill="#16a34a" font-size="9" text-anchor="middle" font-weight="600">pre-committed · immutable</text>
+  </g>
+
+  <!-- ============ "DoS NOT THEFT" CALLOUT ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0"
+             keyTimes="0;0.44;0.48;0.64;0.68;1" dur="18s" repeatCount="indefinite"/>
+    <rect x="380" y="470" width="280" height="70" rx="14" fill="white" stroke="#22c55e" stroke-width="2" filter="url(#cardShadow)"/>
+    <text x="520" y="494" fill="#16a34a" font-size="15" text-anchor="middle" font-weight="800">DoS — NOT THEFT</text>
+    <text x="520" y="514" fill="#374151" font-size="10" text-anchor="middle">Recovery address is baked into the script.</text>
+    <text x="520" y="528" fill="#374151" font-size="10" text-anchor="middle">Attacker cannot redirect funds elsewhere.</text>
+    <!-- Green pulse border -->
+    <rect x="380" y="470" width="280" height="70" rx="14" fill="none" stroke="#22c55e" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0.6;0;0.5;0;0"
+               keyTimes="0;0.20;0.40;0.60;0.80;1" dur="2s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- ============ LOOP INDICATOR ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
+             keyTimes="0;0.54;0.58;0.72;0.76;1" dur="18s" repeatCount="indefinite"/>
+    <text x="600" y="94" fill="#f59e0b" font-size="28" text-anchor="middle" font-weight="700">↻</text>
+    <text x="640" y="94" fill="#f59e0b" font-size="10" text-anchor="start" font-weight="600">attacker can repeat — funds cycle back</text>
+  </g>
+
+  <!-- ============ WATCHTOWER DEFEATED INDICATOR ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+             keyTimes="0;0.32;0.36;0.44;0.46;1" dur="18s" repeatCount="indefinite"/>
+    <!-- Red X on watchtower path -->
+    <g transform="translate(780, 258)">
+      <line x1="-8" y1="-8" x2="8" y2="8" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+      <line x1="8" y1="-8" x2="-8" y2="8" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <text x="810" y="254" fill="#ef4444" font-size="8" text-anchor="start" font-weight="600">too slow</text>
+  </g>
+
+  <!-- ============ COMPARISON CALLOUT ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+             keyTimes="0;0.60;0.64;0.76;0.80;1" dur="18s" repeatCount="indefinite"/>
+    <rect x="110" y="560" width="490" height="80" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="355" y="582" fill="#1e293b" font-size="11" text-anchor="middle" font-weight="700">Dual-Key Outcome Comparison</text>
+    <!-- CTV row -->
+    <rect x="130" y="590" width="40" height="20" rx="6" fill="#fee2e2" stroke="#ef4444" stroke-width="1"/>
+    <text x="150" y="604" fill="#dc2626" font-size="9" text-anchor="middle" font-weight="700">CTV</text>
+    <text x="180" y="604" fill="#ef4444" font-size="10" text-anchor="start" font-weight="600">hot + fee keys → FUND THEFT (attacker blocks cold sweep AND steals)</text>
+    <!-- OP_VAULT row -->
+    <rect x="130" y="616" width="74" height="20" rx="6" fill="#f0fdf4" stroke="#22c55e" stroke-width="1"/>
+    <text x="167" y="630" fill="#16a34a" font-size="9" text-anchor="middle" font-weight="700">OP_VAULT</text>
+    <text x="214" y="630" fill="#22c55e" font-size="10" text-anchor="start" font-weight="600">trigger + auth keys → DoS ONLY (recovery address immutable)</text>
+  </g>
+
+  <!-- ============ DEFENSE BANNER ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+             keyTimes="0;0.70;0.74;0.84;0.88;1" dur="18s" repeatCount="indefinite"/>
+    <rect x="120" y="710" width="960" height="55" rx="14" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <!-- CTV -->
+    <rect x="150" y="720" width="60" height="28" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1"/>
+    <text x="180" y="739" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">CTV</text>
+    <text x="220" y="739" fill="#64748b" font-size="10" text-anchor="start">Dual-key (hot+fee) = fund theft — no immutable recovery</text>
+    <!-- CCV -->
+    <rect x="600" y="720" width="60" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1"/>
+    <text x="630" y="739" fill="#5b21b6" font-size="10" text-anchor="middle" font-weight="700">CCV</text>
+    <text x="670" y="739" fill="#64748b" font-size="10" text-anchor="start">Only 1 key to steal — simpler model but keyless recovery</text>
+    <text x="600" y="757" fill="#9ca3af" font-size="9" text-anchor="middle">TM6 is unique to OP_VAULT's dual-key (trigger + recoveryauth) architecture</text>
+  </g>
+
+</svg>

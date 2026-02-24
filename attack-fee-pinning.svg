@@ -1,0 +1,489 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1200 800" width="1200" height="800"
+     font-family="system-ui, -apple-system, sans-serif">
+  <title>Fee Pinning Attack — CPFP Anchor Descendant Chain</title>
+  <desc>Animated diagram showing how an attacker with CTV's fee key builds a 25-transaction descendant chain from the CPFP anchor output, blocking the watchtower's cold sweep and allowing hot key withdrawal after CSV expiry.</desc>
+
+  <defs>
+    <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1" fill="#c9cdd3" opacity="0.45"/>
+    </pattern>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#9ca3b0" flood-opacity="0.18"/>
+    </filter>
+    <filter id="activeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="18" flood-color="#ffffff" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#e0e7ff" flood-opacity="0.4"/>
+    </filter>
+    <filter id="blueGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#3b82f6" flood-opacity="0.3"/>
+    </filter>
+    <filter id="greenGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#22c55e" flood-opacity="0.3"/>
+    </filter>
+    <filter id="redGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="#ef4444" flood-opacity="0.35"/>
+    </filter>
+    <filter id="amberGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#f59e0b" flood-opacity="0.3"/>
+    </filter>
+    <filter id="purpleGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#8b5cf6" flood-opacity="0.3"/>
+    </filter>
+    <filter id="slateGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#64748b" flood-opacity="0.3"/>
+    </filter>
+
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="amberGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="slateGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#64748b"/><stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="#f3f4f6"/>
+  <rect width="1200" height="800" fill="url(#dots)"/>
+
+  <!-- ============================================================
+       FEE PINNING ATTACK (TM1) — CTV SPECIFIC
+
+       Layout:
+                                  ┌─ upper: [Unvault UTXO] ─── CSV wait ─── [Hot Withdrawal] ✓ attacker wins
+         [Vault] ── CTV ── [Tx] ─┤
+                                  └─ lower: [CPFP Anchor] ── [chain₁..₂₅] ── descendant chain
+                                       ↑
+                               [Cold Sweep] ── BLOCKED ✗
+
+       Cards (7):
+         1. Vault UTXO (blue) x=50
+         2. Unvault Tx (purple) x=240
+         3. Unvault UTXO (amber) x=460, y=180 (upper)
+         4. CPFP Anchor (slate) x=460, y=420 (lower)
+         5. Descendant Chain (red) x=700, y=420
+         6. Cold Sweep (green→red) x=580, y=560
+         7. Hot Withdrawal (red glow) x=830, y=180
+
+       Timing (18s cycle):
+         0.00–0.06  Vault activates
+         0.06–0.14  CTV fires → Unvault Tx activates, splits to 2 outputs
+         0.14–0.22  Both outputs materialize: Unvault UTXO + CPFP Anchor
+         0.22–0.36  Attacker builds descendant chain from anchor (red particles, counter)
+         0.36–0.44  Watchtower tries cold sweep → BLOCKED (red warning flash)
+         0.44–0.56  CSV timelock expires (clock sweep on upper path)
+         0.56–0.68  Attacker completes hot withdrawal (red glow → theft)
+         0.68–0.78  Cost callout
+         0.78–0.86  Defense banner
+         0.86–1.00  Hold + reset
+       ============================================================ -->
+
+  <!-- ============ TITLE ============ -->
+  <text x="600" y="45" fill="#1e293b" font-size="20" text-anchor="middle" font-weight="700">Fee Pinning Attack — CPFP Anchor Descendant Chain</text>
+  <text x="600" y="68" fill="#64748b" font-size="12" text-anchor="middle">TM1: Attacker uses fee key to build 25-tx chain, blocking cold sweep while CSV expires</text>
+  <rect x="515" y="80" width="170" height="26" rx="13" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="600" y="98" fill="#991b1b" font-size="11" text-anchor="middle" font-weight="700">CRITICAL — FUND THEFT</text>
+
+  <!-- ============ STATIC CONNECTIONS ============ -->
+  <!-- Vault → Unvault Tx -->
+  <line x1="146" y1="330" x2="220" y2="330" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Unvault Tx → upper: Unvault UTXO -->
+  <path d="M336,310 Q400,230 440,230" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  <!-- Unvault Tx → lower: CPFP Anchor -->
+  <path d="M336,350 Q400,460 440,460" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  <!-- Unvault UTXO → Hot Withdrawal -->
+  <line x1="556" y1="230" x2="810" y2="230" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- CPFP Anchor → Descendant Chain -->
+  <line x1="556" y1="460" x2="680" y2="460" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Cold Sweep approach (from below, aimed at Unvault UTXO) -->
+  <path d="M610,580 Q480,500 480,310 Q480,265 500,240" stroke="#d1d5db" stroke-width="1.5" stroke-dasharray="4,4" stroke-linecap="round" fill="none"/>
+
+  <!-- ============ DASHED OVERLAYS ============ -->
+  <!-- Vault → Unvault Tx (blue) -->
+  <line x1="146" y1="330" x2="220" y2="330"
+        stroke="#3b82f6" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.06;0.08;0.14;0.16;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
+  </line>
+  <!-- Unvault Tx → Unvault UTXO (purple, upper) -->
+  <path d="M336,310 Q400,230 440,230"
+        stroke="#8b5cf6" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.12;0.14;0.22;0.24;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
+  </path>
+  <!-- Unvault Tx → CPFP Anchor (slate, lower) -->
+  <path d="M336,350 Q400,460 440,460"
+        stroke="#64748b" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.12;0.14;0.22;0.24;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
+  </path>
+  <!-- CPFP Anchor → Descendant Chain (red) -->
+  <line x1="556" y1="460" x2="680" y2="460"
+        stroke="#ef4444" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.22;0.24;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.2s" repeatCount="indefinite"/>
+  </line>
+  <!-- Unvault UTXO → Hot Withdrawal (red, after CSV) -->
+  <line x1="556" y1="230" x2="810" y2="230"
+        stroke="#ef4444" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.56;0.58;0.66;0.68;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- ============ PARTICLES ============ -->
+  <!-- Vault → Unvault Tx (blue) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.08;0.14;0.16;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#3b82f6">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="146" to="220" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="330;330" dur="0.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <!-- Unvault Tx → upper (purple) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.12;0.14;0.22;0.24;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3" fill="#8b5cf6">
+      <animate attributeName="opacity" values="0.1;0.7;0.7;0.1" dur="0.6s" repeatCount="indefinite"/>
+      <animateMotion path="M0,0 Q64,-80 104,-80" dur="0.6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <!-- Unvault Tx → lower (slate) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.12;0.14;0.22;0.24;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3" fill="#64748b">
+      <animate attributeName="opacity" values="0.1;0.7;0.7;0.1" dur="0.6s" repeatCount="indefinite"/>
+      <animateMotion path="M0,0 Q64,110 104,130" dur="0.6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <!-- CPFP Anchor → Descendant chain (red, fast, aggressive) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.22;0.24;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="4" fill="#ef4444">
+      <animate attributeName="opacity" values="0.1;0.9;0.9;0.1" dur="0.3s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="556" to="680" dur="0.3s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="460;460" dur="0.3s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2.5" fill="#fca5a5">
+      <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="0.3s" repeatCount="indefinite" begin="0.15s"/>
+      <animate attributeName="cx" from="556" to="680" dur="0.3s" repeatCount="indefinite" begin="0.15s"/>
+      <animate attributeName="cy" values="460;460" dur="0.3s" repeatCount="indefinite" begin="0.15s"/>
+    </circle>
+    <circle r="1.5" fill="#fca5a5">
+      <animate attributeName="opacity" values="0.1;0.4;0.4;0.1" dur="0.3s" repeatCount="indefinite" begin="0.08s"/>
+      <animate attributeName="cx" from="556" to="680" dur="0.3s" repeatCount="indefinite" begin="0.08s"/>
+      <animate attributeName="cy" values="460;460" dur="0.3s" repeatCount="indefinite" begin="0.08s"/>
+    </circle>
+  </g>
+  <!-- Hot withdrawal (red, final theft) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.56;0.58;0.66;0.68;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="4" fill="#ef4444">
+      <animate attributeName="opacity" values="0.1;0.9;0.9;0.1" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="556" to="810" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="230;230" dur="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#fca5a5">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
+      <animate attributeName="cx" from="556" to="810" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
+      <animate attributeName="cy" values="230;230" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
+    </circle>
+  </g>
+
+  <!-- ============ CARDS ============ -->
+
+  <!-- Card 1: Vault UTXO (blue) -->
+  <g aria-label="Vault UTXO">
+    <g transform="translate(50, 282)">
+      <rect width="96" height="96" rx="22" fill="url(#blueGrad)" filter="url(#blueGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <rect x="-16" y="-6" width="32" height="22" rx="3"/>
+        <path d="M-8,-6 L-8,-14 a8,8 0 0,1 16,0 L8,-6"/>
+        <circle cx="0" cy="5" r="2.5" fill="white"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
+                 keyTimes="0;0.03;0.05;0.14;0.16;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
+                 keyTimes="0;0.03;0.05;0.14;0.16;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <rect x="-16" y="-6" width="32" height="22" rx="3"/>
+        <path d="M-8,-6 L-8,-14 a8,8 0 0,1 16,0 L8,-6"/>
+        <circle cx="0" cy="5" r="2.5" fill="#374151"/>
+      </g>
+    </g>
+    <text x="98" y="395" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Vault UTXO</text>
+  </g>
+
+  <!-- Card 2: Unvault Tx (purple) -->
+  <g aria-label="Unvault Transaction">
+    <g transform="translate(240, 282)">
+      <rect width="96" height="96" rx="22" fill="url(#purpleGrad)" filter="url(#purpleGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <!-- CTV committed tx icon -->
+        <rect x="-14" y="-16" width="28" height="32" rx="3"/>
+        <line x1="-6" y1="-6" x2="6" y2="-6"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="-6" y1="6" x2="2" y2="6"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.10;0.12;0.22;0.24;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.10;0.12;0.22;0.24;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <rect x="-14" y="-16" width="28" height="32" rx="3"/>
+        <line x1="-6" y1="-6" x2="6" y2="-6"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="-6" y1="6" x2="2" y2="6"/>
+      </g>
+    </g>
+    <text x="288" y="395" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Unvault Tx</text>
+    <text x="288" y="408" fill="#8b5cf6" font-size="9" text-anchor="middle" font-weight="500">CTV-committed</text>
+  </g>
+
+  <!-- Card 3: Unvault UTXO (amber, upper path) -->
+  <g aria-label="Unvault UTXO">
+    <g transform="translate(460, 182)">
+      <rect width="96" height="96" rx="22" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <rect x="-14" y="-8" width="28" height="20" rx="3"/>
+        <path d="M-6,-8 L-6,-14 a6,6 0 0,1 12,0 L6,-4"/>
+        <circle cx="0" cy="3" r="2" fill="white"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.18;0.20;0.56;0.58;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.18;0.20;0.56;0.58;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <rect x="-14" y="-8" width="28" height="20" rx="3"/>
+        <path d="M-6,-8 L-6,-14 a6,6 0 0,1 12,0 L6,-4"/>
+        <circle cx="0" cy="3" r="2" fill="#374151"/>
+      </g>
+      <!-- Breathing ring -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="#f59e0b" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.20;0.22;0.56;0.58;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.4s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="508" y="295" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Unvault UTXO</text>
+    <text x="508" y="308" fill="#f59e0b" font-size="9" text-anchor="middle" font-weight="500">P2WSH IF/ELSE</text>
+  </g>
+
+  <!-- Card 4: CPFP Anchor (slate, lower path — the vulnerability) -->
+  <g aria-label="CPFP Anchor">
+    <g transform="translate(460, 412)">
+      <rect width="96" height="96" rx="22" fill="url(#slateGrad)" filter="url(#slateGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <!-- Anchor icon -->
+        <circle cx="0" cy="-12" r="4"/>
+        <line x1="0" y1="-8" x2="0" y2="12"/>
+        <path d="M-12,6 Q-12,16 0,16 Q12,16 12,6"/>
+        <line x1="-8" y1="0" x2="8" y2="0"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.18;0.20;0.44;0.46;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.18;0.20;0.44;0.46;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <circle cx="0" cy="-12" r="4"/>
+        <line x1="0" y1="-8" x2="0" y2="12"/>
+        <path d="M-12,6 Q-12,16 0,16 Q12,16 12,6"/>
+        <line x1="-8" y1="0" x2="8" y2="0"/>
+      </g>
+    </g>
+    <text x="508" y="525" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">CPFP Anchor</text>
+    <text x="508" y="538" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="600">550 sats — THE VULNERABILITY</text>
+  </g>
+
+  <!-- Card 5: Descendant Chain (red, attacker-built) -->
+  <g aria-label="Descendant Chain">
+    <g transform="translate(700, 412)">
+      <rect width="108" height="96" rx="22" fill="url(#redGrad)" filter="url(#redGlow)"/>
+      <!-- Chain icon (stacked blocks) -->
+      <g transform="translate(54, 48)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <rect x="-20" y="-14" width="14" height="10" rx="2"/>
+        <rect x="-6" y="-14" width="14" height="10" rx="2"/>
+        <rect x="-20" y="0" width="14" height="10" rx="2"/>
+        <rect x="-6" y="0" width="14" height="10" rx="2"/>
+        <text x="18" y="4" fill="white" font-size="16" font-weight="700" stroke="none">×25</text>
+      </g>
+      <rect width="108" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.26;0.28;0.44;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(54, 48)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.26;0.28;0.44;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <rect x="-20" y="-14" width="14" height="10" rx="2"/>
+        <rect x="-6" y="-14" width="14" height="10" rx="2"/>
+        <rect x="-20" y="0" width="14" height="10" rx="2"/>
+        <rect x="-6" y="0" width="14" height="10" rx="2"/>
+        <text x="18" y="4" fill="#374151" font-size="16" font-weight="700" stroke="none">×25</text>
+      </g>
+      <!-- Breathing ring (red, aggressive) -->
+      <rect x="-5" y="-5" width="118" height="106" rx="27" fill="none" stroke="#ef4444" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.28;0.30;0.44;0.46;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="118;126;118" dur="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="0.8s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="754" y="525" fill="#ef4444" font-size="11" text-anchor="middle" font-weight="700">Descendant Chain</text>
+    <text x="754" y="538" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="500">25 txs · ~19,150 sats</text>
+  </g>
+
+  <!-- Card 6: Cold Sweep (green, gets BLOCKED) -->
+  <g aria-label="Cold Sweep Blocked">
+    <g transform="translate(560, 560)">
+      <rect width="96" height="96" rx="22" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <!-- Shield icon -->
+        <path d="M0,-18 L16,-10 L16,4 C16,14 0,22 0,22 C0,22 -16,14 -16,4 L-16,-10 Z"/>
+        <path d="M-6,0 L-2,4 L6,-4" stroke-width="2.5"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.34;0.36;0.44;0.46;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.34;0.36;0.44;0.46;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M0,-18 L16,-10 L16,4 C16,14 0,22 0,22 C0,22 -16,14 -16,4 L-16,-10 Z"/>
+        <path d="M-6,0 L-2,4 L6,-4" stroke-width="2.5"/>
+      </g>
+      <!-- Red X overlay when blocked -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+                 keyTimes="0;0.40;0.42;0.72;0.82;1" dur="18s" repeatCount="indefinite"/>
+        <line x1="20" y1="20" x2="76" y2="76" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+        <line x1="76" y1="20" x2="20" y2="76" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+      </g>
+      <!-- Red warning flash -->
+      <rect width="96" height="96" rx="22" fill="none" stroke="#ef4444" stroke-width="2.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.8;0;0.7;0;0"
+                 keyTimes="0;0.38;0.39;0.40;0.41;0.42;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="608" y="673" fill="#ef4444" font-size="11" text-anchor="middle" font-weight="700">Cold Sweep</text>
+    <text x="608" y="686" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="600">BLOCKED — BIP125 limit</text>
+  </g>
+
+  <!-- Card 7: Hot Withdrawal (red glow — attacker succeeds) -->
+  <g aria-label="Hot Withdrawal — Theft">
+    <g transform="translate(830, 182)">
+      <rect width="108" height="96" rx="22" fill="url(#redGrad)" filter="url(#redGlow)"/>
+      <!-- Theft icon (broken lock + arrow out) -->
+      <g transform="translate(54, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <rect x="-16" y="-4" width="32" height="22" rx="3"/>
+        <path d="M-8,-4 L-8,-12 a8,8 0 0,1 16,0 L8,-4" stroke-dasharray="4,3"/>
+        <path d="M0,6 L0,12"/>
+        <circle cx="0" cy="4" r="2" fill="white"/>
+      </g>
+      <rect width="108" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.58;0.60;0.68;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(54, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.58;0.60;0.68;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <rect x="-16" y="-4" width="32" height="22" rx="3"/>
+        <path d="M-8,-4 L-8,-12 a8,8 0 0,1 16,0 L8,-4" stroke-dasharray="4,3"/>
+        <path d="M0,6 L0,12"/>
+        <circle cx="0" cy="4" r="2" fill="#374151"/>
+      </g>
+      <!-- Red breathing ring on theft -->
+      <rect x="-5" y="-5" width="118" height="106" rx="27" fill="none" stroke="#ef4444" stroke-width="2" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0.6;0;0"
+                 keyTimes="0;0.60;0.62;0.72;0.76;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-10;-5" dur="0.7s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-10;-5" dur="0.7s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="118;128;118" dur="0.7s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;116;106" dur="0.7s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="884" y="295" fill="#ef4444" font-size="12" text-anchor="middle" font-weight="700">THEFT</text>
+    <text x="884" y="308" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="500">hot key withdrawal</text>
+  </g>
+
+  <!-- ============ CLOCK on upper path (CSV waiting) ============ -->
+  <g opacity="0" transform="translate(680, 210)">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.36;0.40;0.56;0.58;1" dur="18s" repeatCount="indefinite"/>
+    <circle cx="0" cy="0" r="18" fill="white" stroke="#f59e0b" stroke-width="1.5"/>
+    <line x1="0" y1="0" x2="0" y2="-13" stroke="#f59e0b" stroke-width="2" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="2.5s" repeatCount="indefinite"/>
+    </line>
+    <circle cx="0" cy="0" r="2" fill="#f59e0b"/>
+  </g>
+  <text x="680" y="244" fill="#f59e0b" font-size="8" text-anchor="middle" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.36;0.40;0.56;0.58;1" dur="18s" repeatCount="indefinite"/>
+    CSV expiring...
+  </text>
+
+  <!-- ============ CHAIN COUNTER (during build phase) ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+             keyTimes="0;0.24;0.28;0.38;0.42;1" dur="18s" repeatCount="indefinite"/>
+    <rect x="630" y="380" width="50" height="22" rx="6" fill="#fef2f2" stroke="#ef4444" stroke-width="1"/>
+    <text x="655" y="396" fill="#ef4444" font-size="10" text-anchor="middle" font-weight="700">
+      <animate attributeName="textContent" values="1;5;10;15;20;25" dur="3s" repeatCount="indefinite" fill="freeze"/>
+      building...
+    </text>
+  </g>
+
+  <!-- ============ COST CALLOUT ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+             keyTimes="0;0.62;0.66;0.78;0.82;1" dur="18s" repeatCount="indefinite"/>
+    <rect x="860" y="420" width="280" height="80" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="1000" y="442" fill="#1e293b" font-size="11" text-anchor="middle" font-weight="700">Attack Economics</text>
+    <text x="1000" y="460" fill="#ef4444" font-size="10" text-anchor="middle">Attacker: ~19,150 sats (25 × 766 sats)</text>
+    <text x="1000" y="478" fill="#ef4444" font-size="10" text-anchor="middle">Potential theft: entire vault balance</text>
+    <text x="1000" y="492" fill="#64748b" font-size="9" text-anchor="middle">BIP125 descendant limit = 25 txs / 101 kvB</text>
+  </g>
+
+  <!-- ============ DEFENSE BANNER ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+             keyTimes="0;0.72;0.76;0.86;0.90;1" dur="18s" repeatCount="indefinite"/>
+    <rect x="120" y="720" width="960" height="55" rx="14" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <!-- CCV -->
+    <rect x="150" y="730" width="60" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1"/>
+    <text x="180" y="749" fill="#5b21b6" font-size="10" text-anchor="middle" font-weight="700">CCV</text>
+    <text x="220" y="749" fill="#64748b" font-size="10" text-anchor="start">No CPFP anchors — fees paid via separate mechanism</text>
+    <!-- OP_VAULT -->
+    <rect x="600" y="730" width="90" height="28" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1"/>
+    <text x="645" y="749" fill="#16a34a" font-size="10" text-anchor="middle" font-weight="700">OP_VAULT</text>
+    <text x="700" y="749" fill="#64748b" font-size="10" text-anchor="start">Separate fee wallet — no shared anchor output</text>
+    <text x="600" y="767" fill="#9ca3af" font-size="9" text-anchor="middle">TM1 is unique to CTV's CPFP anchor design (OP_1 output with fee key)</text>
+  </g>
+
+</svg>

@@ -1,0 +1,380 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1200 800" width="1200" height="800"
+     font-family="system-ui, -apple-system, sans-serif">
+  <title>The Timelock Race</title>
+  <desc>Animated diagram showing the fundamental security asymmetry of vault timelocks: the attacker must wait the full delay period while the watchtower can trigger recovery at any point, always winning the race.</desc>
+
+  <defs>
+    <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1" fill="#c9cdd3" opacity="0.45"/>
+    </pattern>
+
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#9ca3b0" flood-opacity="0.18"/>
+    </filter>
+    <filter id="activeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="18" flood-color="#ffffff" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#e0e7ff" flood-opacity="0.4"/>
+    </filter>
+    <filter id="amberGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#f59e0b" flood-opacity="0.3"/>
+    </filter>
+    <filter id="cyanGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#06b6d4" flood-opacity="0.3"/>
+    </filter>
+    <filter id="greenGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#22c55e" flood-opacity="0.3"/>
+    </filter>
+    <filter id="redGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#ef4444" flood-opacity="0.3"/>
+    </filter>
+
+    <linearGradient id="amberGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+
+    <!-- Clip for progress bar fill -->
+    <clipPath id="barClip">
+      <rect x="260" y="222" width="780" height="32" rx="16"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#f3f4f6"/>
+  <rect width="1200" height="800" fill="url(#dots)"/>
+
+  <!-- ============================================================
+       THE TIMELOCK RACE
+
+       Attacker MUST wait full delay on upper track.
+       Defender (watchtower) can fire recovery at ANY point on lower track.
+       Recovery always wins.
+
+       Layout:
+         Left (x=70):   Unvaulting UTXO — the race starts here
+         Upper (y=238):  Attacker path with progress bar → Withdraw (blocked)
+         Lower (y=544):  Defender path → Watchtower → Recovery (succeeds)
+         Right (x=1060): Two outcomes
+
+       Timing (16s cycle):
+         0.00–0.08  Unvaulting card activates
+         0.08–0.14  Fork paths light up
+         0.14–0.50  Attacker progresses slowly, clock ticks
+         0.30–0.38  Watchtower detects
+         0.38–0.50  Recovery fires fast
+         0.50–0.62  Recovery confirmed, attacker cancelled
+         0.62–0.80  Hold final state
+         0.80–0.90  Reset
+         0.90–1.00  Dead time
+       ============================================================ -->
+
+  <!-- ============ STATIC CONNECTIONS ============ -->
+
+  <!-- Fork: Unvault → upper track -->
+  <path d="M166,374 Q220,310 260,238" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  <!-- Fork: Unvault → lower track -->
+  <path d="M166,374 Q220,440 260,544" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+
+  <!-- Upper track line (behind progress bar, visible at ends) -->
+  <line x1="260" y1="238" x2="1060" y2="238" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Lower track line -->
+  <line x1="260" y1="544" x2="1060" y2="544" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- ============ UPPER TRACK: TIMELOCK PROGRESS BAR ============ -->
+
+  <!-- Bar background -->
+  <rect x="260" y="222" width="780" height="32" rx="16" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1.2" filter="url(#cardShadow)"/>
+
+  <!-- Block notches (5 marks dividing 6 sections) -->
+  <line x1="390" y1="226" x2="390" y2="250" stroke="#d1d5db" stroke-width="1" opacity="0.5"/>
+  <line x1="520" y1="226" x2="520" y2="250" stroke="#d1d5db" stroke-width="1" opacity="0.5"/>
+  <line x1="650" y1="226" x2="650" y2="250" stroke="#d1d5db" stroke-width="1" opacity="0.5"/>
+  <line x1="780" y1="226" x2="780" y2="250" stroke="#d1d5db" stroke-width="1" opacity="0.5"/>
+  <line x1="910" y1="226" x2="910" y2="250" stroke="#d1d5db" stroke-width="1" opacity="0.5"/>
+
+  <!-- Amber progress fill (grows 0→490px ≈ 63% of 780, then stops) -->
+  <rect x="260" y="222" height="32" rx="16" fill="#f59e0b" opacity="0" clip-path="url(#barClip)">
+    <animate attributeName="width" values="0;0;0;490;490;490;490;0;0"
+             keyTimes="0;0.12;0.14;0.50;0.52;0.78;0.82;0.86;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0.55;0.55;0.55;0;0"
+             keyTimes="0;0.12;0.16;0.48;0.50;0.78;0.82;0.86;1" dur="16s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- Red cancellation overlay (replaces amber after recovery) -->
+  <rect x="260" y="222" width="490" height="32" rx="16" fill="#ef4444" opacity="0" clip-path="url(#barClip)">
+    <animate attributeName="opacity" values="0;0;0.45;0.45;0.45;0;0"
+             keyTimes="0;0.52;0.56;0.76;0.78;0.84;1" dur="16s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- ============ DETECTION SIGNAL (vertical cyan dashes) ============ -->
+  <line x1="540" y1="260" x2="540" y2="528" stroke="#06b6d4" stroke-width="1.8" stroke-dasharray="6,4" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.45;0.45;0.45;0;0"
+             keyTimes="0;0.30;0.34;0.48;0.50;0.56;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="10" dur="0.4s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- ============ ANIMATED DASHED OVERLAYS ============ -->
+
+  <!-- Fork to upper track (amber) -->
+  <path d="M166,374 Q220,310 260,238" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.08;0.10;0.12;0.14;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.35s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- Fork to lower track (cyan) -->
+  <path d="M166,374 Q220,440 260,544" stroke="#06b6d4" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.08;0.10;0.12;0.14;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="14" dur="0.35s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- Upper track dashes (attacker, SLOW marching ants dur=0.8s) -->
+  <line x1="260" y1="238" x2="750" y2="238" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.5;0.5;0;0" keyTimes="0;0.14;0.18;0.48;0.50;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.8s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Lower track dashes (recovery, FAST marching ants dur=0.25s) -->
+  <line x1="468" y1="544" x2="1060" y2="544" stroke="#22c55e" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.38;0.40;0.50;0.52;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.25s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Red blocked dashes (upper track, beyond attacker's progress) -->
+  <line x1="750" y1="238" x2="1060" y2="238" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,8" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.35;0.35;0.35;0;0"
+             keyTimes="0;0.52;0.56;0.76;0.78;0.84;1" dur="16s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- ============ CLOCK ICON (floating above progress bar) ============ -->
+  <g transform="translate(650, 180)" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.85;0.85;0.5;0;0"
+             keyTimes="0;0.16;0.20;0.48;0.52;0.58;1" dur="16s" repeatCount="indefinite"/>
+    <circle cx="0" cy="0" r="18" fill="white" stroke="#d1d5db" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <circle cx="0" cy="0" r="1.5" fill="#6b7280"/>
+    <!-- Minute hand (sweeps during timelock) -->
+    <line x1="0" y1="0" x2="0" y2="-12" stroke="#6b7280" stroke-width="2" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate"
+          values="0;0;0;360;360;0;0"
+          keyTimes="0;0.14;0.16;0.50;0.52;0.88;1"
+          dur="16s" repeatCount="indefinite"/>
+    </line>
+    <!-- Hour hand -->
+    <line x1="0" y1="0" x2="5" y2="-7" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- ============ RED X (blocks attacker path) ============ -->
+  <g transform="translate(850, 238)" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0.9;0;0"
+             keyTimes="0;0.52;0.56;0.76;0.78;0.84;1" dur="16s" repeatCount="indefinite"/>
+    <line x1="-14" y1="-14" x2="14" y2="14" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="14" y1="-14" x2="-14" y2="14" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- ============ PARTICLES ============ -->
+
+  <!-- Attacker particles — upper track — SLOW (1.6s) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.14;0.18;0.48;0.50;1" dur="16s" repeatCount="indefinite"/>
+    <circle r="4" fill="#f59e0b">
+      <animate attributeName="opacity" values="0.2;0.9;0.9;0.2" dur="1.6s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="260" to="750" dur="1.6s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="238" to="238" dur="1.6s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2.5" fill="#fde68a">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
+      <animate attributeName="cx" from="260" to="750" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
+      <animate attributeName="cy" from="238" to="238" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
+    </circle>
+  </g>
+
+  <!-- Recovery particles — lower track — FAST (0.4s) — triple stream -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.38;0.40;0.50;0.52;1" dur="16s" repeatCount="indefinite"/>
+    <circle r="4.5" fill="#22c55e">
+      <animate attributeName="opacity" values="0.2;0.95;0.95;0.2" dur="0.4s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="468" to="1060" dur="0.4s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="544" to="544" dur="0.4s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="3" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="0.4s" repeatCount="indefinite" begin="0.13s"/>
+      <animate attributeName="cx" from="468" to="1060" dur="0.4s" repeatCount="indefinite" begin="0.13s"/>
+      <animate attributeName="cy" from="544" to="544" dur="0.4s" repeatCount="indefinite" begin="0.13s"/>
+    </circle>
+    <circle r="2" fill="#86efac">
+      <animate attributeName="opacity" values="0.1;0.4;0.4;0.1" dur="0.4s" repeatCount="indefinite" begin="0.26s"/>
+      <animate attributeName="cx" from="468" to="1060" dur="0.4s" repeatCount="indefinite" begin="0.26s"/>
+      <animate attributeName="cy" from="544" to="544" dur="0.4s" repeatCount="indefinite" begin="0.26s"/>
+    </circle>
+  </g>
+
+  <!-- Detection particle — drops from upper track to watchtower -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.30;0.32;0.36;0.38;1" dur="16s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#06b6d4">
+      <animate attributeName="opacity" values="0.2;0.9;0.9;0.2" dur="0.3s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="540" to="540" dur="0.3s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="260" to="528" dur="0.3s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#67e8f9">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.3s" repeatCount="indefinite" begin="0.15s"/>
+      <animate attributeName="cx" from="540" to="540" dur="0.3s" repeatCount="indefinite" begin="0.15s"/>
+      <animate attributeName="cy" from="260" to="528" dur="0.3s" repeatCount="indefinite" begin="0.15s"/>
+    </circle>
+  </g>
+
+  <!-- ============ CARDS ============ -->
+
+  <!-- CARD 1: Unvaulting UTXO (left) -->
+  <g aria-label="Unvaulting UTXO">
+    <g transform="translate(70, 326)">
+      <rect width="96" height="96" rx="22" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <rect x="-10" y="-2" width="20" height="16" rx="3"/>
+        <path d="M-5,-2 L-5,-8 C-5,-14 5,-14 5,-8 L5,-5"/>
+        <circle cx="0" cy="7" r="2.5" fill="white" stroke="none"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.02;0.06;0.78;0.84;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.02;0.06;0.78;0.84;1" dur="16s" repeatCount="indefinite"/>
+        <rect x="-10" y="-2" width="20" height="16" rx="3"/>
+        <path d="M-5,-2 L-5,-8 C-5,-14 5,-14 5,-8 L5,-5"/>
+        <circle cx="0" cy="7" r="2.5" fill="#374151" stroke="none"/>
+      </g>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.04;0.06;0.08;0.10;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0.4;0;0" keyTimes="0;0.06;0.08;0.76;0.78;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="118" y="438" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Unvaulting</text>
+  </g>
+
+  <!-- CARD 2: Watchtower (lower center) -->
+  <g aria-label="Watchtower">
+    <g transform="translate(380, 500)">
+      <rect width="88" height="88" rx="20" fill="url(#cyanGrad)" filter="url(#cyanGlow)"/>
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <path d="M-16,0 C-8,-12 8,-12 16,0 C8,12 -8,12 -16,0Z"/>
+        <circle cx="0" cy="0" r="5" fill="white" stroke="none"/>
+        <circle cx="0" cy="0" r="2.5" fill="#0891b2" stroke="none"/>
+      </g>
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.30;0.34;0.54;0.58;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.30;0.34;0.54;0.58;1" dur="16s" repeatCount="indefinite"/>
+        <path d="M-16,0 C-8,-12 8,-12 16,0 C8,12 -8,12 -16,0Z"/>
+        <circle cx="0" cy="0" r="5" fill="#374151" stroke="none"/>
+        <circle cx="0" cy="0" r="2" fill="white" stroke="none"/>
+      </g>
+      <rect x="-5" y="-5" width="98" height="98" rx="25" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.32;0.34;0.36;0.38;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-5" y="-5" width="98" height="98" rx="25" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0.4;0;0" keyTimes="0;0.34;0.36;0.52;0.54;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="98;106;98" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="98;106;98" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="424" y="604" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Watchtower</text>
+  </g>
+
+  <!-- CARD 3: Withdraw (upper right — stays gray, gets cancelled) -->
+  <g aria-label="Withdrawal blocked">
+    <g transform="translate(1060, 190)">
+      <rect width="96" height="96" rx="22" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <rect x="-12" y="-8" width="24" height="16" rx="3"/>
+        <line x1="0" y1="-2" x2="0" y2="-14"/>
+        <polyline points="-5,-9 0,-14 5,-9"/>
+      </g>
+      <!-- White overlay — never fully reveals (only dims slightly) -->
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0.8;0.8;1;1" keyTimes="0;0.40;0.44;0.50;0.54;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <rect x="-12" y="-8" width="24" height="16" rx="3"/>
+        <line x1="0" y1="-2" x2="0" y2="-14"/>
+        <polyline points="-5,-9 0,-14 5,-9"/>
+      </g>
+      <!-- Red warning border (flashes twice when cancelled) -->
+      <rect x="-3" y="-3" width="102" height="102" rx="25" fill="none" stroke="#ef4444" stroke-width="2.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.8;0;0.7;0;0"
+                 keyTimes="0;0.53;0.55;0.57;0.59;0.61;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="1108" y="302" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Withdraw</text>
+  </g>
+
+  <!-- CARD 4: Recovery (lower right — activates green) -->
+  <g aria-label="Recovery succeeds">
+    <g transform="translate(1060, 496)">
+      <rect width="96" height="96" rx="22" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M0,-14 L12,-6 L12,4 C12,10 0,16 0,16 C0,16 -12,10 -12,4 L-12,-6Z"/>
+        <polyline points="-5,1 -1,5 7,-3" stroke-width="2.5"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.48;0.52;0.76;0.80;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.48;0.52;0.76;0.80;1" dur="16s" repeatCount="indefinite"/>
+        <path d="M0,-14 L12,-6 L12,4 C12,10 0,16 0,16 C0,16 -12,10 -12,4 L-12,-6Z"/>
+        <polyline points="-5,1 -1,5 7,-3" stroke-width="2.5"/>
+      </g>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.50;0.52;0.54;0.56;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Sonar ripple 1 -->
+      <rect x="48" y="48" width="0" height="0" rx="0" fill="none" stroke="#22c55e" stroke-width="2" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0;0" keyTimes="0;0.52;0.54;0.62;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="48;48;-20;-20;48" keyTimes="0;0.52;0.62;0.64;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="48;48;-20;-20;48" keyTimes="0;0.52;0.62;0.64;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;136;136;0" keyTimes="0;0.52;0.62;0.64;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;136;136;0" keyTimes="0;0.52;0.62;0.64;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;40;40;0" keyTimes="0;0.52;0.62;0.64;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Sonar ripple 2 -->
+      <rect x="48" y="48" width="0" height="0" rx="0" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0;0" keyTimes="0;0.54;0.56;0.64;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="48;48;-30;-30;48" keyTimes="0;0.54;0.64;0.66;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="48;48;-30;-30;48" keyTimes="0;0.54;0.64;0.66;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;156;156;0" keyTimes="0;0.54;0.64;0.66;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;156;156;0" keyTimes="0;0.54;0.64;0.66;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;45;45;0" keyTimes="0;0.54;0.64;0.66;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Breathing ring -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0.4;0;0" keyTimes="0;0.52;0.54;0.74;0.76;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="1108" y="608" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Recovery</text>
+  </g>
+
+  <!-- ============ LANE LABELS ============ -->
+  <text x="270" y="208" fill="#6b7280" font-size="12" font-weight="600">Constrained path</text>
+  <text x="270" y="636" fill="#6b7280" font-size="12" font-weight="600">Reactive path</text>
+
+  <!-- "n blocks" label near progress bar -->
+  <text x="1030" y="264" fill="#9ca3af" font-size="9" text-anchor="end" font-weight="500">n blocks</text>
+
+</svg>

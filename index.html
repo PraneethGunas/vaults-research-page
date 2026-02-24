@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitcoin Vault Covenants — A Visual Comparison</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #f3f4f6;
+    --dot: #c9cdd3;
+    --text: #1f2937;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --ctv: #ef4444;
+    --ccv: #3b82f6;
+    --opvault: #f59e0b;
+    --card-bg: rgba(255,255,255,0.72);
+    --card-border: rgba(0,0,0,0.06);
+    --section-gap: 100px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* ── Nav ─────────────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    background: rgba(243,244,246,0.78);
+    border-bottom: 1px solid var(--card-border);
+  }
+  nav .inner {
+    max-width: 1120px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+  }
+  nav .logo { font-weight: 700; font-size: 15px; letter-spacing: -0.3px; }
+  nav .links { display: flex; gap: 28px; }
+  nav .links a {
+    font-size: 13px; font-weight: 500; color: var(--text-secondary);
+    text-decoration: none; transition: color 0.2s;
+  }
+  nav .links a:hover { color: var(--text); }
+
+  /* ── Layout ──────────────────────────────────────────── */
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  section { padding-top: var(--section-gap); }
+
+  /* ── Hero ─────────────────────────────────────────────── */
+  .hero {
+    padding-top: 160px; padding-bottom: 60px; text-align: center;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 5vw, 56px); font-weight: 700;
+    letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 20px;
+  }
+  .hero h1 .gradient {
+    background: linear-gradient(135deg, var(--ctv), var(--ccv), var(--opvault));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    font-size: 18px; color: var(--text-secondary); max-width: 620px;
+    margin: 0 auto 36px; line-height: 1.7; font-weight: 400;
+  }
+  .hero .pill-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 100px; font-size: 13px; font-weight: 600;
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    backdrop-filter: blur(8px);
+  }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── Cards ────────────────────────────────────────────── */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px; padding: 36px;
+    backdrop-filter: blur(12px);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+  }
+
+  /* ── Section headers ─────────────────────────────────── */
+  .section-label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 10px;
+  }
+  .section-title {
+    font-size: clamp(28px, 3.5vw, 40px); font-weight: 700;
+    letter-spacing: -1px; margin-bottom: 16px; line-height: 1.15;
+  }
+  .section-subtitle {
+    font-size: 17px; color: var(--text-secondary); max-width: 600px;
+    line-height: 1.7; margin-bottom: 48px;
+  }
+
+  /* ── SVG display ─────────────────────────────────────── */
+  .svg-display {
+    border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--card-border);
+  }
+  .svg-display img {
+    width: 100%; height: auto; display: block;
+  }
+
+  .svg-caption {
+    font-size: 13px; color: var(--text-muted); text-align: center;
+    padding: 12px 0;
+  }
+
+  .svg-description {
+    font-size: 14px; color: var(--text-secondary); line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .svg-block { margin-bottom: 48px; }
+
+  /* ── Restart button ─────────────────────────────────── */
+  .svg-wrap { position: relative; }
+  .restart-btn {
+    position: absolute; top: 12px; right: 12px; z-index: 10;
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(255,255,255,0.85); border: 1px solid var(--card-border);
+    backdrop-filter: blur(8px); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .restart-btn:hover { background: rgba(255,255,255,1); transform: scale(1.08); }
+  .restart-btn svg { width: 16px; height: 16px; fill: none; stroke: var(--text-secondary); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ── SVG pair (side by side) ─────────────────────────── */
+  .svg-pair {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  @media (max-width: 768px) { .svg-pair { grid-template-columns: 1fr; } }
+
+  /* ── Vault cards grid ────────────────────────────────── */
+  .vault-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    margin-bottom: 48px;
+  }
+  @media (max-width: 768px) { .vault-grid { grid-template-columns: 1fr; } }
+
+  .vault-card { padding: 28px; border-radius: 16px; }
+  .vault-card .tag {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 12px; opacity: 0.85;
+  }
+  .vault-card h3 {
+    font-size: 20px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px;
+  }
+  .vault-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+  .vault-card .stat-row {
+    display: flex; gap: 20px; margin-top: 16px; padding-top: 16px;
+    border-top: 1px solid var(--card-border);
+  }
+  .vault-card .stat { text-align: center; flex: 1; }
+  .vault-card .stat .num { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .vault-card .stat .label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── Severity tags ───────────────────────────────────── */
+  .tm-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 3px 8px; border-radius: 6px;
+    display: inline-block;
+  }
+  .tm-tag.critical { background: #fef2f2; color: #dc2626; }
+  .tm-tag.severe { background: #fff7ed; color: #ea580c; }
+  .tm-tag.high { background: #fefce8; color: #ca8a04; }
+
+  /* ── Data table ──────────────────────────────────────── */
+  .data-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .data-table th {
+    text-align: left; padding: 10px 16px; font-weight: 600;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text-muted); border-bottom: 2px solid var(--card-border);
+  }
+  .data-table td {
+    padding: 10px 16px; border-bottom: 1px solid var(--card-border);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+
+  /* ── Bar chart ───────────────────────────────────────── */
+  .bar-chart { margin: 24px 0; }
+  .bar-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+  }
+  .bar-row .bar-label {
+    font-size: 13px; font-weight: 600; width: 80px; text-align: right;
+  }
+  .bar-row .bar-track {
+    flex: 1; height: 28px; background: rgba(0,0,0,0.04); border-radius: 8px;
+    overflow: hidden;
+  }
+  .bar-row .bar-fill {
+    height: 100%; border-radius: 8px; display: flex; align-items: center;
+    padding-left: 12px; font-size: 12px; font-weight: 600; color: white;
+  }
+  .bar-row .bar-value {
+    font-size: 12px; font-weight: 600; width: 60px; color: var(--text-muted);
+  }
+
+  /* ── Use case cards ──────────────────────────────────── */
+  .usecase-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 768px) { .usecase-grid { grid-template-columns: 1fr; } }
+
+  .usecase-card { padding: 24px; }
+  .usecase-card .persona {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px;
+  }
+  .usecase-card h4 {
+    font-size: 16px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.2px;
+  }
+  .usecase-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+  .usecase-card .rec {
+    margin-top: 12px; padding: 8px 12px; border-radius: 8px;
+    font-size: 12px; font-weight: 600;
+  }
+
+  /* ── Findings grid ───────────────────────────────────── */
+  .findings-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+    margin-bottom: 48px;
+  }
+  @media (max-width: 768px) { .findings-grid { grid-template-columns: 1fr; } }
+  .finding-card { padding: 28px; }
+  .finding-card .number {
+    font-size: 48px; font-weight: 700; opacity: 0.1; line-height: 1; margin-bottom: -12px;
+  }
+  .finding-card h4 {
+    font-size: 16px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.2px;
+  }
+  .finding-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
+
+  /* ── Footer ──────────────────────────────────────────── */
+  footer {
+    margin-top: var(--section-gap); padding: 48px 0;
+    text-align: center;
+  }
+  footer p { font-size: 13px; color: var(--text-muted); }
+  footer a { color: var(--text-secondary); text-decoration: none; }
+  footer a:hover { color: var(--text); }
+
+  /* ── Utilities ───────────────────────────────────────── */
+  .mt-48 { margin-top: 48px; }
+  .mb-48 { margin-bottom: 48px; }
+  .muted { color: var(--text-secondary); }
+  .small { font-size: 14px; }
+
+  @media (max-width: 640px) {
+    .container { padding: 0 16px; }
+    nav .links { gap: 16px; }
+    nav .links a { font-size: 12px; }
+    :root { --section-gap: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ NAV ═══════════════════════ -->
+<nav>
+  <div class="inner">
+    <div class="logo">Vault Covenants <span style="font-weight:400;color:var(--text-muted);font-size:13px">by Praneeth Gunasekaran</span></div>
+    <div class="links">
+      <a href="#vaults">Vaults</a>
+      <a href="#attacks">Threat Models</a>
+      <a href="#findings">Findings</a>
+      <a href="#realworld">Use Cases</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
+<div class="hero">
+  <h1><span class="gradient">Bitcoin Vault</span><br>Research</h1>
+  <p>
+    CTV, CCV, and OP_VAULT are three proposed Bitcoin covenant designs for self-custody vaults.
+    We ran them head-to-head on regtest, measured everything, and found out which one breaks first —
+    and when.
+  </p>
+  <div class="pill-row">
+    <a href="https://bips.dev/119/" target="_blank" class="pill" style="text-decoration:none;color:inherit"><div class="dot" style="background:var(--ctv)"></div>CTV (BIP 119)</a>
+    <a href="https://bips.dev/443/" target="_blank" class="pill" style="text-decoration:none;color:inherit"><div class="dot" style="background:var(--ccv)"></div>CCV (BIP 443)</a>
+    <a href="https://bips.dev/345/" target="_blank" class="pill" style="text-decoration:none;color:inherit"><div class="dot" style="background:var(--opvault)"></div>OP_VAULT (BIP 345)</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════ OVERVIEW ═══════════════════════ -->
+<section>
+  <div class="vault-grid">
+    <div class="card vault-card">
+      <div class="tag" style="color:var(--ctv)">CTV · BIP 119</div>
+      <h3>The Deterministic One</h3>
+      <p>Pre-commits the entire transaction tree at vault creation. No partial withdrawals, no batching. Simple and rigid.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="num" style="color:var(--ctv)">426</div><div class="label">vB lifecycle</div></div>
+        <div class="stat"><div class="num" style="color:var(--ctv)">2</div><div class="label">keys</div></div>
+        <div class="stat"><div class="num" style="color:var(--ctv)">0</div><div class="label">revaults</div></div>
+      </div>
+    </div>
+    <div class="card vault-card">
+      <div class="tag" style="color:var(--ccv)">CCV · BIP 443</div>
+      <h3>The Flexible One</h3>
+      <p>Contract verification for state transitions. Partial withdrawals, batched triggers, keyless recovery. Capable but exposed.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="num" style="color:var(--ccv)">418</div><div class="label">vB lifecycle</div></div>
+        <div class="stat"><div class="num" style="color:var(--ccv)">1</div><div class="label">key</div></div>
+        <div class="stat"><div class="num" style="color:var(--ccv)">∞</div><div class="label">revaults</div></div>
+      </div>
+    </div>
+    <div class="card vault-card">
+      <div class="tag" style="color:var(--opvault)">OP_VAULT · BIP 345</div>
+      <h3>The Purpose-Built One</h3>
+      <p>Dedicated opcode pair for vaults. Authorized recovery blocks griefing, but three keys means three things that can break.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="num" style="color:var(--opvault)">567</div><div class="label">vB lifecycle</div></div>
+        <div class="stat"><div class="num" style="color:var(--opvault)">3</div><div class="label">keys</div></div>
+        <div class="stat"><div class="num" style="color:var(--opvault)">∞</div><div class="label">revaults</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ VAULT LIFECYCLES ═══════════════════════ -->
+<section id="vaults">
+  <div class="section-label">How They Work</div>
+  <div class="section-title">Vault Lifecycles</div>
+
+  <div class="svg-block">
+    <div class="svg-description">
+      The CTV vault lifecycle is entirely deterministic. When you create the vault, you commit to every possible future transaction upfront by hashing a template that locks in the outputs, amounts, and destinations. Funds enter through a deposit to a P2WSH address whose script contains a CTV hash. To withdraw, you broadcast the pre-signed unvault transaction that moves funds into a timelocked intermediate state. During the timelock window, a watchtower can broadcast the pre-signed cold sweep to recover funds if the withdrawal looks unauthorized. If no one intervenes, the hot wallet withdrawal completes after the delay. There is no partial withdrawal — the entire vault balance moves as a single unit every time. This rigidity is what makes CTV auditable: you can regenerate the full transaction tree from the initial parameters and verify that no unauthorized paths exist. The total lifecycle costs 426 vB across three transactions (deposit 154 vB, trigger 164 vB, withdraw 108 vB). CTV uses two keys — a hot key for spending and a cold key for recovery — making it the simplest key management model of the three designs.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="ctv-vault-animation.svg" alt="CTV vault lifecycle" loading="lazy"></div>
+    </div>
+  </div>
+
+  <div class="svg-block">
+    <div class="svg-description">
+      Under the hood, CTV vaults use bare CTV scripts wrapped in P2WSH — no Taproot involved. The core opcode OP_CHECKTEMPLATEVERIFY takes a 32-byte hash on the stack and verifies that the spending transaction matches the committed template exactly: same outputs, same amounts, same sequence numbers. The vault script encodes two spending paths. The first is the unvault path, which requires the CTV hash to match and the hot key signature. The second is the cold sweep path, which requires only the cold key signature with no template check, allowing emergency recovery to any destination. The unvault output itself contains another CTV-locked script with its own two paths: a timelocked hot withdrawal (requiring CSV delay plus hot key) and a cold sweep. This creates a hash-chain of pre-committed transactions where every state transition is fully specified at vault creation time. The P2WSH approach means witness scripts are revealed only at spend time, but the entire tree structure is knowable from the root hash. No script path is hidden — there is no Taproot key-path shortcut, no internal key optimization, just bare script verification against committed templates.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="ctv-mechanism.svg" alt="CTV mechanism" loading="lazy"></div>
+    </div>
+  </div>
+
+  <div class="svg-block">
+    <div class="svg-description">
+      CCV vaults store state inside Taproot output tweaks, which lets them do something CTV cannot: partial withdrawals. When you deposit into a CCV vault, your funds land in a P2TR output whose internal key is a NUMS point (nothing-up-my-sleeve, meaning no one can spend via the key path). The spending rules live entirely in Taproot script leaves. To trigger a withdrawal, you provide a signature from the trigger key and the CCV opcode verifies that the spending transaction creates valid successor outputs — a timelocked withdrawal output and optionally a change output that returns remaining funds to a new vault with the same contract rules. This change-back mechanism is the revault: you can withdraw 0.5 BTC from a 10 BTC vault and the other 9.5 BTC stays vaulted under identical protections. Recovery is keyless — anyone who knows the vault address can broadcast the recovery transaction, which sends all funds to the pre-committed recovery address. The total lifecycle costs 418 vB (deposit 154 vB, trigger 154 vB, withdraw 110 vB), making it the cheapest of the three. CCV uses only one key for the trigger, with recovery requiring no key at all.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="ccv-vault-animation.svg" alt="CCV vault lifecycle" loading="lazy"></div>
+    </div>
+  </div>
+
+  <div class="svg-block">
+    <div class="svg-description">
+      CCV's internal machinery relies on OP_CHECKCONTRACTVERIFY to enforce state transitions across transactions. Each vault output is a P2TR address with a NUMS internal key (specifically the generator point negated so no discrete log is known). The contract rules live in Taproot leaf scripts. When a trigger transaction spends the vault, CCV checks that the outputs conform to the contract: the withdrawal amount goes to a timelocked script, and any change goes back to a new vault output with the same Taptree structure. The mode flags in CCV control what gets verified — mode 0 checks the output's scriptPubKey matches a committed template, mode 1 verifies amounts, mode 2 checks both. These mode bytes are critical because any value outside [0, 1, 2] causes the interpreter to execute OP_SUCCESS, which makes the script trivially spendable by anyone. The minivault variant uses CCV alone without CTV, while the full vault combines both opcodes. State is carried forward through Taproot tweaks: the contract's Taptree is reattached to each successor output, ensuring the same spending rules apply to change outputs across an unlimited number of revault cycles.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="ccv-mechanism.svg" alt="CCV mechanism" loading="lazy"></div>
+    </div>
+  </div>
+
+  <div class="svg-block">
+    <div class="svg-description">
+      OP_VAULT uses a dedicated opcode pair — OP_VAULT and OP_VAULT_RECOVER — purpose-built for vault contracts, unlike CTV and CCV which are general-purpose covenant opcodes adapted for vault use. The lifecycle begins with a deposit to a P2TR address whose internal key is the recovery pubkey. The trigger key holder starts a withdrawal by broadcasting a trigger transaction that invokes OP_VAULT, which enforces a timelock delay and commits to a specific withdrawal destination. During the delay, a watchtower can broadcast an authorized recovery transaction using OP_VAULT_RECOVER, which requires the recoveryauth key signature. If no recovery happens, the withdrawal completes after the timelock expires. OP_VAULT's distinctive feature is authorized recovery: unlike CCV where anyone can trigger recovery, here only the recoveryauth key holder can do it. This prevents griefing attacks where random observers force funds back to cold storage. The cost is a three-key model — trigger, recoveryauth, and recovery address — which is the most complex key management of the three designs. The lifecycle costs 567 vB (deposit 154 vB, trigger 292 vB, withdraw 121 vB), roughly 36% more than CCV, largely due to the 2-input fee wallet pattern that adds 80–90 vB to trigger and recovery transactions.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="opvault-animation.svg" alt="OP_VAULT lifecycle" loading="lazy"></div>
+    </div>
+  </div>
+
+  <div class="svg-block">
+    <div class="svg-description">
+      OP_VAULT's internal structure uses P2TR with the recovery pubkey as the Taproot internal key. This is a deliberate design choice: if all three keys are available and cooperating, a key-path spend (using the recovery pubkey) can bypass the script entirely. The Taptree contains leaf scripts for OP_VAULT (trigger path) and OP_VAULT_RECOVER (recovery path). When OP_VAULT executes, it verifies that the spending transaction creates an output with a specific structure — a timelocked script committing to the declared withdrawal destination. The opcode enforces the delay parameter and output matching in consensus, meaning a miner cannot forge a valid trigger. OP_VAULT_RECOVER checks the recoveryauth signature and ensures funds move to the committed recovery address. The recovery address is baked into the vault at creation and is immutable — even with both the trigger key and recoveryauth key compromised, an attacker cannot redirect recovery funds. This is why dual-key compromise (TM6) results in denial-of-service rather than theft: the attacker can trigger and then recover in a loop, but funds always land at the legitimate recovery address. The fee wallet pattern uses a separate UTXO to pay transaction fees, avoiding the need to deduct fees from the vault amount, but adding an extra input to every transaction.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="opvault-mechanism.svg" alt="OP_VAULT mechanism" loading="lazy"></div>
+    </div>
+  </div>
+
+  <div class="svg-block">
+    <div class="svg-description">
+      The timelock race is the fundamental security mechanism shared by all three vault designs. When an unauthorized party triggers a withdrawal — whether through key theft, malware, or coercion — a clock starts. The withdrawal is timelocked: it cannot complete until a specified number of blocks have been mined. During this window, a watchtower (software monitoring the blockchain for vault-related transactions) detects the unauthorized trigger and broadcasts a recovery transaction to sweep funds back to cold storage. The attacker's only option is to try to prevent the recovery transaction from confirming before the timelock expires. In CTV, the attacker can attempt fee pinning — chaining descendant transactions off the unvault output to block CPFP fee bumping, exploiting the 25-transaction descendant limit. In CCV and OP_VAULT, the attacker can attempt watchtower exhaustion — splitting the vault into many small UTXOs and triggering them all, forcing the watchtower to pay recovery fees for each one. The race outcome depends on the fee environment: at low fees, pinning is cheap and CTV is most vulnerable; at high fees, recovery is expensive and CCV/OP_VAULT watchtowers can be bled dry. This fee-dependent inversion means no single vault design wins the race under all conditions.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="timelock-race.svg" alt="Timelock race" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ ATTACKS ═══════════════════════ -->
+<section id="attacks">
+  <div class="section-label">Threat Models</div>
+  <div class="section-title">Where the Vulnerabilities Are</div>
+
+  <!-- TM1 -->
+  <div class="svg-block">
+    <div style="margin-bottom:12px"><span class="tm-tag critical">CRITICAL</span> <strong style="margin-left:6px">Fee Pinning (TM1)</strong></div>
+    <div class="svg-description">
+      Fee pinning exploits CTV's transaction structure to block emergency recovery. When the unvault transaction broadcasts, its output can be spent by anyone who knows the pre-committed template — because CTV scripts are public once revealed. An attacker chains 25 low-fee descendant transactions off the unvault output, hitting Bitcoin Core's descendant limit (MAX_DESCENDANT_COUNT). The cold sweep transaction, which needs to spend that same output via CPFP, is rejected by mempools because the descendant chain is full. The watchtower cannot bump fees, cannot replace the junk transactions (they don't signal RBF), and cannot get the recovery transaction into any block. When the timelock expires, the attacker's hot withdrawal confirms and the funds are gone. This attack costs almost nothing — the 25 junk transactions can pay minimum relay fees. It is unique to CTV because its P2WSH structure exposes the unvault output to third-party spending, and the pre-committed transaction template cannot include anchor outputs or other fee-management mechanisms added after vault creation. CCV and OP_VAULT are immune because their Taproot structures don't expose intermediate outputs to third-party descendant chaining.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="attack-fee-pinning.svg" alt="Fee pinning attack" loading="lazy"></div>
+    </div>
+  </div>
+
+  <!-- TM8 -->
+  <div class="svg-block">
+    <div style="margin-bottom:12px"><span class="tm-tag critical">CRITICAL</span> <strong style="margin-left:6px">CCV Mode Bypass (TM8)</strong></div>
+    <div class="svg-description">
+      CCV mode bypass is the highest-severity developer footgun we found. The CCV opcode accepts a mode byte that controls verification behavior: mode 0 checks scriptPubKey, mode 1 checks amount, mode 2 checks both. Any mode value outside this set — 3, 4, 255, anything — triggers OP_SUCCESS, a consensus rule designed for future soft-fork extensibility. OP_SUCCESS makes the entire script evaluate to true unconditionally: no signature needed, no covenant check, no constraints at all. We built a structurally complete vault contract with one leaf script accidentally using mode=3 and drained it with a 110 vB transaction containing no signature. The funds moved to an arbitrary destination with zero authentication. This is not a bug in the CCV specification — it is the intended behavior for forward compatibility. But it means a single byte error in vault construction creates a script that looks correct, passes every static analysis check, deploys successfully, accepts deposits normally, and then allows anyone who notices the mode flag to steal everything. The attack surface exists only in CCV because CTV has no mode flags and OP_VAULT uses dedicated opcodes with no extensibility trap.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="attack-ccv-mode-bypass.svg" alt="CCV mode bypass attack" loading="lazy"></div>
+    </div>
+  </div>
+
+  <!-- TM3+TM5 -->
+  <div class="svg-block">
+    <div style="margin-bottom:12px"><span class="tm-tag severe">SEVERE</span> <strong style="margin-left:6px">Trigger Key Theft (TM3 + TM5)</strong></div>
+    <div class="svg-description">
+      Trigger key theft is the canonical vault attack: an adversary compromises the hot key used to initiate withdrawals and attempts to steal funds before the watchtower can react. In all three vault designs, the attack follows the same pattern — the attacker triggers an unauthorized withdrawal, the timelock delay begins, and the watchtower races to broadcast recovery. The difference is recovery cost. CTV recovery uses a pre-signed cold sweep at 180 vB. CCV recovery is the cheapest at 122 vB because keyless recovery requires no signature, just knowledge of the vault address. OP_VAULT recovery is the most expensive at 246 vB because the 2-input fee wallet pattern adds overhead and the recoveryauth signature adds witness data. Across all three designs, the watchtower wins this race as long as it is online and funded — the timelock gives it blocks, not seconds, to respond. The real danger is trigger key theft combined with watchtower failure, which escalates to fund theft in CTV (attacker completes the hot withdrawal) and CCV (attacker completes withdrawal to their chosen destination). In OP_VAULT, even with watchtower failure, the attacker cannot redirect recovery funds because the recovery address is immutable.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="attack-trigger-key-theft.svg" alt="Trigger key theft attack" loading="lazy"></div>
+    </div>
+  </div>
+
+  <!-- TM2 -->
+  <div class="svg-block">
+    <div style="margin-bottom:12px"><span class="tm-tag severe">SEVERE</span> <strong style="margin-left:6px">Recovery Griefing (TM2)</strong></div>
+    <div class="svg-description">
+      Recovery griefing is the direct consequence of CCV's keyless recovery design. Since anyone can trigger recovery without any key or signature — they just need to know the vault's address and construct a valid recovery transaction — a griefer can watch for trigger transactions and immediately broadcast recovery, sending funds back to cold storage before the legitimate withdrawal completes. No funds are stolen, but the vault owner is permanently denied access to their hot wallet. Every withdrawal attempt gets front-run by the griefer, creating an infinite denial-of-service loop. The griefer pays only the recovery transaction fee (122 vB × fee rate), which is cheap compared to the damage inflicted. CTV has moderate griefing exposure because the cold sweep requires a cold key signature — only someone with the cold key can grief. OP_VAULT has the best griefing resistance because recovery requires the recoveryauth key signature, making anonymous griefing impossible. The structural tradeoff is that CCV's keyless recovery is simultaneously its greatest strength (funds recoverable even if all keys are lost) and its greatest weakness (anyone can trigger recovery). You cannot have both open recovery access and griefing resistance — they are fundamentally opposed design goals.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="attack-recovery-griefing.svg" alt="Recovery griefing attack" loading="lazy"></div>
+    </div>
+  </div>
+
+  <!-- TM4+TM7 -->
+  <div class="svg-block">
+    <div style="margin-bottom:12px"><span class="tm-tag severe">SEVERE</span> <strong style="margin-left:6px">Watchtower Exhaustion (TM4 + TM7)</strong></div>
+    <div class="svg-description">
+      Watchtower exhaustion turns CCV and OP_VAULT's partial withdrawal feature into an attack vector. The attacker, holding the trigger key, splits the vault into hundreds or thousands of small UTXOs using repeated partial withdrawals, each creating a new independent vault. Then the attacker triggers withdrawals on all of them simultaneously. The watchtower must now broadcast a separate recovery transaction for every single UTXO, paying fees on each one. At 122 vB per recovery for CCV and 246 vB per recovery for OP_VAULT, the watchtower's fee budget is quickly exhausted. Once the budget runs out, remaining triggered UTXOs complete their unauthorized withdrawals uncontested. OP_VAULT fails roughly twice as fast as CCV because its recovery transactions cost twice as much. CTV is completely immune to this attack because it does not support partial withdrawals — there is no way to split a CTV vault into smaller pieces. The attacker cannot create the initial UTXO fragmentation that the attack requires. This is the clearest example of the fee-dependent security inversion: at low fees, the splitting phase is cheap and the attack is viable against CCV and OP_VAULT. At high fees, splitting is expensive but recovery is also expensive, creating a complex cost tradeoff.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="attack-watchtower-exhaustion.svg" alt="Watchtower exhaustion attack" loading="lazy"></div>
+    </div>
+  </div>
+
+  <!-- TM6 -->
+  <div class="svg-block">
+    <div style="margin-bottom:12px"><span class="tm-tag high">HIGH</span> <strong style="margin-left:6px">Dual-Key Compromise (TM6)</strong></div>
+    <div class="svg-description">
+      Dual-key compromise examines what happens when an attacker obtains both the trigger key and the recoveryauth key in an OP_VAULT system. This sounds like it should be game over — and in CTV it is, because holding both the hot key and cold key gives the attacker complete control. But OP_VAULT's design produces a surprising result: denial-of-service, not theft. The attacker can trigger a withdrawal and then immediately use the recoveryauth key to invoke authorized recovery, sending funds back to the recovery address. They can repeat this loop indefinitely, preventing the legitimate owner from ever completing a withdrawal. However, they cannot redirect funds because the recovery address was set at vault creation and is immutable — it is embedded in the Taproot internal key structure and cannot be changed by anyone, including someone holding all three keys. The attacker is stuck in a trigger-recover loop where funds always return to the legitimate recovery address. To actually steal funds, the attacker would need to compromise the recovery address itself (a separate key or multisig), making this effectively a three-key attack threshold. CCV's single-key model means this specific scenario does not apply — there is only one trigger key and recovery is keyless.
+    </div>
+    <div class="svg-wrap">
+      <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <div class="svg-display"><img src="attack-dual-key-compromise.svg" alt="Dual key compromise attack" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FINDINGS ═══════════════════════ -->
+<section id="findings">
+  <div class="section-label">What We Found</div>
+  <div class="section-title">Four Insights From Regtest</div>
+
+  <div class="findings-grid">
+    <div class="card finding-card">
+      <div class="number">01</div>
+      <h4>Safety rankings flip based on fees</h4>
+      <p>
+        Low fees → CCV and OP_VAULT are safer (pinning is cheap, splitting is infeasible).
+        High fees → CTV is safer (watchtower exhaustion becomes viable against the others).
+        There is no universally safest vault.
+      </p>
+    </div>
+    <div class="card finding-card">
+      <div class="number">02</div>
+      <h4>Griefing resistance and fund safety are opposites</h4>
+      <p>
+        OP_VAULT blocks griefing best (authorized recovery). CCV protects funds best under key loss (keyless recovery).
+        You can't have both — blocking unauthorized recovery requires a key whose loss disables recovery.
+      </p>
+    </div>
+    <div class="card finding-card">
+      <div class="number">03</div>
+      <h4>OP_VAULT costs 36% more than it should</h4>
+      <p>
+        The 2-input fee wallet pattern adds 80–90 vB to every transaction. Trigger: 292 vB vs CCV's 154.
+        Recovery: 246 vB vs CCV's 122. That gap compounds in multi-round scenarios.
+      </p>
+    </div>
+    <div class="card finding-card">
+      <div class="number">04</div>
+      <h4>One byte can destroy a CCV vault</h4>
+      <p>
+        CCV mode flags outside [0, 1, 2] trigger OP_SUCCESS. We built a production-shaped vault with mode=3
+        and drained it. 110 vB, no signature. By design for soft-fork safety — but the highest-severity footgun we found.
+      </p>
+    </div>
+  </div>
+
+  <!-- Fee sensitivity chart -->
+  <div class="card" style="padding:28px">
+    <h4 style="font-size:15px; font-weight:700; margin-bottom:4px">Fee-Dependent Security Inversion</h4>
+    <p class="small muted" style="margin-bottom:20px">How each vault's danger level shifts with fee environment. Higher = more vulnerable.</p>
+    <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+      <line x1="80" y1="20" x2="80" y2="280" stroke="#e5e7eb" stroke-width="1"/>
+      <line x1="80" y1="280" x2="760" y2="280" stroke="#e5e7eb" stroke-width="1"/>
+      <line x1="80" y1="215" x2="760" y2="215" stroke="#f3f4f6" stroke-width="1"/>
+      <line x1="80" y1="150" x2="760" y2="150" stroke="#f3f4f6" stroke-width="1"/>
+      <line x1="80" y1="85" x2="760" y2="85" stroke="#f3f4f6" stroke-width="1"/>
+      <text x="70" y="284" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">0%</text>
+      <text x="70" y="219" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">25%</text>
+      <text x="70" y="154" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">50%</text>
+      <text x="70" y="89" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">75%</text>
+      <text x="70" y="24" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">100%</text>
+      <text x="24" y="150" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif" transform="rotate(-90 24 150)">Danger Level</text>
+      <text x="80" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">1</text>
+      <text x="216" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">10</text>
+      <text x="352" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">50</text>
+      <text x="488" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">100</text>
+      <text x="624" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">300</text>
+      <text x="760" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">500</text>
+      <text x="420" y="325" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Fee Rate (sat/vB)</text>
+      <polyline points="80,33 216,36 352,39 488,41 624,44 760,46" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="80,254 216,228 352,176 488,124 624,72 760,52" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="80,241 216,210 352,150 488,98 624,52 760,36" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="300" y="20" width="120" height="260" fill="#fef3c7" opacity="0.2" rx="4"/>
+      <text x="360" y="14" text-anchor="middle" font-size="10" fill="#ca8a04" font-family="Inter,system-ui,sans-serif" font-weight="600">crossover zone</text>
+      <circle cx="80" cy="33" r="3.5" fill="#ef4444"/><circle cx="216" cy="36" r="3.5" fill="#ef4444"/>
+      <circle cx="352" cy="39" r="3.5" fill="#ef4444"/><circle cx="488" cy="41" r="3.5" fill="#ef4444"/>
+      <circle cx="624" cy="44" r="3.5" fill="#ef4444"/><circle cx="760" cy="46" r="3.5" fill="#ef4444"/>
+      <circle cx="80" cy="254" r="3.5" fill="#3b82f6"/><circle cx="216" cy="228" r="3.5" fill="#3b82f6"/>
+      <circle cx="352" cy="176" r="3.5" fill="#3b82f6"/><circle cx="488" cy="124" r="3.5" fill="#3b82f6"/>
+      <circle cx="624" cy="72" r="3.5" fill="#3b82f6"/><circle cx="760" cy="52" r="3.5" fill="#3b82f6"/>
+      <circle cx="80" cy="241" r="3.5" fill="#f59e0b"/><circle cx="216" cy="210" r="3.5" fill="#f59e0b"/>
+      <circle cx="352" cy="150" r="3.5" fill="#f59e0b"/><circle cx="488" cy="98" r="3.5" fill="#f59e0b"/>
+      <circle cx="624" cy="52" r="3.5" fill="#f59e0b"/><circle cx="760" cy="36" r="3.5" fill="#f59e0b"/>
+      <line x1="520" y1="12" x2="540" y2="12" stroke="#ef4444" stroke-width="2.5"/>
+      <text x="546" y="16" font-size="11" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">CTV</text>
+      <line x1="590" y1="12" x2="610" y2="12" stroke="#3b82f6" stroke-width="2.5"/>
+      <text x="616" y="16" font-size="11" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">CCV</text>
+      <line x1="656" y1="12" x2="676" y2="12" stroke="#f59e0b" stroke-width="2.5"/>
+      <text x="682" y="16" font-size="11" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">OP_VAULT</text>
+    </svg>
+  </div>
+
+  <!-- Threat matrix -->
+  <div class="card mt-48" style="padding:0; overflow:hidden">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Attack</th>
+          <th style="color:var(--ctv)">CTV</th>
+          <th style="color:var(--ccv)">CCV</th>
+          <th style="color:var(--opvault)">OP_VAULT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Fee Pinning</strong></td><td style="color:#dc2626;font-weight:600">Critical</td><td style="color:#16a34a;font-weight:600">Immune</td><td style="color:#16a34a;font-weight:600">Immune</td></tr>
+        <tr><td><strong>Recovery Griefing</strong></td><td style="color:#ea580c;font-weight:600">Moderate</td><td style="color:#ea580c;font-weight:600">Severe</td><td style="color:#16a34a;font-weight:600">Low</td></tr>
+        <tr><td><strong>Trigger Key Theft</strong></td><td style="color:#ea580c;font-weight:600">Severe</td><td style="color:#ea580c;font-weight:600">Severe</td><td style="color:#ea580c;font-weight:600">Moderate</td></tr>
+        <tr><td><strong>Watchtower Exhaustion</strong></td><td style="color:#16a34a;font-weight:600">Immune</td><td style="color:#ea580c;font-weight:600">Severe</td><td style="color:#dc2626;font-weight:600">Severe (2×)</td></tr>
+        <tr><td><strong>Dual-Key Compromise</strong></td><td style="color:#dc2626;font-weight:600">Fund theft</td><td style="color:#9ca3af;font-weight:600">N/A</td><td style="color:#ea580c;font-weight:600">DoS only</td></tr>
+        <tr><td><strong>CCV Mode Bypass</strong></td><td style="color:#9ca3af;font-weight:600">N/A</td><td style="color:#dc2626;font-weight:600">Critical</td><td style="color:#9ca3af;font-weight:600">N/A</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Tx size chart -->
+  <div class="card mt-48" style="padding:28px">
+    <h4 style="font-size:15px; font-weight:700; margin-bottom:16px">Transaction Size Breakdown (vB)</h4>
+    <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+      <text x="120" y="270" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">Deposit</text>
+      <rect x="85" y="114" width="22" height="146" rx="3" fill="#ef4444" opacity="0.85"/>
+      <rect x="109" y="114" width="22" height="146" rx="3" fill="#3b82f6" opacity="0.85"/>
+      <rect x="133" y="114" width="22" height="146" rx="3" fill="#f59e0b" opacity="0.85"/>
+      <text x="96" y="108" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
+      <text x="120" y="108" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
+      <text x="144" y="108" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
+      <text x="280" y="270" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">Trigger</text>
+      <rect x="245" y="121" width="22" height="139" rx="3" fill="#ef4444" opacity="0.85"/>
+      <rect x="269" y="130" width="22" height="130" rx="3" fill="#3b82f6" opacity="0.85"/>
+      <rect x="293" y="13" width="22" height="247" rx="3" fill="#f59e0b" opacity="0.85"/>
+      <text x="256" y="115" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">164</text>
+      <text x="280" y="124" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
+      <text x="304" y="8" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">292</text>
+      <text x="440" y="270" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">Withdraw</text>
+      <rect x="405" y="168" width="22" height="92" rx="3" fill="#ef4444" opacity="0.85"/>
+      <rect x="429" y="167" width="22" height="93" rx="3" fill="#3b82f6" opacity="0.85"/>
+      <rect x="453" y="157" width="22" height="103" rx="3" fill="#f59e0b" opacity="0.85"/>
+      <text x="416" y="162" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">108</text>
+      <text x="440" y="161" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">110</text>
+      <text x="464" y="151" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">121</text>
+      <text x="600" y="270" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">Recovery</text>
+      <rect x="565" y="108" width="22" height="152" rx="3" fill="#ef4444" opacity="0.85"/>
+      <rect x="589" y="157" width="22" height="103" rx="3" fill="#3b82f6" opacity="0.85"/>
+      <rect x="613" y="21" width="22" height="239" rx="3" fill="#f59e0b" opacity="0.85"/>
+      <text x="576" y="102" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">180</text>
+      <text x="600" y="151" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">122</text>
+      <text x="624" y="15" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">246</text>
+      <rect x="680" y="100" width="10" height="10" rx="2" fill="#ef4444"/>
+      <text x="696" y="110" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CTV</text>
+      <rect x="680" y="120" width="10" height="10" rx="2" fill="#3b82f6"/>
+      <text x="696" y="130" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CCV</text>
+      <rect x="680" y="140" width="10" height="10" rx="2" fill="#f59e0b"/>
+      <text x="696" y="150" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">OP_VAULT</text>
+      <line x1="75" y1="10" x2="75" y2="260" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="65" y="264" text-anchor="end" font-size="9" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">0 vB</text>
+      <text x="65" y="164" text-anchor="end" font-size="9" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">150</text>
+      <text x="65" y="64" text-anchor="end" font-size="9" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">300</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ═══════════════════════ REAL WORLD ═══════════════════════ -->
+<section id="realworld">
+  <div class="section-label">Use Cases</div>
+  <div class="section-title">Choosing the Right Vault</div>
+  <div class="section-subtitle">
+    Choosing a vault isn't just about fees and transaction sizes. It's about your operational reality —
+    how many keys you can manage, whether you can tolerate downtime, what your regulatory environment
+    looks like, and what keeps you up at night.
+  </div>
+
+  <!-- ── Individuals ── -->
+  <h3 style="font-size:18px; font-weight:700; margin-bottom:16px">Individuals</h3>
+  <div class="usecase-grid mb-48">
+    <div class="card usecase-card">
+      <div class="persona">Long-term hodler</div>
+      <h4>Cold storage inheritance vault</h4>
+      <p>
+        You're holding bitcoin for years, maybe decades. You want a dead-simple vault that your heirs can
+        figure out. You don't need partial withdrawals — when you move, you move everything. Key management
+        needs to be minimal because you're doing this yourself with no IT team.
+      </p>
+      <div class="rec" style="background:#fef2f2; color:#dc2626">
+        Best fit: <strong>CTV</strong> — simplest key setup (2 keys), deterministic paths your estate lawyer can follow, immune to splitting attacks that require ongoing watchtower funding. No partial withdrawal is actually a feature here — prevents accidental fragmentation of an inheritance plan.
+      </div>
+    </div>
+    <div class="card usecase-card">
+      <div class="persona">Active self-custodian</div>
+      <h4>Spending vault with regular withdrawals</h4>
+      <p>
+        You use bitcoin regularly — paying rent, buying things, moving between wallets. You need partial
+        withdrawals without destroying and recreating the vault each time. You're technically savvy enough
+        to run a watchtower but want fund safety above all else.
+      </p>
+      <div class="rec" style="background:#eff6ff; color:#2563eb">
+        Best fit: <strong>CCV</strong> — native partial withdrawal via revault, cheapest per-transaction cost (418 vB lifecycle), keyless recovery means even if you lose your trigger key your funds are never permanently stuck. Tradeoff: you need to accept occasional griefing risk from anyone who knows your vault address.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Businesses ── -->
+  <h3 style="font-size:18px; font-weight:700; margin-bottom:16px">Businesses</h3>
+  <div class="usecase-grid mb-48">
+    <div class="card usecase-card">
+      <div class="persona">Bitcoin-native startup</div>
+      <h4>Operational treasury with regular payroll</h4>
+      <p>
+        You pay contractors in bitcoin, fund operations from your vault, and need to move money weekly
+        without touching your entire balance. Batching multiple payouts into a single trigger saves money.
+        You have a small engineering team that can manage infrastructure but can't afford a dedicated security org.
+      </p>
+      <div class="rec" style="background:#eff6ff; color:#2563eb">
+        Best fit: <strong>CCV</strong> — batched triggers across multiple vault UTXOs in a single transaction. Partial withdrawal means payroll doesn't require a full vault cycle. 106 vB per additional vault in a batch vs OP_VAULT's 191 vB. Your team needs to audit CCV mode flags carefully (TM8), but the operational savings are substantial at scale.
+      </div>
+    </div>
+    <div class="card usecase-card">
+      <div class="persona">E-commerce company</div>
+      <h4>Customer-facing deposit system</h4>
+      <p>
+        Customers send bitcoin to your deposit addresses. You can't control how many times someone sends
+        to the same address — and if they do it twice with CTV, the second deposit is permanently lost.
+        You need a vault that gracefully handles address reuse because your customers will inevitably do it.
+      </p>
+      <div class="rec" style="background:#eff6ff; color:#2563eb">
+        Best fit: <strong>CCV</strong> or <strong>OP_VAULT</strong> — both handle address reuse safely (each deposit creates an independent contract). CTV is disqualified here — a second deposit to the same vault address creates a permanently unspendable UTXO. For customer-facing systems, this is a dealbreaker.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Exchanges & Custodians ── -->
+  <h3 style="font-size:18px; font-weight:700; margin-bottom:16px">Exchanges &amp; Custodians</h3>
+  <div class="usecase-grid mb-48">
+    <div class="card usecase-card">
+      <div class="persona">Centralized exchange</div>
+      <h4>Hot/warm wallet with SLA requirements</h4>
+      <p>
+        You manage customer withdrawals 24/7. Liveness denial is not an option — if withdrawals stop,
+        regulators notice, customers panic, and you're on the front page. A griefing attack that blocks
+        withdrawals for even a few hours costs you more than a fee overhead ever would. You have a
+        dedicated security team managing HSMs and key ceremonies.
+      </p>
+      <div class="rec" style="background:#fefce8; color:#ca8a04">
+        Best fit: <strong>OP_VAULT</strong> — authorized recovery means no anonymous entity can grief your withdrawal pipeline. The 36% overhead (567 vB lifecycle) is an acceptable insurance premium when your SLA is measured in minutes. Three-key management (trigger, recoveryauth, recovery) maps naturally to exchange key ceremony practices — different teams hold different keys.
+      </div>
+    </div>
+    <div class="card usecase-card">
+      <div class="persona">Institutional custodian</div>
+      <h4>Deep cold storage for large holdings</h4>
+      <p>
+        You hold bitcoin for pension funds, family offices, or sovereign wealth. Withdrawals happen quarterly
+        at most. The absolute priority is fund safety under any key compromise scenario — not speed, not flexibility,
+        not liveness. You can tolerate days of recovery time if it means funds are never at risk.
+      </p>
+      <div class="rec" style="background:#eff6ff; color:#2563eb">
+        Best fit: <strong>CCV</strong> — keyless recovery means even if your entire trigger key infrastructure is compromised, anyone (including your disaster recovery partner) can invoke recovery without needing a special key. For a fund holding client assets, "recoveryauth key got destroyed in the office fire" is an existential risk that CCV eliminates entirely.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Government & Sovereign ── -->
+  <h3 style="font-size:18px; font-weight:700; margin-bottom:16px">Government &amp; Sovereign Entities</h3>
+  <div class="usecase-grid mb-48">
+    <div class="card usecase-card">
+      <div class="persona">Central bank / Strategic reserve</div>
+      <h4>National bitcoin reserve with multi-agency oversight</h4>
+      <p>
+        Multiple government agencies need to authorize withdrawals. The recovery path must be invocable by
+        any authorized agency without depending on another agency's key — because inter-agency key sharing
+        is a political impossibility. The vault may not be touched for years. Simplicity and auditability
+        matter more than flexibility.
+      </p>
+      <div class="rec" style="background:#fef2f2; color:#dc2626">
+        Best fit: <strong>CTV</strong> — the entire transaction tree is deterministic and auditable from day one. An oversight committee can independently verify every possible spending path by regenerating the template hashes. No partial withdrawals is actually desirable — it prevents any single agency from skimming small amounts. The vault is a commitment device: when you move, you move everything, and everyone can see exactly where it goes.
+      </div>
+    </div>
+    <div class="card usecase-card">
+      <div class="persona">Municipal government</div>
+      <h4>City fund with budget-cycle withdrawals</h4>
+      <p>
+        A city holds bitcoin as part of a diversified treasury. They need quarterly withdrawals for operational
+        spending without liquidating the whole position. The IT department is competent but not specialized
+        in cryptography. Griefing is a real concern — political opponents might use keyless recovery
+        to lock up the city's funds as a protest tactic.
+      </p>
+      <div class="rec" style="background:#fefce8; color:#ca8a04">
+        Best fit: <strong>OP_VAULT</strong> — authorized recovery blocks political griefing (no anonymous parties can freeze the city's funds). Partial withdrawal supports budget-cycle spending. The three-key model maps to municipal separation of duties: treasurer holds trigger key, city council holds recoveryauth, recovery address is a multisig controlled by an independent oversight board.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Summary decision matrix ── -->
+  <div class="card" style="padding:0; overflow:hidden">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Priority</th>
+          <th style="color:var(--ctv)">CTV</th>
+          <th style="color:var(--ccv)">CCV</th>
+          <th style="color:var(--opvault)">OP_VAULT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Simplicity / auditability</strong></td><td style="color:#16a34a;font-weight:600">Best</td><td>Good</td><td>Complex</td></tr>
+        <tr><td><strong>Partial withdrawals</strong></td><td style="color:#dc2626">Not supported</td><td style="color:#16a34a;font-weight:600">Native</td><td style="color:#16a34a;font-weight:600">Native</td></tr>
+        <tr><td><strong>Batched operations</strong></td><td style="color:#dc2626">Not supported</td><td style="color:#16a34a;font-weight:600">Best (106 vB/input)</td><td>Supported (191 vB/input)</td></tr>
+        <tr><td><strong>Address reuse safety</strong></td><td style="color:#dc2626;font-weight:600">Funds lost</td><td style="color:#16a34a">Safe</td><td style="color:#16a34a">Safe</td></tr>
+        <tr><td><strong>Fund safety under key loss</strong></td><td>Moderate</td><td style="color:#16a34a;font-weight:600">Best (keyless)</td><td style="color:#ea580c">Worst (key required)</td></tr>
+        <tr><td><strong>Griefing resistance</strong></td><td>Moderate</td><td style="color:#dc2626;font-weight:600">Worst (keyless)</td><td style="color:#16a34a;font-weight:600">Best (auth required)</td></tr>
+        <tr><td><strong>Watchtower cost</strong></td><td style="color:#16a34a">Immune to splitting</td><td>122 vB/recovery</td><td style="color:#ea580c">246 vB/recovery (2×)</td></tr>
+        <tr><td><strong>Developer risk surface</strong></td><td>Low (simple scripts)</td><td style="color:#dc2626;font-weight:600">High (mode flags, sentinels)</td><td>Moderate (API instability)</td></tr>
+        <tr><td><strong>Key management burden</strong></td><td style="color:#16a34a;font-weight:600">2 keys</td><td style="color:#16a34a;font-weight:600">1 key</td><td style="color:#ea580c">3 keys</td></tr>
+        <tr><td><strong>On-chain cost (lifecycle)</strong></td><td>426 vB</td><td style="color:#16a34a;font-weight:600">418 vB</td><td style="color:#ea580c">567 vB (+36%)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════ METHODOLOGY ═══════════════════════ -->
+<section style="padding-top:60px">
+  <div class="card" style="padding:24px; text-align:center; max-width:640px; margin:0 auto">
+    <p class="small muted">
+      All measurements from Bitcoin regtest. Transaction sizes (vsize) are structurally valid.
+      12 experiments, 8 threat models, 3 covenant designs.
+    </p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="container">
+    <p>Bitcoin Vault Covenant Comparison · Regtest-measured, not hand-waved</p>
+    <p style="margin-top:8px">
+      Built on <a href="https://github.com/jamesob/simple-ctv-vault" target="_blank">simple-ctv-vault</a>,
+      <a href="https://github.com/nicola/pymatt" target="_blank">pymatt</a>, and
+      <a href="https://github.com/jamesob/opvault-demo" target="_blank">opvault-demo</a>
+    </p>
+    <p style="margin-top:8px">
+      Covenant designs by
+      <a href="https://github.com/JeremyRubin" target="_blank">Jeremy Rubin</a> (CTV · BIP 119),
+      <a href="https://github.com/nicola" target="_blank">Salvatore Ingala</a> (CCV · BIP 443), and
+      <a href="https://github.com/jamesob" target="_blank">James O'Beirne</a> (OP_VAULT · BIP 345)
+    </p>
+    <p style="margin-top:8px"><a href="https://github.com/praneethgunas/bitcoin-vault-covenants" target="_blank">GitHub</a></p>
+  </div>
+</footer>
+
+<script>
+function restartSvg(btn) {
+  var img = btn.parentElement.querySelector('img');
+  if (!img) return;
+  var src = img.getAttribute('src').split('?')[0];
+  var clone = img.cloneNode(false);
+  clone.setAttribute('src', src + '?t=' + Date.now());
+  clone.style.position = 'absolute';
+  clone.style.top = '0';
+  clone.style.left = '0';
+  clone.style.width = '100%';
+  clone.style.opacity = '0';
+  img.parentElement.style.position = 'relative';
+  img.parentElement.appendChild(clone);
+  clone.onload = function() {
+    clone.style.opacity = '1';
+    img.parentElement.removeChild(img);
+    clone.style.position = '';
+    clone.style.top = '';
+    clone.style.left = '';
+  };
+}
+</script>
+</body>
+</html>

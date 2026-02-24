@@ -1,0 +1,407 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1200 800" width="1200" height="800"
+     font-family="system-ui, -apple-system, sans-serif">
+  <title>Recovery Griefing — Keyless Front-Running Attack</title>
+  <desc>Animated diagram showing how CCV's keyless recovery mechanism enables anyone to grief a vault owner by front-running their withdrawal with unauthorized recovery transactions, trapping funds in a recovery loop.</desc>
+
+  <defs>
+    <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1" fill="#c9cdd3" opacity="0.45"/>
+    </pattern>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#9ca3b0" flood-opacity="0.18"/>
+    </filter>
+    <filter id="activeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="18" flood-color="#ffffff" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#e0e7ff" flood-opacity="0.4"/>
+    </filter>
+    <filter id="blueGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#3b82f6" flood-opacity="0.3"/>
+    </filter>
+    <filter id="greenGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#22c55e" flood-opacity="0.3"/>
+    </filter>
+    <filter id="redGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="#ef4444" flood-opacity="0.35"/>
+    </filter>
+    <filter id="amberGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#f59e0b" flood-opacity="0.3"/>
+    </filter>
+    <filter id="cyanGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#06b6d4" flood-opacity="0.3"/>
+    </filter>
+
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="amberGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="#f3f4f6"/>
+  <rect width="1200" height="800" fill="url(#dots)"/>
+
+  <!-- ============================================================
+       RECOVERY GRIEFING (TM2)
+
+       Layout:
+         Left (x=70):    Vault UTXO
+         Center (x=360): Unvaulting UTXO
+         Upper-right:    Legitimate withdrawal path (slow, CSV) → BLOCKED
+         Lower-right:    Attacker recovery path (fast, keyless) → confirms first
+         Far right:      Recovery output (funds locked)
+         Bottom:         Loop indicator
+
+       Timing (18s cycle):
+         0.00–0.06  Vault activates
+         0.06–0.14  Trigger → Unvaulting
+         0.14–0.24  Withdrawal starts (slow particles, clock)
+         0.20–0.26  Attacker detects in mempool (eye icon, red)
+         0.26–0.36  Attacker front-runs with recovery (fast red particles)
+         0.36–0.44  Recovery confirms (sonar ripple), withdrawal cancelled
+         0.44–0.58  Withdrawal path dimmed, red X
+         0.58–0.72  Recovery output glows, loop indicator
+         0.72–0.82  Defense comparison banner
+         0.82–0.90  Hold
+         0.90–1.00  Reset
+       ============================================================ -->
+
+  <!-- ============ STATIC CONNECTIONS ============ -->
+  <!-- Vault → Unvaulting -->
+  <line x1="166" y1="330" x2="340" y2="330" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Unvaulting → Withdrawal (upper path, curved) -->
+  <path d="M436,290 Q540,200 750,200" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  <!-- Unvaulting → Attacker intercept (lower path) -->
+  <path d="M436,370 Q520,440 630,460" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  <!-- Attacker → Recovery Output -->
+  <line x1="726" y1="460" x2="900" y2="460" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Recovery Output → Loop back (curved) -->
+  <path d="M996,460 Q1060,460 1080,380 Q1100,280 1040,200 Q980,140 880,140 Q600,130 340,260" stroke="#d1d5db" stroke-width="1.2" stroke-dasharray="4,4" stroke-linecap="round" fill="none"/>
+
+  <!-- ============ DASHED OVERLAYS ============ -->
+  <!-- Vault → Unvaulting (blue) -->
+  <line x1="166" y1="330" x2="340" y2="330"
+        stroke="#3b82f6" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.06;0.08;0.14;0.16;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
+  </line>
+  <!-- Unvaulting → Withdrawal (green, slow) -->
+  <path d="M436,290 Q540,200 750,200"
+        stroke="#22c55e" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0;0"
+             keyTimes="0;0.14;0.16;0.36;0.38;0.40;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.8s" repeatCount="indefinite"/>
+  </path>
+  <!-- Unvaulting → Attacker recovery (red, fast) -->
+  <path d="M436,370 Q520,440 630,460"
+        stroke="#ef4444" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.26;0.28;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.25s" repeatCount="indefinite"/>
+  </path>
+  <!-- Attacker → Recovery Output (red, fast) -->
+  <line x1="726" y1="460" x2="900" y2="460"
+        stroke="#ef4444" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.34;0.36;0.44;0.46;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </line>
+  <!-- Loop path (amber, slow) -->
+  <path d="M996,460 Q1060,460 1080,380 Q1100,280 1040,200 Q980,140 880,140 Q600,130 340,260"
+        stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,5" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.4;0.4;0;0"
+             keyTimes="0;0.58;0.62;0.78;0.82;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-11" dur="1.2s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- ============ PARTICLES ============ -->
+  <!-- Vault → Unvaulting (blue) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.08;0.14;0.16;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#3b82f6">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="166" to="340" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="330;330" dur="0.6s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#93c5fd">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="cx" from="166" to="340" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="cy" values="330;330" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+    </circle>
+  </g>
+  <!-- Withdrawal path (green, slow) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.14;0.16;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="1.6s" repeatCount="indefinite"/>
+      <animateMotion path="M0,0 Q104,-90 314,-90" dur="1.6s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="1.5" fill="#86efac">
+      <animate attributeName="opacity" values="0.1;0.4;0.4;0.1" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
+      <animateMotion path="M0,0 Q104,-90 314,-90" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
+    </circle>
+  </g>
+  <!-- Attacker recovery (red, very fast) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.26;0.28;0.40;0.42;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="4" fill="#ef4444">
+      <animate attributeName="opacity" values="0.1;0.9;0.9;0.1" dur="0.4s" repeatCount="indefinite"/>
+      <animateMotion path="M0,0 Q84,70 194,90" dur="0.4s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2.5" fill="#fca5a5">
+      <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
+      <animateMotion path="M0,0 Q84,70 194,90" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
+    </circle>
+    <circle r="1.5" fill="#fca5a5">
+      <animate attributeName="opacity" values="0.1;0.4;0.4;0.1" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
+      <animateMotion path="M0,0 Q84,70 194,90" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
+    </circle>
+  </g>
+  <!-- Attacker → Recovery output (red) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.34;0.36;0.44;0.46;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#ef4444">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="726" to="900" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="460;460" dur="0.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- ============ CARDS ============ -->
+
+  <!-- Card 1: Vault UTXO -->
+  <g aria-label="Vault UTXO">
+    <g transform="translate(70, 282)">
+      <rect width="96" height="96" rx="22" fill="url(#blueGrad)" filter="url(#blueGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <rect x="-16" y="-6" width="32" height="22" rx="3"/>
+        <path d="M-8,-6 L-8,-14 a8,8 0 0,1 16,0 L8,-6"/>
+        <circle cx="0" cy="5" r="2.5" fill="white"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
+                 keyTimes="0;0.03;0.05;0.14;0.16;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
+                 keyTimes="0;0.03;0.05;0.14;0.16;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <rect x="-16" y="-6" width="32" height="22" rx="3"/>
+        <path d="M-8,-6 L-8,-14 a8,8 0 0,1 16,0 L8,-6"/>
+        <circle cx="0" cy="5" r="2.5" fill="#374151"/>
+      </g>
+    </g>
+    <text x="118" y="395" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Vault UTXO</text>
+  </g>
+
+  <!-- Card 2: Unvaulting UTXO -->
+  <g aria-label="Unvaulting UTXO">
+    <g transform="translate(340, 282)">
+      <rect width="96" height="96" rx="22" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <rect x="-14" y="-8" width="28" height="20" rx="3"/>
+        <path d="M-6,-8 L-6,-14 a6,6 0 0,1 12,0 L6,-4"/>
+        <circle cx="0" cy="3" r="2" fill="white"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.12;0.14;0.44;0.46;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.12;0.14;0.44;0.46;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <rect x="-14" y="-8" width="28" height="20" rx="3"/>
+        <path d="M-6,-8 L-6,-14 a6,6 0 0,1 12,0 L6,-4"/>
+        <circle cx="0" cy="3" r="2" fill="#374151"/>
+      </g>
+      <!-- Breathing ring while active -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="#f59e0b" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.14;0.16;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.4s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="388" y="395" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Unvaulting</text>
+  </g>
+
+  <!-- Card 3: Withdrawal (legitimate, gets cancelled) -->
+  <g aria-label="Withdrawal Attempt">
+    <g transform="translate(750, 152)">
+      <rect width="96" height="96" rx="22" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <path d="M0,-18 L0,10"/>
+        <path d="M-10,0 L0,10 L10,0"/>
+        <line x1="-14" y1="16" x2="14" y2="16"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.18;0.20;0.36;0.38;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.18;0.20;0.36;0.38;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M0,-18 L0,10"/>
+        <path d="M-10,0 L0,10 L10,0"/>
+        <line x1="-14" y1="16" x2="14" y2="16"/>
+      </g>
+      <!-- Red X overlay when cancelled -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+                 keyTimes="0;0.40;0.42;0.72;0.82;1" dur="18s" repeatCount="indefinite"/>
+        <line x1="20" y1="20" x2="76" y2="76" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+        <line x1="76" y1="20" x2="20" y2="76" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+      </g>
+      <!-- Red warning flash -->
+      <rect width="96" height="96" rx="22" fill="none" stroke="#ef4444" stroke-width="2.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.8;0;0.7;0;0"
+                 keyTimes="0;0.38;0.39;0.40;0.41;0.42;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="798" y="265" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Withdrawal</text>
+    <!-- BLOCKED label -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0"
+               keyTimes="0;0.42;0.44;0.72;0.82;1" dur="18s" repeatCount="indefinite"/>
+      <text x="798" y="278" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="700">CANCELLED</text>
+    </g>
+  </g>
+
+  <!-- Card 4: Attacker (eye icon, red) -->
+  <g aria-label="Attacker">
+    <g transform="translate(630, 412)">
+      <rect width="96" height="96" rx="22" fill="url(#redGrad)" filter="url(#redGlow)"/>
+      <!-- Eye icon -->
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <path d="M-20,0 C-12,-14 12,-14 20,0 C12,14 -12,14 -20,0"/>
+        <circle cx="0" cy="0" r="6" fill="white" stroke="white" stroke-width="1"/>
+        <circle cx="0" cy="0" r="2.5" fill="none" stroke="white" stroke-width="2"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.22;0.24;0.50;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.22;0.24;0.50;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M-20,0 C-12,-14 12,-14 20,0 C12,14 -12,14 -20,0"/>
+        <circle cx="0" cy="0" r="6" fill="#374151" stroke="#374151" stroke-width="1"/>
+        <circle cx="0" cy="0" r="2.5" fill="none" stroke="white" stroke-width="2"/>
+      </g>
+      <!-- Breathing ring -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="#ef4444" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.24;0.26;0.50;0.52;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.0s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.0s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.0s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.0s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="678" y="525" fill="#ef4444" font-size="11" text-anchor="middle" font-weight="700">Attacker</text>
+    <text x="678" y="538" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="500">keyless recovery</text>
+  </g>
+
+  <!-- Card 5: Recovery Output -->
+  <g aria-label="Recovery Output">
+    <g transform="translate(900, 412)">
+      <rect width="96" height="96" rx="22" fill="url(#cyanGrad)" filter="url(#cyanGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <path d="M0,-20 L18,-10 L18,6 C18,16 0,24 0,24 C0,24 -18,16 -18,6 L-18,-10 Z"/>
+        <path d="M0,0 L0,8"/>
+        <circle cx="0" cy="-6" r="2" fill="white"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.42;0.44;0.58;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0.42;0.44;0.58;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M0,-20 L18,-10 L18,6 C18,16 0,24 0,24 C0,24 -18,16 -18,6 L-18,-10 Z"/>
+        <path d="M0,0 L0,8"/>
+        <circle cx="0" cy="-6" r="2" fill="#374151"/>
+      </g>
+      <!-- Sonar ripple on recovery -->
+      <rect x="48" y="48" width="0" height="0" rx="0" fill="none" stroke="#06b6d4" stroke-width="2" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0;0" keyTimes="0;0.44;0.46;0.52;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="48;48;-20;-20;48" keyTimes="0;0.44;0.52;0.54;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="48;48;-20;-20;48" keyTimes="0;0.44;0.52;0.54;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;136;136;0" keyTimes="0;0.44;0.52;0.54;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;136;136;0" keyTimes="0;0.44;0.52;0.54;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;40;40;0" keyTimes="0;0.44;0.52;0.54;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="948" y="525" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Recovery Output</text>
+    <text x="948" y="538" fill="#06b6d4" font-size="9" text-anchor="middle" font-weight="600">funds safe but locked</text>
+  </g>
+
+  <!-- ============ CLOCK on withdrawal path (slow) ============ -->
+  <g opacity="0" transform="translate(590, 180)">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.16;0.18;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    <!-- Clock face -->
+    <circle cx="0" cy="0" r="16" fill="white" stroke="#22c55e" stroke-width="1.5"/>
+    <!-- Minute hand -->
+    <line x1="0" y1="0" x2="0" y2="-11" stroke="#22c55e" stroke-width="2" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="3s" repeatCount="indefinite"/>
+    </line>
+    <!-- Center dot -->
+    <circle cx="0" cy="0" r="2" fill="#22c55e"/>
+  </g>
+  <text x="590" y="212" fill="#22c55e" font-size="8" text-anchor="middle" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.16;0.18;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    CSV delay
+  </text>
+
+  <!-- ============ LOOP INDICATOR ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
+             keyTimes="0;0.58;0.62;0.78;0.82;1" dur="18s" repeatCount="indefinite"/>
+    <text x="1050" y="340" fill="#f59e0b" font-size="24" text-anchor="middle" font-weight="700">↻</text>
+    <text x="1050" y="360" fill="#f59e0b" font-size="9" text-anchor="middle" font-weight="600">repeat</text>
+  </g>
+
+  <!-- ============ COST CALLOUT ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+             keyTimes="0;0.50;0.54;0.72;0.78;1" dur="18s" repeatCount="indefinite"/>
+    <rect x="320" y="560" width="320" height="65" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="480" y="580" fill="#1e293b" font-size="11" text-anchor="middle" font-weight="700">Attack Economics</text>
+    <text x="480" y="598" fill="#ef4444" font-size="10" text-anchor="middle">Attacker: ~122 vB/round (~1,220 sats at 10 sat/vB)</text>
+    <text x="480" y="614" fill="#64748b" font-size="10" text-anchor="middle">Defender: must re-trigger each round (~154 vB)</text>
+  </g>
+
+  <!-- ============ DEFENSE BANNER ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+             keyTimes="0;0.64;0.68;0.82;0.86;1" dur="18s" repeatCount="indefinite"/>
+    <rect x="120" y="710" width="960" height="55" rx="14" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <!-- CTV -->
+    <rect x="150" y="720" width="60" height="28" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/>
+    <text x="180" y="739" fill="#1e40af" font-size="10" text-anchor="middle" font-weight="700">CTV</text>
+    <text x="250" y="739" fill="#64748b" font-size="10" text-anchor="start">Recovery uses cold key — can't be invoked publicly</text>
+    <!-- OP_VAULT -->
+    <rect x="590" y="720" width="90" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1"/>
+    <text x="635" y="739" fill="#5b21b6" font-size="10" text-anchor="middle" font-weight="700">OP_VAULT</text>
+    <text x="700" y="739" fill="#64748b" font-size="10" text-anchor="start">recoveryauth signature required — prevents griefing</text>
+    <text x="600" y="757" fill="#9ca3af" font-size="9" text-anchor="middle">TM2 is unique to CCV's keyless (OP_TRUE) recovery design</text>
+  </g>
+
+  <!-- ============ TITLE ============ -->
+  <text x="600" y="45" fill="#1e293b" font-size="20" text-anchor="middle" font-weight="700">Recovery Griefing — Keyless Front-Running Attack</text>
+  <text x="600" y="68" fill="#64748b" font-size="12" text-anchor="middle">TM2: Anyone can trigger CCV recovery, denying legitimate withdrawals indefinitely</text>
+  <rect x="530" y="80" width="140" height="26" rx="13" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="600" y="98" fill="#92400e" font-size="11" text-anchor="middle" font-weight="700">SEVERE — LIVENESS</text>
+</svg>
