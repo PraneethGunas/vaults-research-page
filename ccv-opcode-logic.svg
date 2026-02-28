@@ -1,0 +1,391 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" font-family="system-ui, -apple-system, sans-serif">
+  <title>CCV Vault — Introspection Through the Lens</title>
+  <desc>CCV acts as a verification lens: the input taptree on the left passes through the CCV opcode, which checks that the output taptree on the right preserves the same structure. Both leaves survive. State data shifts through the lens (internal key tweak updates). A cracked mode byte means no inspection at all.</desc>
+
+  <defs>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1" fill="#c9cdd3" opacity="0.45"/>
+    </pattern>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#9ca3b0" flood-opacity="0.18"/>
+    </filter>
+    <filter id="activeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="18" flood-color="#ffffff" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#e0e7ff" flood-opacity="0.4"/>
+    </filter>
+    <filter id="blueGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#3b82f6" flood-opacity="0.3"/>
+    </filter>
+    <filter id="amberGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="#f59e0b" flood-opacity="0.35"/>
+    </filter>
+    <filter id="greenGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#22c55e" flood-opacity="0.3"/>
+    </filter>
+    <filter id="cyanGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#06b6d4" flood-opacity="0.3"/>
+    </filter>
+    <filter id="redGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#ef4444" flood-opacity="0.35"/>
+    </filter>
+    <filter id="lensGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#f59e0b" flood-opacity="0.25"/>
+    </filter>
+
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="amberGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <!-- Lens gradient (vertical amber → gold) -->
+    <linearGradient id="lensGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fbbf24"/><stop offset="50%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <!-- Clip path for scanning line to stay inside lens -->
+    <clipPath id="lensClip">
+      <path d="M600,130 C636,310 636,490 600,670 C564,490 564,310 600,130 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- ===== BACKGROUND ===== -->
+  <rect width="1200" height="800" fill="#f3f4f6"/>
+  <rect width="1200" height="800" fill="url(#dots)"/>
+
+
+  <!-- ================================================================ -->
+  <!-- TREE BRANCHES (static gray, always showing topology)             -->
+  <!-- ================================================================ -->
+
+  <!-- Left tree branches -->
+  <path d="M260,226 Q200,300 170,348" stroke="#d1d5db" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M260,226 Q320,330 350,398" stroke="#d1d5db" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+  <!-- Right tree branches (identical structure) -->
+  <path d="M940,226 Q880,300 850,348" stroke="#d1d5db" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M940,226 Q1000,330 1030,398" stroke="#d1d5db" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+
+  <!-- ================================================================ -->
+  <!-- VERIFICATION LINES (through the lens — structure matching)       -->
+  <!-- ================================================================ -->
+
+  <!-- Static gray baselines -->
+  <line x1="286" y1="200" x2="914" y2="200" stroke="#e5e7eb" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+  <line x1="192" y1="370" x2="828" y2="370" stroke="#e5e7eb" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+  <line x1="372" y1="420" x2="1008" y2="420" stroke="#e5e7eb" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+
+  <!-- Animated verification overlays (green, cascade as scan passes) -->
+  <!-- Root ↔ Root -->
+  <line x1="286" y1="200" x2="914" y2="200" stroke="#22c55e" stroke-width="2" stroke-dasharray="8,5" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.5;0.5;0;0" keyTimes="0;0.20;0.22;0.62;0.64;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-13" dur="0.5s" repeatCount="indefinite"/>
+  </line>
+  <!-- Trigger ↔ Trigger -->
+  <line x1="192" y1="370" x2="828" y2="370" stroke="#22c55e" stroke-width="2" stroke-dasharray="8,5" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.5;0.5;0;0" keyTimes="0;0.26;0.28;0.62;0.64;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-13" dur="0.5s" repeatCount="indefinite"/>
+  </line>
+  <!-- Recovery ↔ Recovery -->
+  <line x1="372" y1="420" x2="1008" y2="420" stroke="#22c55e" stroke-width="2" stroke-dasharray="8,5" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.5;0.5;0;0" keyTimes="0;0.28;0.30;0.62;0.64;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-13" dur="0.5s" repeatCount="indefinite"/>
+  </line>
+
+
+  <!-- ================================================================ -->
+  <!-- CCV LENS (center — the hero element)                             -->
+  <!-- Biconvex lens shape: wider at center, thinner at edges           -->
+  <!-- ================================================================ -->
+
+  <!-- Lens inactive (always visible, subtle gray) -->
+  <path d="M600,130 C636,310 636,490 600,670 C564,490 564,310 600,130 Z"
+        fill="white" stroke="#e5e7eb" stroke-width="2" filter="url(#cardShadow)" opacity="0.8"/>
+
+  <!-- Lens active (amber, fades in) -->
+  <path d="M600,130 C636,310 636,490 600,670 C564,490 564,310 600,130 Z"
+        fill="url(#lensGrad)" filter="url(#lensGlow)" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+             keyTimes="0;0.16;0.20;0.64;0.68;1" dur="20s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- Lens border (amber, visible when active) -->
+  <path d="M600,130 C636,310 636,490 600,670 C564,490 564,310 600,130 Z"
+        fill="none" stroke="#f59e0b" stroke-width="2.5" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.6;0.6;0;0"
+             keyTimes="0;0.16;0.20;0.64;0.68;1" dur="20s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- Magnifying glass icon inside lens -->
+  <g transform="translate(600, 400)" opacity="0.3">
+    <animate attributeName="opacity" values="0.3;0.3;0.8;0.8;0.3;0.3"
+             keyTimes="0;0.16;0.20;0.64;0.68;1" dur="20s" repeatCount="indefinite"/>
+    <g stroke="#b45309" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.4">
+      <circle cx="-3" cy="-3" r="9"/>
+      <line x1="4" y1="4" x2="12" y2="12" stroke-width="2.5"/>
+    </g>
+  </g>
+
+  <!-- Scanning line (sweeps top→bottom inside lens during inspection) -->
+  <g clip-path="url(#lensClip)">
+    <line x1="560" y1="130" x2="640" y2="130" stroke="#fbbf24" stroke-width="3" opacity="0" stroke-linecap="round">
+      <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+               keyTimes="0;0.18;0.20;0.34;0.36;1" dur="20s" repeatCount="indefinite"/>
+      <animate attributeName="y1" values="130;130;130;670;670;130"
+               keyTimes="0;0.18;0.20;0.34;0.36;1" dur="20s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="130;130;130;670;670;130"
+               keyTimes="0;0.18;0.20;0.34;0.36;1" dur="20s" repeatCount="indefinite"/>
+    </line>
+  </g>
+
+  <!-- Lens activation glow ring -->
+  <path d="M600,124 C642,310 642,490 600,676 C558,490 558,310 600,124 Z"
+        fill="none" stroke="white" stroke-width="3" opacity="0" filter="url(#activeGlow)">
+    <animate attributeName="opacity" values="0;0;0.6;0;0"
+             keyTimes="0;0.18;0.22;0.28;1" dur="20s" repeatCount="indefinite"/>
+  </path>
+
+
+  <!-- ================================================================ -->
+  <!-- TREE NODES — LEFT (input taptree)                                -->
+  <!-- ================================================================ -->
+
+  <!-- Left Root (blue, r=26) -->
+  <g aria-label="Input taproot root">
+    <circle cx="260" cy="200" r="26" fill="url(#blueGrad)" filter="url(#blueGlow)"/>
+    <circle cx="260" cy="200" r="26" fill="white" stroke="#e5e7eb" stroke-width="2" filter="url(#cardShadow)">
+      <animate attributeName="opacity" values="1;1;0;0;1;1"
+               keyTimes="0;0.06;0.10;0.62;0.64;1" dur="20s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="260" cy="200" r="32" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+      <animate attributeName="opacity" values="0;0;0.6;0;0"
+               keyTimes="0;0.06;0.10;0.14;1" dur="20s" repeatCount="indefinite"/>
+    </circle>
+    <text x="260" y="172" fill="#9ca3af" font-size="10" text-anchor="middle" font-weight="500">root</text>
+  </g>
+
+  <!-- Left Trigger leaf (amber, r=20) -->
+  <g aria-label="Input trigger leaf">
+    <circle cx="170" cy="370" r="20" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+    <circle cx="170" cy="370" r="20" fill="white" stroke="#e5e7eb" stroke-width="2" filter="url(#cardShadow)">
+      <animate attributeName="opacity" values="1;1;0;0;1;1"
+               keyTimes="0;0.08;0.12;0.62;0.64;1" dur="20s" repeatCount="indefinite"/>
+    </circle>
+    <text x="170" y="400" fill="#9ca3af" font-size="10" text-anchor="middle" font-weight="500">trigger</text>
+  </g>
+
+  <!-- Left Recovery leaf (cyan, r=20) -->
+  <g aria-label="Input recovery leaf">
+    <circle cx="350" cy="420" r="20" fill="url(#cyanGrad)" filter="url(#cyanGlow)"/>
+    <circle cx="350" cy="420" r="20" fill="white" stroke="#e5e7eb" stroke-width="2" filter="url(#cardShadow)">
+      <animate attributeName="opacity" values="1;1;0;0;1;1"
+               keyTimes="0;0.10;0.14;0.62;0.64;1" dur="20s" repeatCount="indefinite"/>
+    </circle>
+    <text x="350" y="450" fill="#9ca3af" font-size="10" text-anchor="middle" font-weight="500">recovery</text>
+  </g>
+
+
+  <!-- ================================================================ -->
+  <!-- TREE NODES — RIGHT (output taptree, verified)                    -->
+  <!-- ================================================================ -->
+
+  <!-- Right Root (green, r=26) -->
+  <g aria-label="Output taproot root — verified by CCV">
+    <circle cx="940" cy="200" r="26" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+    <circle cx="940" cy="200" r="26" fill="white" stroke="#e5e7eb" stroke-width="2" filter="url(#cardShadow)">
+      <animate attributeName="opacity" values="1;1;0;0;1;1"
+               keyTimes="0;0.50;0.54;0.72;0.74;1" dur="20s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="940" cy="200" r="32" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+      <animate attributeName="opacity" values="0;0;0.6;0;0"
+               keyTimes="0;0.50;0.54;0.58;1" dur="20s" repeatCount="indefinite"/>
+    </circle>
+    <text x="940" y="172" fill="#9ca3af" font-size="10" text-anchor="middle" font-weight="500">root</text>
+  </g>
+
+  <!-- Right Trigger leaf (amber, r=20, with ≡ badge) -->
+  <g aria-label="Output trigger leaf — preserved, verified identical">
+    <circle cx="850" cy="370" r="20" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+    <circle cx="850" cy="370" r="20" fill="white" stroke="#e5e7eb" stroke-width="2" filter="url(#cardShadow)">
+      <animate attributeName="opacity" values="1;1;0;0;1;1"
+               keyTimes="0;0.54;0.58;0.72;0.74;1" dur="20s" repeatCount="indefinite"/>
+    </circle>
+    <!-- ≡ badge (appears during preservation stage) -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0"
+               keyTimes="0;0.60;0.64;0.72;0.74;1" dur="20s" repeatCount="indefinite"/>
+      <circle cx="866" cy="354" r="9" fill="#dcfce7" stroke="#22c55e" stroke-width="1.2"/>
+      <text x="866" y="358" fill="#16a34a" font-size="10" text-anchor="middle" font-weight="700">≡</text>
+    </g>
+    <!-- Sonar ripple -->
+    <circle cx="850" cy="370" r="0" fill="none" stroke="#86efac" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.5;0;0" keyTimes="0;0.62;0.64;0.70;1" dur="20s" repeatCount="indefinite"/>
+      <animate attributeName="r" values="0;0;36;36" keyTimes="0;0.62;0.70;1" dur="20s" repeatCount="indefinite"/>
+    </circle>
+    <text x="850" y="400" fill="#9ca3af" font-size="10" text-anchor="middle" font-weight="500">trigger</text>
+  </g>
+
+  <!-- Right Recovery leaf (cyan, r=20, with ≡ badge) -->
+  <g aria-label="Output recovery leaf — preserved, verified identical">
+    <circle cx="1030" cy="420" r="20" fill="url(#cyanGrad)" filter="url(#cyanGlow)"/>
+    <circle cx="1030" cy="420" r="20" fill="white" stroke="#e5e7eb" stroke-width="2" filter="url(#cardShadow)">
+      <animate attributeName="opacity" values="1;1;0;0;1;1"
+               keyTimes="0;0.56;0.60;0.72;0.74;1" dur="20s" repeatCount="indefinite"/>
+    </circle>
+    <!-- ≡ badge -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0"
+               keyTimes="0;0.62;0.66;0.72;0.74;1" dur="20s" repeatCount="indefinite"/>
+      <circle cx="1046" cy="404" r="9" fill="#dcfce7" stroke="#22c55e" stroke-width="1.2"/>
+      <text x="1046" y="408" fill="#16a34a" font-size="10" text-anchor="middle" font-weight="700">≡</text>
+    </g>
+    <!-- Sonar ripple -->
+    <circle cx="1030" cy="420" r="0" fill="none" stroke="#67e8f9" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.5;0;0" keyTimes="0;0.64;0.66;0.72;1" dur="20s" repeatCount="indefinite"/>
+      <animate attributeName="r" values="0;0;36;36" keyTimes="0;0.64;0.72;1" dur="20s" repeatCount="indefinite"/>
+    </circle>
+    <text x="1030" y="450" fill="#9ca3af" font-size="10" text-anchor="middle" font-weight="500">recovery</text>
+  </g>
+
+
+  <!-- ================================================================ -->
+  <!-- STATE FLOW (horizontal, below trees — blue→lens→cyan)            -->
+  <!-- Shows internal key tweak: same structure, different data         -->
+  <!-- ================================================================ -->
+
+  <!-- State bar baseline -->
+  <line x1="260" y1="530" x2="940" y2="530" stroke="#e5e7eb" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.4"/>
+
+  <!-- Left state node (blue — old state) -->
+  <circle cx="260" cy="530" r="12" fill="url(#blueGrad)" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
+             keyTimes="0;0.38;0.40;0.52;0.54;1" dur="20s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="260" cy="530" r="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.7;0;0;0.7;0.7"
+             keyTimes="0;0.38;0.42;0.52;0.54;1" dur="20s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Right state node (cyan — new state) -->
+  <circle cx="940" cy="530" r="12" fill="url(#cyanGrad)" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
+             keyTimes="0;0.48;0.50;0.62;0.64;1" dur="20s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="940" cy="530" r="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.7;0;0;0.7;0.7"
+             keyTimes="0;0.48;0.52;0.62;0.64;1" dur="20s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- State labels -->
+  <text x="260" y="556" fill="#9ca3af" font-size="9" text-anchor="middle" font-weight="500">state v1</text>
+  <text x="940" y="556" fill="#9ca3af" font-size="9" text-anchor="middle" font-weight="500">state v2</text>
+
+  <!-- State particle flowing through lens (blue→cyan color shift) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0"
+             keyTimes="0;0.40;0.42;0.52;0.54;1" dur="20s" repeatCount="indefinite"/>
+    <!-- Lead particle (shifts from blue start to cyan end via position) -->
+    <circle r="5" fill="#3b82f6">
+      <animate attributeName="opacity" values="0.2;0.9;0.9;0;0" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="272" to="600" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="530;530" dur="0.8s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="5" fill="#06b6d4">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0.2" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="600" to="928" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="530;530" dur="0.8s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Trail particles -->
+    <circle r="2.5" fill="#93c5fd">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.8s" repeatCount="indefinite" begin="0.35s"/>
+      <animate attributeName="cx" from="272" to="600" dur="0.8s" repeatCount="indefinite" begin="0.35s"/>
+      <animate attributeName="cy" values="530;530" dur="0.8s" repeatCount="indefinite" begin="0.35s"/>
+    </circle>
+    <circle r="2.5" fill="#67e8f9">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.8s" repeatCount="indefinite" begin="0.35s"/>
+      <animate attributeName="cx" from="600" to="928" dur="0.8s" repeatCount="indefinite" begin="0.35s"/>
+      <animate attributeName="cy" values="530;530" dur="0.8s" repeatCount="indefinite" begin="0.35s"/>
+    </circle>
+  </g>
+
+  <!-- Animated state dashes (blue left, cyan right) -->
+  <line x1="272" y1="530" x2="575" y2="530" stroke="#3b82f6" stroke-width="2" stroke-dasharray="6,4" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.4;0.4;0;0"
+             keyTimes="0;0.40;0.42;0.52;0.54;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-10" dur="0.5s" repeatCount="indefinite"/>
+  </line>
+  <line x1="625" y1="530" x2="928" y2="530" stroke="#06b6d4" stroke-width="2" stroke-dasharray="6,4" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.4;0.4;0;0"
+             keyTimes="0;0.44;0.46;0.52;0.54;1" dur="20s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-10" dur="0.5s" repeatCount="indefinite"/>
+  </line>
+
+
+  <!-- ================================================================ -->
+  <!-- MODE BYTE (bottom of lens — danger indicator)                    -->
+  <!-- ================================================================ -->
+
+  <!-- Crack lines at bottom of lens -->
+  <g transform="translate(600, 640)" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
+             keyTimes="0;0.74;0.76;0.82;0.84;1" dur="20s" repeatCount="indefinite"/>
+    <!-- Crack lines radiating from lens bottom -->
+    <line x1="0" y1="0" x2="-18" y2="20" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="0" x2="16" y2="22" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="0" x2="-8" y2="26" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="0" y1="0" x2="6" y2="28" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Red circle at crack origin -->
+    <circle cx="0" cy="0" r="8" fill="url(#redGrad)" filter="url(#redGlow)"/>
+    <!-- Warning triangle icon -->
+    <g stroke="white" stroke-width="1.2" stroke-linecap="round" fill="none">
+      <path d="M0,-5 L5,3 L-5,3 Z"/>
+      <line x1="0" y1="-2" x2="0" y2="0"/>
+      <circle cx="0" cy="2" r="0.5" fill="white"/>
+    </g>
+  </g>
+
+  <!-- Red warning flash on lens during mode-byte stage -->
+  <path d="M600,130 C636,310 636,490 600,670 C564,490 564,310 600,130 Z"
+        fill="none" stroke="#ef4444" stroke-width="3" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.7;0;0.6;0;0"
+             keyTimes="0;0.74;0.75;0.76;0.77;0.78;1" dur="20s" repeatCount="indefinite"/>
+  </path>
+
+  <text x="600" y="690" fill="#9ca3af" font-size="10" text-anchor="middle" font-weight="500">mode byte</text>
+
+
+  <!-- ================================================================ -->
+  <!-- PHASE LABELS                                                     -->
+  <!-- ================================================================ -->
+
+  <text x="260" y="140" fill="#3b82f6" font-size="12" text-anchor="middle" font-weight="600" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.06;0.08;0.14;0.16;1" dur="20s" repeatCount="indefinite"/>
+    input
+  </text>
+
+  <text x="600" y="108" fill="#f59e0b" font-size="12" text-anchor="middle" font-weight="600" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.18;0.20;0.34;0.36;1" dur="20s" repeatCount="indefinite"/>
+    inspect
+  </text>
+
+  <text x="600" y="484" fill="#22c55e" font-size="11" text-anchor="middle" font-weight="600" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.6;0.6;0;0" keyTimes="0;0.22;0.24;0.62;0.64;1" dur="20s" repeatCount="indefinite"/>
+    structure matched
+  </text>
+
+  <text x="940" y="140" fill="#22c55e" font-size="12" text-anchor="middle" font-weight="600" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.50;0.52;0.62;0.64;1" dur="20s" repeatCount="indefinite"/>
+    verified
+  </text>
+
+</svg>
