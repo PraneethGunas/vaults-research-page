@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 1200 800" width="1200" height="800"
+     viewBox="0 0 1200 700" width="1200" height="700"
      font-family="system-ui, -apple-system, sans-serif">
   <title>CCV Mode Bypass — OP_SUCCESS via Undefined Flags</title>
   <desc>Animated diagram showing how a single-byte encoding error in a CCV vault script triggers OP_SUCCESS, completely bypassing all covenant checks and enabling total fund theft. Side-by-side comparison of correct (mode=0) vs buggy (mode=3) vault.</desc>
@@ -49,8 +49,8 @@
   </defs>
 
   <!-- Background -->
-  <rect width="1200" height="800" fill="#f3f4f6"/>
-  <rect width="1200" height="800" fill="url(#dots)"/>
+  <rect width="1200" height="700" fill="#f3f4f6"/>
+  <rect width="1200" height="700" fill="url(#dots)"/>
 
   <!-- ============================================================
        CCV MODE BYPASS (TM8)
@@ -315,7 +315,6 @@
       </g>
     </g>
     <text x="833" y="295" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Protected</text>
-    <text x="833" y="308" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="700">FUNDS SAFE</text>
   </g>
 
   <!-- ============ CARDS — BOTTOM LANE (BUGGY VAULT) ============ -->
@@ -420,80 +419,13 @@
       </g>
     </g>
     <text x="833" y="625" fill="#ef4444" font-size="11" text-anchor="middle" font-weight="700">STOLEN</text>
-    <text x="833" y="638" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="500">110 vB exploit</text>
   </g>
 
-  <!-- ============ BYTE COMPARISON CALLOUT ============ -->
-  <g opacity="0">
-    <animate attributeName="opacity" values="0;0;1;1;0;0"
-             keyTimes="0;0.45;0.48;0.72;0.80;1" dur="16s" repeatCount="indefinite"/>
-
-    <!-- Central callout box -->
-    <rect x="420" y="350" width="360" height="80" rx="16" fill="white" stroke="#e5e7eb" stroke-width="2" filter="url(#cardShadow)"/>
-
-    <!-- Left byte (correct) -->
-    <rect x="445" y="365" width="100" height="50" rx="10" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
-    <text x="495" y="385" fill="#166534" font-size="10" text-anchor="middle" font-weight="700">CORRECT</text>
-    <text x="495" y="405" fill="#166534" font-size="18" text-anchor="middle" font-weight="700" font-family="monospace">0x00</text>
-
-    <!-- Arrow -->
-    <text x="580" y="397" fill="#9ca3af" font-size="20" text-anchor="middle">→</text>
-
-    <!-- Right byte (buggy) -->
-    <rect x="615" y="365" width="100" height="50" rx="10" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
-    <text x="665" y="385" fill="#991b1b" font-size="10" text-anchor="middle" font-weight="700">BUGGY</text>
-    <text x="665" y="405" fill="#991b1b" font-size="18" text-anchor="middle" font-weight="700" font-family="monospace">0x03</text>
-
-    <!-- Label -->
-    <text x="600" y="345" fill="#64748b" font-size="10" text-anchor="middle" font-weight="600">ONE BYTE DIFFERENCE</text>
-  </g>
 
   <!-- ============ OUTCOME LABELS ============ -->
-  <!-- Top right: Safe -->
-  <g opacity="0">
-    <animate attributeName="opacity" values="0;0;1;1;0;0"
-             keyTimes="0;0.32;0.35;0.72;0.80;1" dur="16s" repeatCount="indefinite"/>
-    <rect x="1020" y="195" width="130" height="70" rx="14" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
-    <text x="1085" y="224" fill="#166534" font-size="13" text-anchor="middle" font-weight="700">SAFE</text>
-    <text x="1085" y="245" fill="#166534" font-size="9" text-anchor="middle">Covenant enforced</text>
-    <text x="1085" y="257" fill="#166534" font-size="9" text-anchor="middle">Funds protected</text>
-  </g>
 
-  <!-- Bottom right: Stolen -->
-  <g opacity="0">
-    <animate attributeName="opacity" values="0;0;1;1;0;0"
-             keyTimes="0;0.42;0.45;0.72;0.80;1" dur="16s" repeatCount="indefinite"/>
-    <rect x="1020" y="525" width="130" height="70" rx="14" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
-    <text x="1085" y="554" fill="#991b1b" font-size="13" text-anchor="middle" font-weight="700">STOLEN</text>
-    <text x="1085" y="575" fill="#991b1b" font-size="9" text-anchor="middle">OP_SUCCESS bypass</text>
-    <text x="1085" y="587" fill="#991b1b" font-size="9" text-anchor="middle">100% fund loss</text>
-  </g>
-
-  <!-- ============ DEFENSE BANNER ============ -->
-  <g opacity="0">
-    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
-             keyTimes="0;0.60;0.65;0.82;0.88;1" dur="16s" repeatCount="indefinite"/>
-
-    <rect x="180" y="710" width="840" height="55" rx="14" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
-
-    <!-- CTV -->
-    <rect x="210" y="720" width="60" height="28" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/>
-    <text x="240" y="739" fill="#1e40af" font-size="10" text-anchor="middle" font-weight="700">CTV</text>
-    <text x="310" y="739" fill="#64748b" font-size="10" text-anchor="start">Not affected — no CCV opcode</text>
-
-    <!-- OP_VAULT -->
-    <rect x="580" y="720" width="90" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1"/>
-    <text x="625" y="739" fill="#5b21b6" font-size="10" text-anchor="middle" font-weight="700">OP_VAULT</text>
-    <text x="690" y="739" fill="#64748b" font-size="10" text-anchor="start">Not affected — uses OP_VAULT opcode</text>
-
-    <text x="600" y="757" fill="#9ca3af" font-size="9" text-anchor="middle">TM8 is unique to CCV — the OP_SUCCESS fallback is a design choice for soft-fork upgradability</text>
-  </g>
 
   <!-- ============ TITLE ============ -->
   <text x="600" y="45" fill="#1e293b" font-size="20" text-anchor="middle" font-weight="700">CCV Mode Bypass — OP_SUCCESS via Undefined Flags</text>
-  <text x="600" y="68" fill="#64748b" font-size="12" text-anchor="middle">TM8: A single-byte encoding error completely bypasses all covenant checks</text>
 
-  <!-- Severity badge -->
-  <rect x="530" y="80" width="140" height="26" rx="13" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
-  <text x="600" y="98" fill="#991b1b" font-size="11" text-anchor="middle" font-weight="700">CRITICAL SEVERITY</text>
 </svg>

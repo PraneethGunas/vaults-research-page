@@ -91,9 +91,6 @@
 
   <!-- ============ TITLE ============ -->
   <text x="600" y="45" fill="#1e293b" font-size="20" text-anchor="middle" font-weight="700">Fee Pinning Attack — CPFP Anchor Descendant Chain</text>
-  <text x="600" y="68" fill="#64748b" font-size="12" text-anchor="middle">TM1: Attacker uses fee key to build 25-tx chain, blocking cold sweep while CSV expires</text>
-  <rect x="515" y="80" width="170" height="26" rx="13" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
-  <text x="600" y="98" fill="#991b1b" font-size="11" text-anchor="middle" font-weight="700">CRITICAL — FUND THEFT</text>
 
   <!-- ============ STATIC CONNECTIONS ============ -->
   <!-- Vault → Unvault Tx -->
@@ -147,13 +144,18 @@
   </line>
 
   <!-- ============ PARTICLES ============ -->
-  <!-- Vault → Unvault Tx (blue) -->
+  <!-- Vault → Unvault Tx (blue) — lead + trail -->
   <g opacity="0">
     <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.08;0.14;0.16;1" dur="18s" repeatCount="indefinite"/>
     <circle r="3.5" fill="#3b82f6">
       <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.5s" repeatCount="indefinite"/>
       <animate attributeName="cx" from="146" to="220" dur="0.5s" repeatCount="indefinite"/>
       <animate attributeName="cy" values="330;330" dur="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#93c5fd">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
+      <animate attributeName="cx" from="146" to="220" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
+      <animate attributeName="cy" values="330;330" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
     </circle>
   </g>
   <!-- Unvault Tx → upper (purple) -->
@@ -206,6 +208,19 @@
     </circle>
   </g>
 
+  <!-- Cold sweep attempt particles (green → blocked, reverse flow up toward unvault) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.36;0.38;0.44;0.46;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.7;0.7;0.1" dur="1.2s" repeatCount="indefinite"/>
+      <animateMotion path="M0,0 Q-130,-80 -110,-340" dur="1.2s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#86efac">
+      <animate attributeName="opacity" values="0.1;0.4;0.4;0.1" dur="1.2s" repeatCount="indefinite" begin="0.5s"/>
+      <animateMotion path="M0,0 Q-130,-80 -110,-340" dur="1.2s" repeatCount="indefinite" begin="0.5s"/>
+    </circle>
+  </g>
+
   <!-- ============ CARDS ============ -->
 
   <!-- Card 1: Vault UTXO (blue) -->
@@ -228,6 +243,13 @@
         <path d="M-8,-6 L-8,-14 a8,8 0 0,1 16,0 L8,-6"/>
         <circle cx="0" cy="5" r="2.5" fill="#374151"/>
       </g>
+      <!-- Glow ring (brief flash on activation) -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27"
+            fill="none" stroke="white" stroke-width="2" opacity="0"
+            filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.03;0.04;0.06;0.08;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
     </g>
     <text x="98" y="395" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Vault UTXO</text>
   </g>
@@ -257,7 +279,6 @@
       </g>
     </g>
     <text x="288" y="395" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Unvault Tx</text>
-    <text x="288" y="408" fill="#8b5cf6" font-size="9" text-anchor="middle" font-weight="500">CTV-committed</text>
   </g>
 
   <!-- Card 3: Unvault UTXO (amber, upper path) -->
@@ -291,7 +312,6 @@
       </rect>
     </g>
     <text x="508" y="295" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Unvault UTXO</text>
-    <text x="508" y="308" fill="#f59e0b" font-size="9" text-anchor="middle" font-weight="500">P2WSH IF/ELSE</text>
   </g>
 
   <!-- Card 4: CPFP Anchor (slate, lower path — the vulnerability) -->
@@ -319,7 +339,6 @@
       </g>
     </g>
     <text x="508" y="525" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">CPFP Anchor</text>
-    <text x="508" y="538" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="600">550 sats — THE VULNERABILITY</text>
   </g>
 
   <!-- Card 5: Descendant Chain (red, attacker-built) -->
@@ -358,7 +377,6 @@
       </rect>
     </g>
     <text x="754" y="525" fill="#ef4444" font-size="11" text-anchor="middle" font-weight="700">Descendant Chain</text>
-    <text x="754" y="538" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="500">25 txs · ~19,150 sats</text>
   </g>
 
   <!-- Card 6: Cold Sweep (green, gets BLOCKED) -->
@@ -394,7 +412,7 @@
       </rect>
     </g>
     <text x="608" y="673" fill="#ef4444" font-size="11" text-anchor="middle" font-weight="700">Cold Sweep</text>
-    <text x="608" y="686" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="600">BLOCKED — BIP125 limit</text>
+    <text x="608" y="686" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="600">BLOCKED</text>
   </g>
 
   <!-- Card 7: Hot Withdrawal (red glow — attacker succeeds) -->
@@ -429,9 +447,36 @@
         <animate attributeName="width" values="118;128;118" dur="0.7s" repeatCount="indefinite"/>
         <animate attributeName="height" values="106;116;106" dur="0.7s" repeatCount="indefinite"/>
       </rect>
+      <!-- Sonar ripple on theft (3 expanding rings) -->
+      <rect x="54" y="48" width="0" height="0" rx="0"
+            fill="none" stroke="#ef4444" stroke-width="2" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0;0" keyTimes="0;0.62;0.64;0.72;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="54;54;-20;-20" keyTimes="0;0.62;0.72;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="48;48;-20;-20" keyTimes="0;0.62;0.72;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;148;148" keyTimes="0;0.62;0.72;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;136;136" keyTimes="0;0.62;0.72;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;40;40" keyTimes="0;0.62;0.72;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="54" y="48" width="0" height="0" rx="0"
+            fill="none" stroke="#ef4444" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0;0" keyTimes="0;0.64;0.66;0.74;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="54;54;-28;-28" keyTimes="0;0.64;0.74;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="48;48;-28;-28" keyTimes="0;0.64;0.74;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;164;164" keyTimes="0;0.64;0.74;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;152;152" keyTimes="0;0.64;0.74;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;44;44" keyTimes="0;0.64;0.74;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="54" y="48" width="0" height="0" rx="0"
+            fill="none" stroke="#ef4444" stroke-width="1" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0;0" keyTimes="0;0.66;0.68;0.76;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="54;54;-36;-36" keyTimes="0;0.66;0.76;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="48;48;-36;-36" keyTimes="0;0.66;0.76;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;180;180" keyTimes="0;0.66;0.76;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;168;168" keyTimes="0;0.66;0.76;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;48;48" keyTimes="0;0.66;0.76;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
     </g>
     <text x="884" y="295" fill="#ef4444" font-size="12" text-anchor="middle" font-weight="700">THEFT</text>
-    <text x="884" y="308" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="500">hot key withdrawal</text>
   </g>
 
   <!-- ============ CLOCK on upper path (CSV waiting) ============ -->
@@ -443,47 +488,33 @@
     </line>
     <circle cx="0" cy="0" r="2" fill="#f59e0b"/>
   </g>
-  <text x="680" y="244" fill="#f59e0b" font-size="8" text-anchor="middle" opacity="0">
-    <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.36;0.40;0.56;0.58;1" dur="18s" repeatCount="indefinite"/>
-    CSV expiring...
-  </text>
 
-  <!-- ============ CHAIN COUNTER (during build phase) ============ -->
+  <!-- ============ CHAIN COUNTER (during build phase — stacking labels) ============ -->
+  <!-- Counter: shows "25 txs" as a static callout during the build window -->
   <g opacity="0">
     <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
-             keyTimes="0;0.24;0.28;0.38;0.42;1" dur="18s" repeatCount="indefinite"/>
-    <rect x="630" y="380" width="50" height="22" rx="6" fill="#fef2f2" stroke="#ef4444" stroke-width="1"/>
-    <text x="655" y="396" fill="#ef4444" font-size="10" text-anchor="middle" font-weight="700">
-      <animate attributeName="textContent" values="1;5;10;15;20;25" dur="3s" repeatCount="indefinite" fill="freeze"/>
-      building...
-    </text>
+             keyTimes="0;0.28;0.30;0.40;0.44;1" dur="18s" repeatCount="indefinite"/>
+    <rect x="720" y="530" width="80" height="24" rx="6" fill="#fef2f2" stroke="#ef4444" stroke-width="1"/>
+    <text x="760" y="547" fill="#ef4444" font-size="10" text-anchor="middle" font-weight="700">25 descendants</text>
   </g>
 
   <!-- ============ COST CALLOUT ============ -->
   <g opacity="0">
-    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
-             keyTimes="0;0.62;0.66;0.78;0.82;1" dur="18s" repeatCount="indefinite"/>
-    <rect x="860" y="420" width="280" height="80" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
-    <text x="1000" y="442" fill="#1e293b" font-size="11" text-anchor="middle" font-weight="700">Attack Economics</text>
-    <text x="1000" y="460" fill="#ef4444" font-size="10" text-anchor="middle">Attacker: ~19,150 sats (25 × 766 sats)</text>
-    <text x="1000" y="478" fill="#ef4444" font-size="10" text-anchor="middle">Potential theft: entire vault balance</text>
-    <text x="1000" y="492" fill="#64748b" font-size="9" text-anchor="middle">BIP125 descendant limit = 25 txs / 101 kvB</text>
+    <animate attributeName="opacity" values="0;0;0.85;0.85;0;0"
+             keyTimes="0;0.68;0.70;0.78;0.80;1" dur="18s" repeatCount="indefinite"/>
+    <rect x="920" y="340" width="220" height="64" rx="12" fill="white" stroke="#fecaca" stroke-width="1.5"/>
+    <text x="1030" y="364" fill="#991b1b" font-size="12" text-anchor="middle" font-weight="700">Attack Cost</text>
+    <text x="1030" y="382" fill="#ef4444" font-size="11" text-anchor="middle" font-weight="500">2,750 sats mining + 16,400 dust</text>
+    <text x="1030" y="396" fill="#9ca3af" font-size="10" text-anchor="middle">25 × 110 vB descendant chain</text>
   </g>
 
   <!-- ============ DEFENSE BANNER ============ -->
   <g opacity="0">
-    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
-             keyTimes="0;0.72;0.76;0.86;0.90;1" dur="18s" repeatCount="indefinite"/>
-    <rect x="120" y="720" width="960" height="55" rx="14" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
-    <!-- CCV -->
-    <rect x="150" y="730" width="60" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1"/>
-    <text x="180" y="749" fill="#5b21b6" font-size="10" text-anchor="middle" font-weight="700">CCV</text>
-    <text x="220" y="749" fill="#64748b" font-size="10" text-anchor="start">No CPFP anchors — fees paid via separate mechanism</text>
-    <!-- OP_VAULT -->
-    <rect x="600" y="730" width="90" height="28" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1"/>
-    <text x="645" y="749" fill="#16a34a" font-size="10" text-anchor="middle" font-weight="700">OP_VAULT</text>
-    <text x="700" y="749" fill="#64748b" font-size="10" text-anchor="start">Separate fee wallet — no shared anchor output</text>
-    <text x="600" y="767" fill="#9ca3af" font-size="9" text-anchor="middle">TM1 is unique to CTV's CPFP anchor design (OP_1 output with fee key)</text>
+    <animate attributeName="opacity" values="0;0;0.85;0.85;0;0"
+             keyTimes="0;0.78;0.80;0.86;0.88;1" dur="18s" repeatCount="indefinite"/>
+    <rect x="920" y="420" width="220" height="44" rx="12" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+    <text x="1030" y="440" fill="#166534" font-size="11" text-anchor="middle" font-weight="600">Mitigation: TRUC/v3 transactions</text>
+    <text x="1030" y="454" fill="#16a34a" font-size="10" text-anchor="middle">Limits descendant chain to 1</text>
   </g>
 
 </svg>

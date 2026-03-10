@@ -1,0 +1,818 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1200 700" width="1200" height="700"
+     font-family="system-ui, -apple-system, sans-serif">
+  <title>Address Reuse — Four Vaults Compared</title>
+  <desc>Animated diagram showing what happens when a user accidentally sends two deposits to the same vault address. CTV and CAT+CSFS get stuck due to amount commitments. CCV and OP_VAULT handle it cleanly with independent contracts/UTXOs.</desc>
+
+  <defs>
+    <!-- Background pattern -->
+    <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1" fill="#c9cdd3" opacity="0.45"/>
+    </pattern>
+
+    <!-- Card shadow (all cards, always on) -->
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#9ca3b0" flood-opacity="0.18"/>
+    </filter>
+
+    <!-- Active glow (white halo on activation) -->
+    <filter id="activeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="18" flood-color="#ffffff" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#e0e7ff" flood-opacity="0.4"/>
+    </filter>
+
+    <!-- Per-color glows -->
+    <filter id="redGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="#ef4444" flood-opacity="0.35"/>
+    </filter>
+    <filter id="blueGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#3b82f6" flood-opacity="0.3"/>
+    </filter>
+    <filter id="amberGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#f59e0b" flood-opacity="0.3"/>
+    </filter>
+    <filter id="emeraldGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#10b981" flood-opacity="0.3"/>
+    </filter>
+    <filter id="greenGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#22c55e" flood-opacity="0.3"/>
+    </filter>
+
+    <!-- Gradients -->
+    <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="amberGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="emeraldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Canvas background -->
+  <rect width="1200" height="700" fill="#f3f4f6"/>
+  <rect width="1200" height="700" fill="url(#dots)"/>
+
+  <!-- Title -->
+  <text x="600" y="36" fill="#1e293b" font-size="18" text-anchor="middle" font-weight="700">Address Reuse — Four Vaults Compared</text>
+
+  <!-- ============================================================
+       LANE 1: CTV (Red, y~130–220)
+       ============================================================ -->
+
+  <!-- Lane divider above -->
+  <line x1="30" y1="110" x2="1170" y2="110" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- Lane label: CTV -->
+  <text x="45" y="172" fill="#dc2626" font-size="13" font-weight="700">CTV</text>
+
+  <!-- CTV Vault Address Card -->
+  <g aria-label="CTV Vault Address">
+    <g transform="translate(140, 135)">
+      <rect width="96" height="96" rx="22" fill="url(#redGrad)" filter="url(#redGlow)"/>
+      <!-- Vault icon (house) -->
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M-22,-8 L0,-22 L22,-8 L22,18 L-22,18 Z"/>
+        <line x1="-6" y1="-8" x2="-6" y2="6"/>
+        <line x1="6" y1="-8" x2="6" y2="6"/>
+      </g>
+      <!-- White overlay (hides colored bg when inactive) -->
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.08;0.18;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Gray icon (on white bg) -->
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.08;0.18;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M-22,-8 L0,-22 L22,-8 L22,18 L-22,18 Z"/>
+        <line x1="-6" y1="-8" x2="-6" y2="6"/>
+        <line x1="6" y1="-8" x2="6" y2="6"/>
+      </g>
+      <!-- Glow ring (brief flash on activation) -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.08;0.10;0.12;0.14;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Breathing ring (pulses during activation) -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.08;0.10;0.16;0.18;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="188" y="245" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Vault Address</text>
+  </g>
+
+  <!-- CTV → Deposit₁ connection -->
+  <line x1="236" y1="183" x2="280" y2="183" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Dashed overlay (green) -->
+  <line x1="236" y1="183" x2="280" y2="183"
+        stroke="#22c55e" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.18;0.20;0.26;0.28;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.35s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Deposit₁ particle (green) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0"
+             keyTimes="0;0.18;0.20;0.26;0.28;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="236" to="280" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="183;183" dur="0.45s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#86efac">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.45s" repeatCount="indefinite" begin="0.22s"/>
+      <animate attributeName="cx" from="236" to="280" dur="0.45s" repeatCount="indefinite" begin="0.22s"/>
+      <animate attributeName="cy" values="183;183" dur="0.45s" repeatCount="indefinite" begin="0.22s"/>
+    </circle>
+  </g>
+
+  <!-- CTV Deposit₁ card (small, green) -->
+  <g aria-label="CTV Deposit 1">
+    <g transform="translate(292, 145)">
+      <rect width="88" height="88" rx="20" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.18;0.28;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.18;0.28;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.18;0.20;0.22;0.24;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.18;0.20;0.26;0.28;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="336" y="250" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Deposit₁</text>
+  </g>
+
+  <!-- CTV → Deposit₂ connection (amber = caution) -->
+  <line x1="380" y1="183" x2="430" y2="183" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Dashed overlay (amber caution) -->
+  <line x1="380" y1="183" x2="430" y2="183"
+        stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.26;0.28;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Deposit₂ particle (amber) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0"
+             keyTimes="0;0.26;0.28;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#f59e0b">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="380" to="430" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="183;183" dur="0.45s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- CTV Deposit₂ card (small, amber) -->
+  <g aria-label="CTV Deposit 2">
+    <g transform="translate(442, 145)">
+      <rect width="88" height="88" rx="20" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.26;0.38;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.26;0.38;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.26;0.28;0.30;0.32;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.26;0.28;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="486" y="250" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Deposit₂</text>
+  </g>
+
+  <!-- CTV Result: STUCK -->
+  <g aria-label="CTV Result: Stuck">
+    <g transform="translate(590, 135)">
+      <rect width="96" height="96" rx="22" fill="url(#redGrad)" filter="url(#redGlow)"/>
+      <!-- X icon (stuck) -->
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.8" stroke-linecap="round" fill="none">
+        <line x1="-14" y1="-14" x2="14" y2="14"/>
+        <line x1="-14" y1="14" x2="14" y2="-14"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0;0.36;0.48;0.58;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.8" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0;0.36;0.48;0.58;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <line x1="-14" y1="-14" x2="14" y2="14"/>
+        <line x1="-14" y1="14" x2="14" y2="-14"/>
+      </g>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.36;0.38;0.40;0.42;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="638" y="250" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">STUCK</text>
+  </g>
+
+  <!-- ============================================================
+       LANE 2: CCV (Blue, y~310–400)
+       ============================================================ -->
+
+  <!-- Lane divider -->
+  <line x1="30" y1="288" x2="1170" y2="288" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- Lane label: CCV -->
+  <text x="45" y="350" fill="#1e40af" font-size="13" font-weight="700">CCV</text>
+
+  <!-- CCV Vault Address Card 1 -->
+  <g aria-label="CCV Vault Address 1">
+    <g transform="translate(140, 313)">
+      <rect width="96" height="96" rx="22" fill="url(#blueGrad)" filter="url(#blueGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M-22,-8 L0,-22 L22,-8 L22,18 L-22,18 Z"/>
+        <line x1="-6" y1="-8" x2="-6" y2="6"/>
+        <line x1="6" y1="-8" x2="6" y2="6"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.08;0.18;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.08;0.18;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M-22,-8 L0,-22 L22,-8 L22,18 L-22,18 Z"/>
+        <line x1="-6" y1="-8" x2="-6" y2="6"/>
+        <line x1="6" y1="-8" x2="6" y2="6"/>
+      </g>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.08;0.10;0.12;0.14;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.08;0.10;0.16;0.18;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="188" y="423" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Vault₁ Address</text>
+  </g>
+
+  <!-- CCV → Deposit₁ connection -->
+  <line x1="236" y1="361" x2="280" y2="361" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Dashed overlay (green) -->
+  <line x1="236" y1="361" x2="280" y2="361"
+        stroke="#22c55e" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.18;0.20;0.26;0.28;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.35s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Deposit₁ particle (green) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0"
+             keyTimes="0;0.18;0.20;0.26;0.28;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="236" to="280" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="361;361" dur="0.45s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- CCV Deposit₁ card (small, green) -->
+  <g aria-label="CCV Deposit 1">
+    <g transform="translate(292, 323)">
+      <rect width="88" height="88" rx="20" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.18;0.28;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.18;0.28;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.18;0.20;0.22;0.24;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.18;0.20;0.26;0.28;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="336" y="428" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Deposit₁</text>
+  </g>
+
+  <!-- CCV Deposit₂ card (small, amber) — independent vault -->
+  <g aria-label="CCV Deposit 2">
+    <g transform="translate(442, 323)">
+      <rect width="88" height="88" rx="20" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.26;0.38;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.26;0.38;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.26;0.28;0.30;0.32;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.26;0.28;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="486" y="428" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Deposit₂</text>
+  </g>
+
+  <!-- CCV Result: SAFE ✓✓ -->
+  <g aria-label="CCV Result: Safe">
+    <g transform="translate(590, 313)">
+      <rect width="96" height="96" rx="22" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <!-- Check icon (safe) -->
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M-12,2 L-2,12 L16,-8"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0;0.36;0.48;0.58;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0;0.36;0.48;0.58;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M-12,2 L-2,12 L16,-8"/>
+      </g>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.36;0.38;0.40;0.42;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Sonar ripple #1 -->
+      <rect x="19" y="19" width="58" height="58" rx="29" fill="none" stroke="#22c55e" stroke-width="2" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0"
+                 keyTimes="0;0.36;0.38;0.46;0.48;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="19;-10;19" dur="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="19;-10;19" dur="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="58;116;58" dur="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="58;116;58" dur="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="29;58;29" dur="0.8s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Sonar ripple #2 (offset) -->
+      <rect x="19" y="19" width="58" height="58" rx="29" fill="none" stroke="#22c55e" stroke-width="2" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0"
+                 keyTimes="0;0.365;0.38;0.46;0.48;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="19;-10;19" dur="0.8s" repeatCount="indefinite" begin="0.27s"/>
+        <animate attributeName="y" values="19;-10;19" dur="0.8s" repeatCount="indefinite" begin="0.27s"/>
+        <animate attributeName="width" values="58;116;58" dur="0.8s" repeatCount="indefinite" begin="0.27s"/>
+        <animate attributeName="height" values="58;116;58" dur="0.8s" repeatCount="indefinite" begin="0.27s"/>
+        <animate attributeName="rx" values="29;58;29" dur="0.8s" repeatCount="indefinite" begin="0.27s"/>
+      </rect>
+    </g>
+    <text x="638" y="428" fill="#16a34a" font-size="12" text-anchor="middle" font-weight="700">SAFE ✓✓</text>
+  </g>
+
+  <!-- ============================================================
+       LANE 3: OP_VAULT (Amber, y~488–577)
+       ============================================================ -->
+
+  <!-- Lane divider -->
+  <line x1="30" y1="466" x2="1170" y2="466" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- Lane label: OP_VAULT -->
+  <text x="45" y="528" fill="#b45309" font-size="13" font-weight="700">OP_VAULT</text>
+
+  <!-- OP_VAULT Vault Address Card 1 -->
+  <g aria-label="OP_VAULT Vault Address 1">
+    <g transform="translate(140, 491)">
+      <rect width="96" height="96" rx="22" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M-22,-8 L0,-22 L22,-8 L22,18 L-22,18 Z"/>
+        <line x1="-6" y1="-8" x2="-6" y2="6"/>
+        <line x1="6" y1="-8" x2="6" y2="6"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.08;0.18;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.08;0.18;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M-22,-8 L0,-22 L22,-8 L22,18 L-22,18 Z"/>
+        <line x1="-6" y1="-8" x2="-6" y2="6"/>
+        <line x1="6" y1="-8" x2="6" y2="6"/>
+      </g>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.08;0.10;0.12;0.14;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.08;0.10;0.16;0.18;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="188" y="606" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Vault₁ UTXO</text>
+  </g>
+
+  <!-- OP_VAULT → Deposit₁ connection -->
+  <line x1="236" y1="539" x2="280" y2="539" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Dashed overlay (green) -->
+  <line x1="236" y1="539" x2="280" y2="539"
+        stroke="#22c55e" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.18;0.20;0.26;0.28;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.35s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Deposit₁ particle (green) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0"
+             keyTimes="0;0.18;0.20;0.26;0.28;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="236" to="280" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="539;539" dur="0.45s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- OP_VAULT Deposit₁ card (small, green) -->
+  <g aria-label="OP_VAULT Deposit 1">
+    <g transform="translate(292, 501)">
+      <rect width="88" height="88" rx="20" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.18;0.28;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.18;0.28;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.18;0.20;0.22;0.24;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.18;0.20;0.26;0.28;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="336" y="606" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Deposit₁</text>
+  </g>
+
+  <!-- OP_VAULT Deposit₂ card (small, amber) — independent UTXO -->
+  <g aria-label="OP_VAULT Deposit 2">
+    <g transform="translate(442, 501)">
+      <rect width="88" height="88" rx="20" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.26;0.38;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.26;0.38;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.26;0.28;0.30;0.32;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.26;0.28;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="486" y="606" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Deposit₂</text>
+  </g>
+
+  <!-- OP_VAULT Result: SAFE ✓✓ -->
+  <g aria-label="OP_VAULT Result: Safe">
+    <g transform="translate(590, 491)">
+      <rect width="96" height="96" rx="22" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <!-- Check icon (safe) -->
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M-12,2 L-2,12 L16,-8"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0;0.36;0.48;0.58;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0;0.36;0.48;0.58;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M-12,2 L-2,12 L16,-8"/>
+      </g>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.36;0.38;0.40;0.42;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Sonar ripple #1 -->
+      <rect x="19" y="19" width="58" height="58" rx="29" fill="none" stroke="#22c55e" stroke-width="2" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0"
+                 keyTimes="0;0.36;0.38;0.46;0.48;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="19;-10;19" dur="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="19;-10;19" dur="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="58;116;58" dur="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="58;116;58" dur="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="29;58;29" dur="0.8s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Sonar ripple #2 (offset) -->
+      <rect x="19" y="19" width="58" height="58" rx="29" fill="none" stroke="#22c55e" stroke-width="2" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0"
+                 keyTimes="0;0.365;0.38;0.46;0.48;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="19;-10;19" dur="0.8s" repeatCount="indefinite" begin="0.27s"/>
+        <animate attributeName="y" values="19;-10;19" dur="0.8s" repeatCount="indefinite" begin="0.27s"/>
+        <animate attributeName="width" values="58;116;58" dur="0.8s" repeatCount="indefinite" begin="0.27s"/>
+        <animate attributeName="height" values="58;116;58" dur="0.8s" repeatCount="indefinite" begin="0.27s"/>
+        <animate attributeName="rx" values="29;58;29" dur="0.8s" repeatCount="indefinite" begin="0.27s"/>
+      </rect>
+    </g>
+    <text x="638" y="606" fill="#16a34a" font-size="12" text-anchor="middle" font-weight="700">SAFE ✓✓</text>
+  </g>
+
+  <!-- ============================================================
+       LANE 4: CAT+CSFS (Emerald, y~666–755)
+       ============================================================ -->
+
+  <!-- Lane divider -->
+  <line x1="30" y1="644" x2="1170" y2="644" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- Lane label: CAT+CSFS -->
+  <text x="45" y="706" fill="#047857" font-size="13" font-weight="700">CAT+CSFS</text>
+
+  <!-- CAT+CSFS Vault Address Card -->
+  <g aria-label="CAT+CSFS Vault Address">
+    <g transform="translate(140, 669)">
+      <rect width="96" height="96" rx="22" fill="url(#emeraldGrad)" filter="url(#emeraldGlow)"/>
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M-22,-8 L0,-22 L22,-8 L22,18 L-22,18 Z"/>
+        <line x1="-6" y1="-8" x2="-6" y2="6"/>
+        <line x1="6" y1="-8" x2="6" y2="6"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.08;0.18;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.08;0.18;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M-22,-8 L0,-22 L22,-8 L22,18 L-22,18 Z"/>
+        <line x1="-6" y1="-8" x2="-6" y2="6"/>
+        <line x1="6" y1="-8" x2="6" y2="6"/>
+      </g>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.08;0.10;0.12;0.14;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.08;0.10;0.16;0.18;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="188" y="784" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Vault Address</text>
+  </g>
+
+  <!-- CAT+CSFS → Deposit₁ connection -->
+  <line x1="236" y1="717" x2="280" y2="717" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Dashed overlay (green) -->
+  <line x1="236" y1="717" x2="280" y2="717"
+        stroke="#22c55e" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.18;0.20;0.26;0.28;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.35s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Deposit₁ particle (green) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0"
+             keyTimes="0;0.18;0.20;0.26;0.28;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="236" to="280" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="717;717" dur="0.45s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- CAT+CSFS Deposit₁ card (small, green) -->
+  <g aria-label="CAT+CSFS Deposit 1">
+    <g transform="translate(292, 679)">
+      <rect width="88" height="88" rx="20" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.18;0.28;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.18;0.28;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.18;0.20;0.22;0.24;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.18;0.20;0.26;0.28;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="336" y="784" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Deposit₁</text>
+  </g>
+
+  <!-- CAT+CSFS → Deposit₂ connection (amber = caution) -->
+  <line x1="380" y1="717" x2="430" y2="717" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Dashed overlay (amber caution) -->
+  <line x1="380" y1="717" x2="430" y2="717"
+        stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.26;0.28;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Deposit₂ particle (amber) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0"
+             keyTimes="0;0.26;0.28;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#f59e0b">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="380" to="430" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="717;717" dur="0.45s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- CAT+CSFS Deposit₂ card (small, amber) -->
+  <g aria-label="CAT+CSFS Deposit 2">
+    <g transform="translate(442, 679)">
+      <rect width="88" height="88" rx="20" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.26;0.38;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;0;0;1;1"
+                 keyTimes="0;0;0.26;0.38;0.48;0.58;0.72;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <circle cx="0" cy="0" r="16"/>
+        <line x1="-6" y1="0" x2="6" y2="0"/>
+        <line x1="0" y1="-6" x2="0" y2="6"/>
+      </g>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.26;0.28;0.30;0.32;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-4" y="-4" width="96" height="96" rx="20" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+                 keyTimes="0;0.26;0.28;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-4;-8;-4" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="96;104;96" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="486" y="784" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Deposit₂</text>
+  </g>
+
+  <!-- CAT+CSFS Result: STUCK -->
+  <g aria-label="CAT+CSFS Result: Stuck">
+    <g transform="translate(590, 669)">
+      <rect width="96" height="96" rx="22" fill="url(#redGrad)" filter="url(#redGlow)"/>
+      <!-- X icon (stuck) -->
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.8" stroke-linecap="round" fill="none">
+        <line x1="-14" y1="-14" x2="14" y2="14"/>
+        <line x1="-14" y1="14" x2="14" y2="-14"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0;0.36;0.48;0.58;0.88;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.8" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0;1;1"
+                 keyTimes="0;0;0.36;0.48;0.58;0.88;1" dur="18s" repeatCount="indefinite"/>
+        <line x1="-14" y1="-14" x2="14" y2="14"/>
+        <line x1="-14" y1="14" x2="14" y2="-14"/>
+      </g>
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0"
+                 keyTimes="0;0.36;0.38;0.40;0.42;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="638" y="784" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">STUCK</text>
+  </g>
+
+</svg>

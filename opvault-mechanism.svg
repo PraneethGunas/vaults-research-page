@@ -181,12 +181,12 @@
       <animate attributeName="cy" from="205" to="265" dur="0.5s" repeatCount="indefinite"/>
     </circle>
     <circle r="3" fill="#c4b5fd">
-      <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="0.6s" repeatCount="indefinite" begin="0.15s"/>
-      <animateMotion path="M180,305 Q130,355 120,390" dur="0.6s" repeatCount="indefinite" begin="0.15s"/>
+      <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="0.65s" repeatCount="indefinite"/>
+      <animateMotion path="M180,305 Q130,355 120,390" dur="0.65s" repeatCount="indefinite"/>
     </circle>
     <circle r="3" fill="#c4b5fd">
-      <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
-      <animateMotion path="M180,305 Q230,355 240,390" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="0.7s" repeatCount="indefinite"/>
+      <animateMotion path="M180,305 Q230,355 240,390" dur="0.7s" repeatCount="indefinite"/>
     </circle>
   </g>
 
@@ -199,9 +199,9 @@
       <animate attributeName="cy" from="454" to="234" dur="0.7s" repeatCount="indefinite"/>
     </circle>
     <circle r="2.5" fill="#fde68a">
-      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.7s" repeatCount="indefinite" begin="0.35s"/>
-      <animate attributeName="cx" from="165" to="370" dur="0.7s" repeatCount="indefinite" begin="0.35s"/>
-      <animate attributeName="cy" from="454" to="234" dur="0.7s" repeatCount="indefinite" begin="0.35s"/>
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="165" to="370" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="454" to="234" dur="0.8s" repeatCount="indefinite"/>
     </circle>
   </g>
   <g opacity="0">
@@ -230,9 +230,9 @@
       <animate attributeName="cy" from="454" to="560" dur="0.7s" repeatCount="indefinite"/>
     </circle>
     <circle r="2.5" fill="#67e8f9">
-      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.7s" repeatCount="indefinite" begin="0.35s"/>
-      <animate attributeName="cx" from="295" to="370" dur="0.7s" repeatCount="indefinite" begin="0.35s"/>
-      <animate attributeName="cy" from="454" to="560" dur="0.7s" repeatCount="indefinite" begin="0.35s"/>
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="295" to="370" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="454" to="560" dur="0.8s" repeatCount="indefinite"/>
     </circle>
   </g>
   <g opacity="0">

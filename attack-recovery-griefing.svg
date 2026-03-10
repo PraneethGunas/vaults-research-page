@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 1200 800" width="1200" height="800"
+     viewBox="0 0 1200 700" width="1200" height="700"
      font-family="system-ui, -apple-system, sans-serif">
   <title>Recovery Griefing — Keyless Front-Running Attack</title>
   <desc>Animated diagram showing how CCV's keyless recovery mechanism enables anyone to grief a vault owner by front-running their withdrawal with unauthorized recovery transactions, trapping funds in a recovery loop.</desc>
@@ -48,8 +48,8 @@
     </linearGradient>
   </defs>
 
-  <rect width="1200" height="800" fill="#f3f4f6"/>
-  <rect width="1200" height="800" fill="url(#dots)"/>
+  <rect width="1200" height="700" fill="#f3f4f6"/>
+  <rect width="1200" height="700" fill="url(#dots)"/>
 
   <!-- ============================================================
        RECOVERY GRIEFING (TM2)
@@ -311,7 +311,6 @@
       </rect>
     </g>
     <text x="678" y="525" fill="#ef4444" font-size="11" text-anchor="middle" font-weight="700">Attacker</text>
-    <text x="678" y="538" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="500">keyless recovery</text>
   </g>
 
   <!-- Card 5: Recovery Output -->
@@ -345,7 +344,6 @@
       </rect>
     </g>
     <text x="948" y="525" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Recovery Output</text>
-    <text x="948" y="538" fill="#06b6d4" font-size="9" text-anchor="middle" font-weight="600">funds safe but locked</text>
   </g>
 
   <!-- ============ CLOCK on withdrawal path (slow) ============ -->
@@ -373,35 +371,8 @@
     <text x="1050" y="360" fill="#f59e0b" font-size="9" text-anchor="middle" font-weight="600">repeat</text>
   </g>
 
-  <!-- ============ COST CALLOUT ============ -->
-  <g opacity="0">
-    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
-             keyTimes="0;0.50;0.54;0.72;0.78;1" dur="18s" repeatCount="indefinite"/>
-    <rect x="320" y="560" width="320" height="65" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
-    <text x="480" y="580" fill="#1e293b" font-size="11" text-anchor="middle" font-weight="700">Attack Economics</text>
-    <text x="480" y="598" fill="#ef4444" font-size="10" text-anchor="middle">Attacker: ~122 vB/round (~1,220 sats at 10 sat/vB)</text>
-    <text x="480" y="614" fill="#64748b" font-size="10" text-anchor="middle">Defender: must re-trigger each round (~154 vB)</text>
-  </g>
 
-  <!-- ============ DEFENSE BANNER ============ -->
-  <g opacity="0">
-    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
-             keyTimes="0;0.64;0.68;0.82;0.86;1" dur="18s" repeatCount="indefinite"/>
-    <rect x="120" y="710" width="960" height="55" rx="14" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
-    <!-- CTV -->
-    <rect x="150" y="720" width="60" height="28" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/>
-    <text x="180" y="739" fill="#1e40af" font-size="10" text-anchor="middle" font-weight="700">CTV</text>
-    <text x="250" y="739" fill="#64748b" font-size="10" text-anchor="start">Recovery uses cold key — can't be invoked publicly</text>
-    <!-- OP_VAULT -->
-    <rect x="590" y="720" width="90" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1"/>
-    <text x="635" y="739" fill="#5b21b6" font-size="10" text-anchor="middle" font-weight="700">OP_VAULT</text>
-    <text x="700" y="739" fill="#64748b" font-size="10" text-anchor="start">recoveryauth signature required — prevents griefing</text>
-    <text x="600" y="757" fill="#9ca3af" font-size="9" text-anchor="middle">TM2 is unique to CCV's keyless (OP_TRUE) recovery design</text>
-  </g>
 
   <!-- ============ TITLE ============ -->
   <text x="600" y="45" fill="#1e293b" font-size="20" text-anchor="middle" font-weight="700">Recovery Griefing — Keyless Front-Running Attack</text>
-  <text x="600" y="68" fill="#64748b" font-size="12" text-anchor="middle">TM2: Anyone can trigger CCV recovery, denying legitimate withdrawals indefinitely</text>
-  <rect x="530" y="80" width="140" height="26" rx="13" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
-  <text x="600" y="98" fill="#92400e" font-size="11" text-anchor="middle" font-weight="700">SEVERE — LIVENESS</text>
 </svg>

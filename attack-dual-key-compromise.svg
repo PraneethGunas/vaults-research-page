@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 1200 800" width="1200" height="800"
+     viewBox="0 0 1200 700" width="1200" height="700"
      font-family="system-ui, -apple-system, sans-serif">
   <title>Dual-Key Compromise — DoS Not Theft</title>
   <desc>Animated diagram showing how OP_VAULT's worst case — trigger key plus recoveryauth key compromised — results in a denial-of-service loop but NOT fund theft, because recovery always goes to the pre-committed immutable address.</desc>
@@ -48,8 +48,8 @@
     </linearGradient>
   </defs>
 
-  <rect width="1200" height="800" fill="#f3f4f6"/>
-  <rect width="1200" height="800" fill="url(#dots)"/>
+  <rect width="1200" height="700" fill="#f3f4f6"/>
+  <rect width="1200" height="700" fill="url(#dots)"/>
 
   <!-- ============================================================
        DUAL-KEY COMPROMISE DoS (TM6) — OP_VAULT SPECIFIC
@@ -80,9 +80,6 @@
 
   <!-- ============ TITLE ============ -->
   <text x="600" y="45" fill="#1e293b" font-size="20" text-anchor="middle" font-weight="700">Dual-Key Compromise — DoS Not Theft</text>
-  <text x="600" y="68" fill="#64748b" font-size="12" text-anchor="middle">TM6: Even with trigger + recoveryauth keys stolen, OP_VAULT funds cycle to safety</text>
-  <rect x="520" y="80" width="160" height="26" rx="13" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
-  <text x="600" y="98" fill="#92400e" font-size="11" text-anchor="middle" font-weight="700">HIGH — LIVENESS DoS</text>
 
   <!-- ============ ATTACKER KEY BADGES (top, always visible) ============ -->
   <g opacity="0">
@@ -90,15 +87,15 @@
              keyTimes="0;0.06;0.10;0.66;0.76;1" dur="18s" repeatCount="indefinite"/>
     <!-- trigger key -->
     <rect x="200" y="130" width="140" height="30" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="1.2"/>
-    <text x="204" y="150" fill="#ef4444" font-size="10" font-weight="600">🔑 trigger key</text>
+    <text x="252" y="150" fill="#6b7280" font-size="9" font-weight="500">Trigger Key</text>
     <text x="335" y="150" fill="#dc2626" font-size="9" font-weight="700">STOLEN</text>
     <!-- recoveryauth key -->
     <rect x="370" y="130" width="170" height="30" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="1.2"/>
-    <text x="374" y="150" fill="#ef4444" font-size="10" font-weight="600">🔑 recoveryauth key</text>
+    <text x="420" y="150" fill="#6b7280" font-size="9" font-weight="500">Auth Key</text>
     <text x="533" y="150" fill="#dc2626" font-size="9" font-weight="700">STOLEN</text>
     <!-- recovery address -->
     <rect x="570" y="130" width="200" height="30" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.2"/>
-    <text x="574" y="150" fill="#22c55e" font-size="10" font-weight="600">📍 recovery address</text>
+    <text x="630" y="150" fill="#6b7280" font-size="9" font-weight="500">Recovery Addr</text>
     <text x="764" y="150" fill="#16a34a" font-size="9" font-weight="700">IMMUTABLE</text>
   </g>
 
@@ -164,13 +161,13 @@
 
   <!-- ============ RACE ZONE LABELS ============ -->
   <!-- Watchtower label (upper path) -->
-  <g opacity="0">
+  <g aria-label="Watchtower recovery attempt — slower, gets front-run by attacker" opacity="0">
     <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
              keyTimes="0;0.22;0.26;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
     <text x="710" y="258" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600">watchtower recovery</text>
   </g>
   <!-- Attacker label (lower path) -->
-  <g opacity="0">
+  <g aria-label="Attacker front-runs with stolen recoveryauth key" opacity="0">
     <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
              keyTimes="0;0.28;0.32;0.40;0.42;1" dur="18s" repeatCount="indefinite"/>
     <text x="710" y="410" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="700">attacker front-runs!</text>
@@ -297,7 +294,6 @@
       </rect>
     </g>
     <text x="398" y="395" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Trigger Output</text>
-    <text x="398" y="408" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="500">attacker-initiated</text>
   </g>
 
   <!-- Card 3: Recovery Address (green, large — the SAFE destination) -->
@@ -349,34 +345,34 @@
       </rect>
     </g>
     <text x="944" y="408" fill="#22c55e" font-size="12" text-anchor="middle" font-weight="700">Recovery Address</text>
-    <text x="944" y="422" fill="#16a34a" font-size="9" text-anchor="middle" font-weight="600">pre-committed · immutable</text>
   </g>
 
-  <!-- ============ "DoS NOT THEFT" CALLOUT ============ -->
-  <g opacity="0">
+  <!-- ============ "DoS NOT THEFT" STATUS ============ -->
+  <g aria-label="Result: denial of service only, not fund theft — recovery address is immutable" opacity="0">
     <animate attributeName="opacity" values="0;0;1;1;0;0"
              keyTimes="0;0.44;0.48;0.64;0.68;1" dur="18s" repeatCount="indefinite"/>
-    <rect x="380" y="470" width="280" height="70" rx="14" fill="white" stroke="#22c55e" stroke-width="2" filter="url(#cardShadow)"/>
     <text x="520" y="494" fill="#16a34a" font-size="15" text-anchor="middle" font-weight="800">DoS — NOT THEFT</text>
-    <text x="520" y="514" fill="#374151" font-size="10" text-anchor="middle">Recovery address is baked into the script.</text>
-    <text x="520" y="528" fill="#374151" font-size="10" text-anchor="middle">Attacker cannot redirect funds elsewhere.</text>
-    <!-- Green pulse border -->
-    <rect x="380" y="470" width="280" height="70" rx="14" fill="none" stroke="#22c55e" stroke-width="2.5" opacity="0">
-      <animate attributeName="opacity" values="0;0.6;0;0.5;0;0"
-               keyTimes="0;0.20;0.40;0.60;0.80;1" dur="2s" repeatCount="indefinite"/>
-    </rect>
   </g>
 
   <!-- ============ LOOP INDICATOR ============ -->
-  <g opacity="0">
+  <g aria-label="Attack loop: funds cycle back to vault, attacker can repeat indefinitely" opacity="0">
     <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
              keyTimes="0;0.54;0.58;0.72;0.76;1" dur="18s" repeatCount="indefinite"/>
     <text x="600" y="94" fill="#f59e0b" font-size="28" text-anchor="middle" font-weight="700">↻</text>
     <text x="640" y="94" fill="#f59e0b" font-size="10" text-anchor="start" font-weight="600">attacker can repeat — funds cycle back</text>
   </g>
 
+  <!-- ============ COMPARISON CALLOUT: CTV/CAT+CSFS = THEFT ============ -->
+  <g aria-label="Comparison: CTV and CAT+CSFS dual-key compromise leads to fund theft, not just DoS" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+             keyTimes="0;0.66;0.70;0.82;0.86;1" dur="18s" repeatCount="indefinite"/>
+    <rect x="280" y="530" width="640" height="60" rx="12" fill="#fef2f2" stroke="#ef4444" stroke-width="1.2"/>
+    <text x="600" y="555" fill="#1e293b" font-size="12" text-anchor="middle" font-weight="600">In CTV &amp; CAT+CSFS: hot + cold key compromised = FUND THEFT (cold key bypasses all constraints)</text>
+    <text x="600" y="575" fill="#6b7280" font-size="10" text-anchor="middle">OP_VAULT uniquely survives dual-key compromise — immutable recovery address prevents theft</text>
+  </g>
+
   <!-- ============ WATCHTOWER DEFEATED INDICATOR ============ -->
-  <g opacity="0">
+  <g aria-label="Watchtower recovery blocked — attacker's recoveryauth is faster" opacity="0">
     <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
              keyTimes="0;0.32;0.36;0.44;0.46;1" dur="18s" repeatCount="indefinite"/>
     <!-- Red X on watchtower path -->
@@ -384,39 +380,8 @@
       <line x1="-8" y1="-8" x2="8" y2="8" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
       <line x1="8" y1="-8" x2="-8" y2="8" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
     </g>
-    <text x="810" y="254" fill="#ef4444" font-size="8" text-anchor="start" font-weight="600">too slow</text>
   </g>
 
-  <!-- ============ COMPARISON CALLOUT ============ -->
-  <g opacity="0">
-    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
-             keyTimes="0;0.60;0.64;0.76;0.80;1" dur="18s" repeatCount="indefinite"/>
-    <rect x="110" y="560" width="490" height="80" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
-    <text x="355" y="582" fill="#1e293b" font-size="11" text-anchor="middle" font-weight="700">Dual-Key Outcome Comparison</text>
-    <!-- CTV row -->
-    <rect x="130" y="590" width="40" height="20" rx="6" fill="#fee2e2" stroke="#ef4444" stroke-width="1"/>
-    <text x="150" y="604" fill="#dc2626" font-size="9" text-anchor="middle" font-weight="700">CTV</text>
-    <text x="180" y="604" fill="#ef4444" font-size="10" text-anchor="start" font-weight="600">hot + fee keys → FUND THEFT (attacker blocks cold sweep AND steals)</text>
-    <!-- OP_VAULT row -->
-    <rect x="130" y="616" width="74" height="20" rx="6" fill="#f0fdf4" stroke="#22c55e" stroke-width="1"/>
-    <text x="167" y="630" fill="#16a34a" font-size="9" text-anchor="middle" font-weight="700">OP_VAULT</text>
-    <text x="214" y="630" fill="#22c55e" font-size="10" text-anchor="start" font-weight="600">trigger + auth keys → DoS ONLY (recovery address immutable)</text>
-  </g>
 
-  <!-- ============ DEFENSE BANNER ============ -->
-  <g opacity="0">
-    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
-             keyTimes="0;0.70;0.74;0.84;0.88;1" dur="18s" repeatCount="indefinite"/>
-    <rect x="120" y="710" width="960" height="55" rx="14" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)"/>
-    <!-- CTV -->
-    <rect x="150" y="720" width="60" height="28" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1"/>
-    <text x="180" y="739" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">CTV</text>
-    <text x="220" y="739" fill="#64748b" font-size="10" text-anchor="start">Dual-key (hot+fee) = fund theft — no immutable recovery</text>
-    <!-- CCV -->
-    <rect x="600" y="720" width="60" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1"/>
-    <text x="630" y="739" fill="#5b21b6" font-size="10" text-anchor="middle" font-weight="700">CCV</text>
-    <text x="670" y="739" fill="#64748b" font-size="10" text-anchor="start">Only 1 key to steal — simpler model but keyless recovery</text>
-    <text x="600" y="757" fill="#9ca3af" font-size="9" text-anchor="middle">TM6 is unique to OP_VAULT's dual-key (trigger + recoveryauth) architecture</text>
-  </g>
 
 </svg>

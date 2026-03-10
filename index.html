@@ -23,6 +23,7 @@
       --ctv: #ef4444;
       --ccv: #3b82f6;
       --opvault: #f59e0b;
+      --catcsfs: #10b981;
       --card-bg: rgba(255, 255, 255, 0.72);
       --card-border: rgba(0, 0, 0, 0.06);
       --section-gap: 100px;
@@ -116,7 +117,7 @@
     }
 
     .hero h1 .gradient {
-      background: linear-gradient(135deg, var(--ctv), var(--ccv), var(--opvault));
+      background: linear-gradient(135deg, var(--ctv), var(--ccv), var(--opvault), var(--catcsfs));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -203,12 +204,15 @@
       border-radius: 16px;
       overflow: hidden;
       border: 1px solid var(--card-border);
+      margin: 0 auto;
+      max-width: 1200px;
     }
 
     .svg-display img {
       width: 100%;
       height: auto;
       display: block;
+      margin: 0 auto;
     }
 
     .svg-caption {
@@ -283,7 +287,7 @@
     /* ── Vault cards grid ────────────────────────────────── */
     .vault-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 20px;
       margin-bottom: 48px;
     }
@@ -751,6 +755,7 @@
       <div class="links">
         <a href="#vaults">Vaults</a>
         <a href="#attacks">Threat Models</a>
+        <a href="#tradeoffs">Tradeoffs</a>
         <a href="#findings">Findings</a>
         <a href="#realworld">Use Cases</a>
       </div>
@@ -763,7 +768,7 @@
     <div class="hero">
       <h1><span class="gradient">Bitcoin Vault</span><br>Research</h1>
       <p>
-        CTV, CCV, and OP_VAULT are three proposed Bitcoin covenant designs for self-custody vaults.
+        CTV, CCV, OP_VAULT, and CAT+CSFS are four proposed Bitcoin covenant designs for self-custody vaults.
         We ran them head-to-head on regtest, measured everything, and found out which one breaks first —
         and when.
       </p>
@@ -776,6 +781,9 @@
         </a>
         <a href="https://bips.dev/345/" target="_blank" class="pill" style="text-decoration:none;color:inherit">
           <div class="dot" style="background:var(--opvault)"></div>OP_VAULT (BIP 345)
+        </a>
+        <a href="https://bips.dev/347/" target="_blank" class="pill" style="text-decoration:none;color:inherit">
+          <div class="dot" style="background:var(--catcsfs)"></div>CAT+CSFS (BIP 347+348)
         </a>
       </div>
     </div>
@@ -839,6 +847,25 @@
             </div>
             <div class="stat">
               <div class="num" style="color:var(--opvault)">∞</div>
+              <div class="label">revaults</div>
+            </div>
+          </div>
+        </div>
+        <div class="card vault-card">
+          <div class="tag" style="color:var(--catcsfs)">CAT+CSFS · BIP 347+348</div>
+          <h3>The Composed One</h3>
+          <p>General-purpose opcodes (OP_CAT + OP_CSFS) composed into a vault via dual Schnorr verification. Destination locked at creation. Conservative and introspective.</p>
+          <div class="stat-row">
+            <div class="stat">
+              <div class="num" style="color:var(--catcsfs)">493</div>
+              <div class="label">vB lifecycle</div>
+            </div>
+            <div class="stat">
+              <div class="num" style="color:var(--catcsfs)">2</div>
+              <div class="label">keys</div>
+            </div>
+            <div class="stat">
+              <div class="num" style="color:var(--catcsfs)">0</div>
               <div class="label">revaults</div>
             </div>
           </div>
@@ -1073,7 +1100,88 @@
 
       <div class="svg-block">
         <div class="svg-description">
-          The timelock race is the fundamental security mechanism shared by all three vault designs. When an
+          The CAT+CSFS vault takes a fundamentally different approach from the other three designs: instead of a
+          purpose-built opcode, it composes a vault from two general-purpose primitives — OP_CAT (BIP 347) for
+          concatenating stack items and OP_CHECKSIGFROMSTACK (BIP 348) for verifying signatures against
+          arbitrary messages. The lifecycle begins with a deposit to a P2TR address whose internal key is a NUMS
+          point (unspendable key path), with two Taproot leaf scripts: a trigger leaf containing the CSFS+CAT
+          introspection logic, and a recover leaf with a simple cold key OP_CHECKSIG. To trigger a withdrawal,
+          the hot key holder broadcasts a transaction that passes dual Schnorr verification — the same signature
+          is checked against both the real transaction sighash (via OP_CHECKSIGVERIFY) and a witness-provided
+          sighash preimage (via OP_CHECKSIGFROMSTACK). If both pass, the preimage is proven authentic, and the
+          script verifies that the output matches the expected vault-loop address. Funds then sit in the
+          vault-loop state, protected by a CSV timelock. After the delay, the same dual-verification mechanism
+          enforces that funds go to the pre-committed destination — which is locked at vault creation time as a
+          sha_single_output constant embedded in the script. The destination cannot be changed without recovering
+          to cold storage and creating a new vault. Recovery uses the cold key via a simple OP_CHECKSIG in the
+          recover leaf — no introspection needed, no constraints on where funds go. The total lifecycle costs
+          approximately 493 vB (deposit ~154 vB, trigger ~185 vB, withdraw ~154 vB). Like CTV, it uses two keys
+          (hot + cold) and does not support partial withdrawals or revaulting.
+        </div>
+        <div class="svg-wrap">
+          <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
+              <path d="M1 4v6h6" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg></button>
+          <div class="svg-display"><img src="cat-csfs-vault-animation.svg" alt="CAT+CSFS vault lifecycle" loading="lazy"></div>
+        </div>
+      </div>
+
+      <div class="svg-block">
+        <div class="svg-description">
+          The dual Schnorr verification at the heart of CAT+CSFS is an elegant trick: the witness provides a
+          decomposed sighash preimage (prefix, sha_single_output, suffix) and a copy of the signature. The
+          script first runs OP_CHECKSIGVERIFY to verify the signature against the actual transaction sighash —
+          this is normal Bitcoin signature verification. Then OP_CAT concatenates the witness-provided preimage
+          pieces into a single message on the stack. OP_CHECKSIGFROMSTACK verifies the same signature against
+          this assembled message. Because a Schnorr signature can only be valid for one message under the same
+          key (discrete log uniqueness), the assembled preimage must be the real sighash. The script then
+          extracts the sha_single_output field from the proven preimage and compares it to a hash constant
+          embedded in the script at vault creation. If they match, the transaction output is guaranteed to pay
+          the pre-committed destination. The sighash type SIGHASH_SINGLE|ANYONECANPAY (0x83) covers only one
+          input and its corresponding output, which means additional fee-paying inputs can be attached without
+          invalidating the covenant signature — a cleaner fee management approach than CTV's CPFP anchors. The
+          tradeoff is that the destination is permanently fixed: the embedded hash cannot change without
+          destroying and re-creating the vault.
+        </div>
+        <div class="svg-wrap">
+          <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
+              <path d="M1 4v6h6" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg></button>
+          <div class="svg-display"><img src="cat-csfs-mechanism.svg" alt="CAT+CSFS dual verification mechanism" loading="lazy"></div>
+        </div>
+      </div>
+
+      <div class="svg-block">
+        <div class="svg-description">
+          At the opcode level, the CAT+CSFS vault script is a verification pipeline. The Taproot output has a
+          NUMS internal key (preventing key-path spends) and a two-leaf taptree. The trigger/withdraw leaf
+          contains the pipeline: OP_CHECKSIGVERIFY verifies the signature against the real transaction, two
+          OP_CAT operations concatenate the preimage fragments (prefix + sha_single_output + suffix), then
+          OP_CHECKSIGFROMSTACK verifies the same signature against the assembled preimage, and finally
+          OP_EQUALVERIFY confirms the output hash matches the embedded constant. The recover leaf is deliberately
+          simple — just cold_pk OP_CHECKSIG with no introspection, no constraints, and no output restrictions.
+          This asymmetry is the design's security model: the trigger path is computationally constrained
+          (outputs must match embedded hashes), while the recovery path is unconstrained (cold key can sweep
+          anywhere). The SIGHASH_SINGLE|ANYONECANPAY flag is critical at this level — it means the sighash
+          preimage only commits to one input and one output, allowing fee-paying inputs to be added freely. This
+          is why CAT+CSFS vaults don't need anchor outputs or CPFP: the covenant signature remains valid
+          regardless of what other inputs or outputs exist in the transaction, as long as the constrained output
+          matches the embedded hash.
+        </div>
+        <div class="svg-wrap">
+          <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
+              <path d="M1 4v6h6" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg></button>
+          <div class="svg-display"><img src="cat-csfs-opcode-logic.svg" alt="CAT+CSFS opcode logic — verification pipeline" loading="lazy"></div>
+        </div>
+      </div>
+
+      <div class="svg-block">
+        <div class="svg-description">
+          The timelock race is the fundamental security mechanism shared by all four vault designs. When an
           unauthorized party triggers a withdrawal — whether through key theft, malware, or coercion — a clock starts.
           The withdrawal is timelocked: it cannot complete until a specified number of blocks have been mined. During
           this window, a watchtower (software monitoring the blockchain for vault-related transactions) detects the
@@ -1230,7 +1338,7 @@
             style="margin-left:6px">Trigger Key Theft (TM3 + TM5)</strong></div>
         <div class="svg-description">
           Trigger key theft is the canonical vault attack: an adversary compromises the hot key used to initiate
-          withdrawals and attempts to steal funds before the watchtower can react. In all three vault designs, the
+          withdrawals and attempts to steal funds before the watchtower can react. In all four vault designs, the
           attack follows the same pattern — the attacker triggers an unauthorized withdrawal, the timelock delay begins,
           and the watchtower races to broadcast recovery. The difference is recovery cost. CTV recovery uses a
           pre-signed cold sweep at 180 vB. CCV recovery is the cheapest at 122 vB because keyless recovery requires no
@@ -1250,27 +1358,31 @@
               <th style="color:var(--ctv)">CTV</th>
               <th style="color:var(--ccv)">CCV</th>
               <th style="color:var(--opvault)">OP_VAULT</th>
+              <th style="color:var(--catcsfs)">CAT+CSFS</th>
             </tr>
             <tr>
               <td>Recovery tx</td>
               <td class="val">180 vB</td>
               <td class="val">122 vB</td>
               <td class="val">246 vB</td>
+              <td class="val">~130 vB</td>
             </tr>
             <tr>
               <td>Mechanism</td>
               <td>Pre-signed cold sweep</td>
               <td>Keyless (no sig)</td>
               <td>2-input + auth sig</td>
+              <td>Cold key CHECKSIG</td>
             </tr>
             <tr>
               <td>Cost vs attacker</td>
               <td class="val">1.91×</td>
               <td class="val">1.26×</td>
               <td class="val">1.19×</td>
+              <td class="val">~0.70×</td>
             </tr>
           </table>
-          <div class="evidence-note">Watchtower wins the race in all cases — timelocks give blocks, not seconds, to respond. The cost difference matters in sustained multi-round attacks (see TM4).</div>
+          <div class="evidence-note">Watchtower wins the race in all cases — timelocks give blocks, not seconds, to respond. The cost difference matters in sustained multi-round attacks (see TM4). CAT+CSFS recovery is cheap because the recover leaf is a simple CHECKSIG — no introspection overhead.</div>
         </div>
         <div class="svg-wrap">
           <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
@@ -1308,33 +1420,38 @@
               <th style="color:var(--ctv)">CTV</th>
               <th style="color:var(--ccv)">CCV</th>
               <th style="color:var(--opvault)">OP_VAULT</th>
+              <th style="color:var(--catcsfs)">CAT+CSFS</th>
             </tr>
             <tr>
               <td>Trigger tx</td>
               <td class="val">94 vB</td>
               <td class="val">154 vB</td>
               <td class="val">292 vB</td>
+              <td class="val">~185 vB</td>
             </tr>
             <tr>
               <td>Recovery tx</td>
               <td class="val">180 vB</td>
               <td class="val">122 vB</td>
               <td class="val">246 vB</td>
+              <td class="val">~130 vB</td>
             </tr>
             <tr>
               <td>Asymmetry</td>
               <td class="val">0.52×</td>
               <td class="val">1.26×</td>
               <td class="val">1.19×</td>
+              <td class="val">~0.70×</td>
             </tr>
             <tr>
               <td>Grief barrier</td>
               <td>Cold key required</td>
               <td class="exploited">None (keyless)</td>
               <td class="safe">Auth key required</td>
+              <td>Cold key required</td>
             </tr>
           </table>
-          <div class="evidence-note">Asymmetry > 1× means the defender pays more per round than the griefer. CCV is worst: zero barrier (keyless recovery) + unfavorable cost ratio. OP_VAULT is best: requires auth key, making anonymous griefing impossible.</div>
+          <div class="evidence-note">Asymmetry > 1× means the defender pays more per round than the griefer. CCV is worst: zero barrier (keyless recovery) + unfavorable cost ratio. OP_VAULT is best: requires auth key, making anonymous griefing impossible. CAT+CSFS is similar to CTV: cold key required for recovery, favorable cost ratio for the defender.</div>
         </div>
         <div class="svg-wrap">
           <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
@@ -1396,7 +1513,7 @@
           <div class="evidence-stat-row">
             <div class="stat">
               <div class="label">Per Split</div>
-              <div class="value">207 vB</div>
+              <div class="value">162 vB</div>
               <div class="context">Trigger + revault (constant)</div>
             </div>
             <div class="stat">
@@ -1448,27 +1565,31 @@
               <th style="color:var(--ctv)">CTV</th>
               <th style="color:var(--ccv)">CCV</th>
               <th style="color:var(--opvault)">OP_VAULT</th>
+              <th style="color:var(--catcsfs)">CAT+CSFS</th>
             </tr>
             <tr>
               <td>Keys compromised</td>
               <td>Hot + cold</td>
               <td class="muted-cell">N/A (single key)</td>
               <td>Trigger + auth</td>
+              <td>Hot + cold</td>
             </tr>
             <tr>
               <td>Outcome</td>
               <td class="exploited">Fund theft</td>
               <td class="muted-cell">—</td>
               <td class="val">DoS only</td>
+              <td class="exploited">Fund theft</td>
             </tr>
             <tr>
               <td>Why</td>
               <td>Full control of both paths</td>
               <td class="muted-cell">No second key exists</td>
               <td>Recovery addr is immutable</td>
+              <td>Cold key bypasses all constraints</td>
             </tr>
           </table>
-          <div class="evidence-note">OP_VAULT's immutable recovery address (embedded in the taproot internal key tweak) means dual-key compromise produces denial-of-service, not theft. Actual fund theft requires compromising the recovery address itself — effectively a 3-key threshold.</div>
+          <div class="evidence-note">OP_VAULT's immutable recovery address (embedded in the taproot internal key tweak) means dual-key compromise produces denial-of-service, not theft. CTV and CAT+CSFS both allow fund theft when both keys are compromised — the cold key recovery path has no output constraints. CAT+CSFS cold key theft directly enables an attacker to sweep vault funds since the recover leaf is an unconstrained CHECKSIG.</div>
         </div>
         <div class="svg-wrap">
           <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
@@ -1479,12 +1600,392 @@
               loading="lazy"></div>
         </div>
       </div>
+
+      <!-- TM11 -->
+      <div class="svg-block">
+        <div style="margin-bottom:12px"><span class="tm-tag critical">CRITICAL</span> <strong
+            style="margin-left:6px">Cold Key Recovery Theft (TM11)</strong></div>
+        <div class="svg-description">
+          This is the most severe CAT+CSFS vulnerability. The recovery leaf uses a simple <code>cold_pk OP_CHECKSIG</code>
+          with SIGHASH_DEFAULT — there is no CAT, no CSFS, no output introspection of any kind. A compromised cold key
+          can construct a recovery transaction sending funds to any arbitrary address, immediately, with no timelock delay
+          and no output constraints. Compare this to the other three designs: CCV recovery is keyless and output-constrained
+          (funds always go to the pre-committed recovery address), OP_VAULT recovery requires the recoveryauth key and is
+          output-constrained (funds always go to the recovery SPK hash), and CTV recovery uses a pre-committed CTV template
+          that locks the destination at vault creation. CAT+CSFS ranks last in recovery security — cold key compromise means
+          immediate, unrestricted, total theft. The 125 vB recovery transaction looks identical to a legitimate cold sweep
+          on-chain; there is no way for a watchtower to distinguish theft from legitimate recovery. Poelstra's recursive
+          reset model (from "CAT and Schnorr Tricks II") would upgrade this to liveness denial only, matching OP_VAULT's
+          security profile, but is not implemented in the current design.
+        </div>
+        <div class="evidence-panel">
+          <h5>Recovery Security Ranking</h5>
+          <table class="evidence-table">
+            <tr>
+              <th>Covenant</th>
+              <th>Recovery Model</th>
+              <th>Cold Key Compromise</th>
+              <th>Result</th>
+            </tr>
+            <tr>
+              <td class="val">CCV</td>
+              <td>Keyless, output-constrained</td>
+              <td>N/A (no key)</td>
+              <td class="safe">Safest</td>
+            </tr>
+            <tr>
+              <td class="val">OP_VAULT</td>
+              <td>Keyed, output-constrained</td>
+              <td>Grief only (recovery addr immutable)</td>
+              <td class="safe">Grief only</td>
+            </tr>
+            <tr>
+              <td class="val">CTV</td>
+              <td>CTV-constrained template</td>
+              <td>Wallet key → theft of recovered funds</td>
+              <td class="exploited">Moderate</td>
+            </tr>
+            <tr>
+              <td class="val">CAT+CSFS</td>
+              <td>Unconstrained OP_CHECKSIG</td>
+              <td>Immediate total theft — any address</td>
+              <td class="exploited">Critical</td>
+            </tr>
+          </table>
+          <div class="evidence-stat-row">
+            <div class="stat">
+              <div class="label">Recovery vsize</div>
+              <div class="value">125 vB</div>
+              <div class="context">From vault or vault-loop</div>
+            </div>
+            <div class="stat">
+              <div class="label">Output constraint</div>
+              <div class="value">None</div>
+              <div class="context">cold_pk CHECKSIG only</div>
+            </div>
+            <div class="stat">
+              <div class="label">Timelock</div>
+              <div class="value">None</div>
+              <div class="context">No CSV on recovery leaf</div>
+            </div>
+            <div class="stat">
+              <div class="label">Distinguishable</div>
+              <div class="value">No</div>
+              <div class="context">Theft looks identical to legitimate recovery</div>
+            </div>
+          </div>
+          <div class="evidence-note">CAT+CSFS only. Recovery leaf script: <code>cold_pk OP_CHECKSIG</code>. No CAT, no CSFS, no output introspection. Cold key holder has unconstrained control over recovery destination.</div>
+        </div>
+        <div class="svg-wrap">
+          <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
+              <path d="M1 4v6h6" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg></button>
+          <div class="svg-display"><img src="attack-cat-csfs-cold-key-recovery.svg" alt="Cold key recovery theft attack" loading="lazy"></div>
+        </div>
+      </div>
+
+      <!-- TM9 -->
+      <div class="svg-block">
+        <div style="margin-bottom:12px"><span class="tm-tag" style="background:#dcfce7; color:#16a34a">IMPOSSIBLE</span> <strong
+            style="margin-left:6px">Hot Key Theft — Output Redirection (TM9)</strong></div>
+        <div class="svg-description">
+          CAT+CSFS's strongest defensive property: even with a fully compromised hot key, the attacker cannot redirect
+          vault funds to an attacker-controlled address. The trigger leaf embeds <code>sha_single_output</code> as a script
+          constant — the SHA256 hash of the expected output. The dual CSFS+CHECKSIGVERIFY verification creates an
+          inseparable binding: CHECKSIGVERIFY checks the signature against the real transaction sighash (which includes the
+          actual output), while CSFS checks the same signature against a preimage assembled from witness data that includes
+          the embedded <code>sha_single_output</code>. If the attacker changes the output, the real sighash changes but the
+          CSFS preimage doesn't — the same signature cannot satisfy both checks. This is enforced at the consensus level
+          (not relay policy). The attacker's only option is to trigger the vault to the pre-embedded vault-loop address
+          repeatedly — pure griefing with no theft path. This makes CAT+CSFS the only vault design where the hot key
+          holder cannot influence the withdrawal destination at trigger time. CTV commits to the full transaction template
+          (including destination) but through a different mechanism; CCV and OP_VAULT both allow the trigger key holder to
+          choose the destination at trigger time.
+        </div>
+        <div class="evidence-panel">
+          <h5>Output Redirection Attempts</h5>
+          <table class="evidence-table">
+            <tr>
+              <th>Attack</th>
+              <th>Method</th>
+              <th>Result</th>
+            </tr>
+            <tr>
+              <td class="val">Redirect output</td>
+              <td>Change output to attacker address</td>
+              <td class="safe">REJECTED (consensus)</td>
+            </tr>
+            <tr>
+              <td class="val">Extra output</td>
+              <td>Add output via SIGHASH_SINGLE</td>
+              <td class="safe">Accepted but funded by extra inputs</td>
+            </tr>
+            <tr>
+              <td class="val">Legitimate trigger</td>
+              <td>Trigger to embedded vault-loop</td>
+              <td class="exploited">Accepted — griefing only</td>
+            </tr>
+          </table>
+          <div class="evidence-stat-row">
+            <div class="stat">
+              <div class="label">Trigger vsize</div>
+              <div class="value">221 vB</div>
+              <div class="context">Normal trigger transaction</div>
+            </div>
+            <div class="stat">
+              <div class="label">Mutated trigger</div>
+              <div class="value">REJECTED</div>
+              <div class="context">Consensus-level enforcement</div>
+            </div>
+            <div class="stat">
+              <div class="label">Theft path</div>
+              <div class="value">None</div>
+              <div class="context">Hot key → griefing only</div>
+            </div>
+          </div>
+          <div class="evidence-note">CAT+CSFS only. Dual CSFS+CHECKSIGVERIFY creates an inseparable binding to the pre-embedded destination. The hot key can trigger repeatedly (griefing) but cannot change where funds go.</div>
+        </div>
+        <div class="svg-wrap">
+          <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
+              <path d="M1 4v6h6" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg></button>
+          <div class="svg-display"><img src="attack-cat-csfs-hot-key-theft.svg" alt="Hot key theft impossibility" loading="lazy"></div>
+        </div>
+      </div>
+
+      <!-- TM10 -->
+      <div class="svg-block">
+        <div style="margin-bottom:12px"><span class="tm-tag" style="background:#dcfce7; color:#16a34a">IMPOSSIBLE</span> <strong
+            style="margin-left:6px">Witness Manipulation — Preimage Forgery (TM10)</strong></div>
+        <div class="svg-description">
+          Tests whether an attacker can tamper with the sighash preimage components to bypass the CAT+CSFS covenant. The
+          preimage is split into three witness items: prefix (untrusted, ~94 bytes), <code>sha_single_output</code> (trusted,
+          32 bytes, script-embedded), and suffix (untrusted, ~37 bytes). CAT concatenates them, CSFS verifies the signature
+          against the assembled hash, and CHECKSIGVERIFY verifies the same signature against the real transaction. Three
+          independent tampering vectors were tested: modifying the nVersion byte in the prefix (0x02 → 0x03), modifying
+          codesep_pos in the suffix (0xFFFFFFFF → 0x00000000), and changing the hash type from SIGHASH_SINGLE|ANYONECANPAY
+          to SIGHASH_ALL. All three are rejected at the consensus level — any modification to prefix or suffix causes the
+          CSFS-computed sighash to diverge from the real sighash, and the same signature cannot satisfy both checks. The
+          total preimage is 227 bytes, well within the 520-byte OP_CAT stack element limit. For any transaction T with
+          embedded hash S, there exists exactly one valid (prefix, suffix) pair — finding a second requires breaking SHA256.
+        </div>
+        <div class="evidence-panel">
+          <h5>Tampering Vectors Tested</h5>
+          <table class="evidence-table">
+            <tr>
+              <th>Vector</th>
+              <th>Modification</th>
+              <th>Result</th>
+            </tr>
+            <tr>
+              <td class="val">Prefix</td>
+              <td>nVersion 0x02 → 0x03</td>
+              <td class="safe">REJECTED (consensus)</td>
+            </tr>
+            <tr>
+              <td class="val">Suffix</td>
+              <td>codesep_pos 0xFFFFFFFF → 0x00000000</td>
+              <td class="safe">REJECTED (consensus)</td>
+            </tr>
+            <tr>
+              <td class="val">Hash type</td>
+              <td>SIGHASH_SINGLE|ACP → SIGHASH_ALL</td>
+              <td class="safe">REJECTED (consensus)</td>
+            </tr>
+          </table>
+          <div class="evidence-stat-row">
+            <div class="stat">
+              <div class="label">Prefix</div>
+              <div class="value">~94 B</div>
+              <div class="context">Witness-provided (untrusted)</div>
+            </div>
+            <div class="stat">
+              <div class="label">sha_single_output</div>
+              <div class="value">32 B</div>
+              <div class="context">Script-embedded (trusted)</div>
+            </div>
+            <div class="stat">
+              <div class="label">Suffix</div>
+              <div class="value">~37 B</div>
+              <div class="context">Witness-provided (untrusted)</div>
+            </div>
+            <div class="stat">
+              <div class="label">Total / Limit</div>
+              <div class="value">227 / 520 B</div>
+              <div class="context">OP_CAT stack limit ✓</div>
+            </div>
+          </div>
+          <div class="evidence-note">All tampering vectors rejected at consensus level. For any transaction T with embedded hash S, exactly one valid (prefix, suffix) pair exists. Finding a second requires breaking SHA256.</div>
+        </div>
+        <div class="svg-wrap">
+          <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
+              <path d="M1 4v6h6" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg></button>
+          <div class="svg-display"><img src="attack-cat-csfs-witness-manipulation.svg" alt="Witness manipulation impossibility" loading="lazy"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════ DESIGN TRADEOFFS ═══════════════════════ -->
+    <section id="tradeoffs">
+      <div class="section-label">Design Tradeoffs</div>
+      <div class="section-title">Structural Differences That Matter</div>
+
+      <!-- Address Reuse -->
+      <div class="svg-block">
+        <div style="margin-bottom:12px"><span class="tm-tag" style="background:#fef3c7; color:#ca8a04">DESIGN</span> <strong
+            style="margin-left:6px">Address Reuse — Single-Use vs Multi-Deposit</strong></div>
+        <div class="svg-description">
+          What happens when a user accidentally sends a second deposit to the same vault address? CTV and CAT+CSFS have
+          single-use addresses — the second deposit is permanently stuck (CTV because the CTV hash commits to exact output
+          amounts at creation time; CAT+CSFS because the CSFS signature commits to the deposit amount). CCV and OP_VAULT
+          handle multiple deposits safely — each deposit creates an independent contract/UTXO that can be spent on its own
+          terms. This is not an adversarial attack but a user-error footgun. For customer-facing systems (e-commerce, deposit
+          addresses), CTV and CAT+CSFS are disqualified unless wallet software strictly enforces single-use address
+          discipline. With CAT+CSFS there is a nuance: if the signers cooperate, a new signature can be computed for the
+          new amount (the commitment is in the signature at spend-time, not in the script at creation-time). Without signer
+          cooperation, funds are stuck just like CTV.
+        </div>
+        <div class="evidence-panel">
+          <h5>Second Deposit Behavior</h5>
+          <table class="evidence-table">
+            <tr>
+              <th>Covenant</th>
+              <th>Second Deposit</th>
+              <th>Unvault Attempt</th>
+              <th>Result</th>
+            </tr>
+            <tr>
+              <td class="val" style="color:#ef4444">CTV</td>
+              <td>Same scriptPubKey</td>
+              <td>bad-txns-in-belowout</td>
+              <td class="exploited">Funds permanently lost</td>
+            </tr>
+            <tr>
+              <td class="val" style="color:#3b82f6">CCV</td>
+              <td>Independent contract</td>
+              <td>Both withdraw independently</td>
+              <td class="safe">Both safe</td>
+            </tr>
+            <tr>
+              <td class="val" style="color:#f59e0b">OP_VAULT</td>
+              <td>Independent UTXO</td>
+              <td>Both withdraw independently</td>
+              <td class="safe">Both safe</td>
+            </tr>
+            <tr>
+              <td class="val" style="color:#10b981">CAT+CSFS</td>
+              <td>Same P2TR address</td>
+              <td>Signature amount mismatch</td>
+              <td class="exploited">Stuck (recoverable with cooperation)</td>
+            </tr>
+          </table>
+          <div class="evidence-note">CTV commitment is at creation time (script-level). CAT+CSFS commitment is at spend time (signature-level) — more flexible but still single-use in practice. CCV and OP_VAULT are inherently multi-deposit safe.</div>
+        </div>
+        <div class="svg-wrap">
+          <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
+              <path d="M1 4v6h6" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg></button>
+          <div class="svg-display"><img src="address-reuse-comparison.svg" alt="Address reuse comparison across four vaults" loading="lazy"></div>
+        </div>
+      </div>
+
+      <!-- Revault Amplification -->
+      <div class="svg-block">
+        <div style="margin-bottom:12px"><span class="tm-tag" style="background:#dbeafe; color:#2563eb">CAPABILITY</span> <strong
+            style="margin-left:6px">Revault Amplification — Partial Withdrawal Chaining</strong></div>
+        <div class="svg-description">
+          CCV supports native partial withdrawals via its <code>trigger_and_revault</code> clause — a single trigger splits
+          the vault into an unvaulting output (for withdrawal) and a new vault output (holding the remainder). This can be
+          chained repeatedly without recreating the vault. OP_VAULT similarly supports partial withdrawal through
+          OP_VAULT's built-in excess handling. CTV and CAT+CSFS have no native partial withdrawal — every withdrawal
+          requires destroying the entire vault and recreating with new parameters, paying the full lifecycle cost each time.
+          For N partial withdrawals from a 0.5 BTC vault, CCV's cumulative cost scales sub-linearly (the revault output
+          shrinks with each step), while CTV/CAT+CSFS scale linearly at N × full_cycle_cost. This capability gap is also
+          relevant to griefing economics: an attacker triggering CCV/OP_VAULT vaults can use partial triggers to split UTXOs,
+          multiplying the watchtower's recovery burden (see TM4/TM7).
+        </div>
+        <div class="evidence-panel">
+          <h5>Partial Withdrawal Cost Model (5M sat steps from 50M sat vault)</h5>
+          <div class="evidence-stat-row">
+            <div class="stat">
+              <div class="label">CCV per step</div>
+              <div class="value">~162 vB</div>
+              <div class="context">trigger_and_revault (sub-linear)</div>
+            </div>
+            <div class="stat">
+              <div class="label">CTV per step</div>
+              <div class="value">~368 vB</div>
+              <div class="context">Full cycle: destroy + recreate</div>
+            </div>
+            <div class="stat">
+              <div class="label">CAT+CSFS per step</div>
+              <div class="value">~493 vB</div>
+              <div class="context">Full cycle: destroy + recreate</div>
+            </div>
+            <div class="stat">
+              <div class="label">10-step savings (CCV)</div>
+              <div class="value">~56%</div>
+              <div class="context">vs CTV's 10 × full cycle</div>
+            </div>
+          </div>
+          <div class="evidence-note">CCV and OP_VAULT support native partial withdrawal. CTV and CAT+CSFS require full vault destruction and recreation for each partial withdrawal. 10 actual revault steps executed on regtest — vsize constant per step.</div>
+        </div>
+      </div>
+
+      <!-- Multi-Input Batching -->
+      <div class="svg-block">
+        <div style="margin-bottom:12px"><span class="tm-tag" style="background:#dbeafe; color:#2563eb">CAPABILITY</span> <strong
+            style="margin-left:6px">Multi-Input Batching — Trigger Scaling</strong></div>
+        <div class="svg-description">
+          CCV and OP_VAULT can batch multiple vault UTXOs into a single trigger transaction, reducing per-vault marginal
+          cost as N increases. CTV and CAT+CSFS cannot batch — each vault UTXO requires its own trigger transaction.
+          At N=50 inputs, CCV reaches a per-vault cost of ~101 vB (34% savings vs N=1), while CTV and CAT+CSFS remain
+          constant regardless of count. OP_VAULT batching is also sub-linear but with higher marginal cost (~191 vB per
+          additional input vs CCV's ~106 vB). CCV has a DEDUCT footgun: if multiple inputs use DEDUCT mode pointing to
+          the same revault output, the accounting creates contradictory constraints and the transaction is rejected.
+          Safe patterns include single-input DEDUCT, mixed trigger+trigger_and_revault, or separate revault outputs per
+          DEDUCT input. The standardness ceiling (~400k weight units) projects a maximum of ~1,600 vaults per batched
+          CCV trigger transaction; the block weight ceiling (4M WU) allows ~16,000 in theory.
+        </div>
+        <div class="evidence-panel">
+          <h5>CCV DEDUCT Footgun</h5>
+          <table class="evidence-table">
+            <tr>
+              <th>Pattern</th>
+              <th>Config</th>
+              <th>Result</th>
+            </tr>
+            <tr>
+              <td class="val">Safe: mixed</td>
+              <td>1× DEDUCT + 1× preserve</td>
+              <td class="safe">ACCEPTED</td>
+            </tr>
+            <tr>
+              <td class="val">Safe: all-trigger</td>
+              <td>All preserve (no revault)</td>
+              <td class="safe">ACCEPTED</td>
+            </tr>
+            <tr>
+              <td class="val">Unsafe: dual DEDUCT</td>
+              <td>2× DEDUCT → same revault output</td>
+              <td class="exploited">REJECTED (accounting)</td>
+            </tr>
+          </table>
+          <div class="evidence-note">CCV-specific footgun. Multiple DEDUCT inputs pointing to the same revault output create contradictory amount constraints. Safe coordinator patterns exist but require careful implementation.</div>
+        </div>
+      </div>
     </section>
 
     <!-- ═══════════════════════ FINDINGS ═══════════════════════ -->
     <section id="findings">
       <div class="section-label">What We Found</div>
-      <div class="section-title">Four Insights From Regtest</div>
+      <div class="section-title">Seven Insights From Regtest</div>
 
       <div class="findings-grid">
         <div class="card finding-card">
@@ -1520,6 +2021,33 @@
             CCV mode flags outside [0, 1, 2] trigger OP_SUCCESS. We built a production-shaped vault with mode=3
             and drained it. 110 vB, no signature. By design for soft-fork safety — but the highest-severity footgun we
             found.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">05</div>
+          <h4>Composability comes at the cost of destination flexibility</h4>
+          <p>
+            CAT+CSFS builds a vault from general-purpose opcodes — no dedicated opcode needed. But the destination
+            is baked into the script as a hash constant. Changing where funds go requires recovery + re-vaulting.
+            Purpose-built opcodes (CCV, OP_VAULT) allow trigger-time destination choice.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">06</div>
+          <h4>CAT+CSFS recovery is the weakest of all four designs</h4>
+          <p>
+            The recovery leaf is a bare <code>cold_pk OP_CHECKSIG</code> — no output constraints, no timelock,
+            no introspection. A compromised cold key means immediate, unrestricted theft indistinguishable from
+            legitimate recovery. CCV (keyless, constrained) and OP_VAULT (keyed, constrained) both survive cold key loss.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">07</div>
+          <h4>Single-use addresses disqualify two vaults from deposit systems</h4>
+          <p>
+            CTV and CAT+CSFS permanently lose funds on address reuse — CTV at the script level, CAT+CSFS at the
+            signature level. For any customer-facing deposit system, only CCV and OP_VAULT are viable without
+            strict wallet-layer enforcement of single-use discipline.
           </p>
         </div>
       </div>
@@ -1597,6 +2125,18 @@
           <line x1="656" y1="12" x2="676" y2="12" stroke="#f59e0b" stroke-width="2.5" />
           <text x="682" y="16" font-size="11" fill="#f59e0b" font-family="Inter,system-ui,sans-serif"
             font-weight="600">OP_VAULT</text>
+          <!-- CAT+CSFS line: similar to CTV (immune to splitting, fixed destination) but slightly different profile -->
+          <polyline points="80,46 216,49 352,52 488,54 624,57 760,59" fill="none" stroke="#10b981" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8,4" />
+          <circle cx="80" cy="46" r="3.5" fill="#10b981" />
+          <circle cx="216" cy="49" r="3.5" fill="#10b981" />
+          <circle cx="352" cy="52" r="3.5" fill="#10b981" />
+          <circle cx="488" cy="54" r="3.5" fill="#10b981" />
+          <circle cx="624" cy="57" r="3.5" fill="#10b981" />
+          <circle cx="760" cy="59" r="3.5" fill="#10b981" />
+          <line x1="520" y1="26" x2="540" y2="26" stroke="#10b981" stroke-width="2.5" stroke-dasharray="8,4" />
+          <text x="546" y="30" font-size="11" fill="#10b981" font-family="Inter,system-ui,sans-serif"
+            font-weight="600">CAT+CSFS</text>
         </svg>
       </div>
 
@@ -1609,6 +2149,7 @@
               <th style="color:var(--ctv)">CTV</th>
               <th style="color:var(--ccv)">CCV</th>
               <th style="color:var(--opvault)">OP_VAULT</th>
+              <th style="color:var(--catcsfs)">CAT+CSFS</th>
             </tr>
           </thead>
           <tbody>
@@ -1617,36 +2158,56 @@
               <td style="color:#dc2626;font-weight:600">Critical</td>
               <td style="color:#16a34a;font-weight:600">Immune</td>
               <td style="color:#16a34a;font-weight:600">Immune</td>
+              <td style="color:#16a34a;font-weight:600">Immune</td>
             </tr>
             <tr>
               <td><strong>Recovery Griefing</strong></td>
               <td style="color:#ea580c;font-weight:600">Moderate</td>
               <td style="color:#ea580c;font-weight:600">Severe</td>
               <td style="color:#16a34a;font-weight:600">Low</td>
+              <td style="color:#ea580c;font-weight:600">Moderate</td>
             </tr>
             <tr>
               <td><strong>Trigger Key Theft</strong></td>
               <td style="color:#ea580c;font-weight:600">Severe</td>
               <td style="color:#ea580c;font-weight:600">Severe</td>
               <td style="color:#ea580c;font-weight:600">Moderate</td>
+              <td style="color:#ea580c;font-weight:600">Severe</td>
             </tr>
             <tr>
               <td><strong>Watchtower Exhaustion</strong></td>
               <td style="color:#16a34a;font-weight:600">Immune</td>
               <td style="color:#ea580c;font-weight:600">Severe</td>
               <td style="color:#dc2626;font-weight:600">Severe (2×)</td>
+              <td style="color:#16a34a;font-weight:600">Immune</td>
             </tr>
             <tr>
               <td><strong>Dual-Key Compromise</strong></td>
               <td style="color:#dc2626;font-weight:600">Fund theft</td>
               <td style="color:#9ca3af;font-weight:600">N/A</td>
               <td style="color:#ea580c;font-weight:600">DoS only</td>
+              <td style="color:#dc2626;font-weight:600">Fund theft</td>
             </tr>
             <tr>
               <td><strong>CCV Mode Bypass</strong></td>
               <td style="color:#9ca3af;font-weight:600">N/A</td>
               <td style="color:#dc2626;font-weight:600">Critical</td>
               <td style="color:#9ca3af;font-weight:600">N/A</td>
+              <td style="color:#9ca3af;font-weight:600">N/A</td>
+            </tr>
+            <tr>
+              <td><strong>Destination Lock</strong></td>
+              <td style="color:#9ca3af;font-weight:600">N/A</td>
+              <td style="color:#9ca3af;font-weight:600">N/A</td>
+              <td style="color:#9ca3af;font-weight:600">N/A</td>
+              <td style="color:#ea580c;font-weight:600">Rigid (rotation costly)</td>
+            </tr>
+            <tr>
+              <td><strong>Cold Key Theft</strong></td>
+              <td style="color:#ea580c;font-weight:600">Moderate</td>
+              <td style="color:#9ca3af;font-weight:600">N/A (keyless)</td>
+              <td style="color:#ea580c;font-weight:600">Moderate</td>
+              <td style="color:#dc2626;font-weight:600">Critical (unconstrained)</td>
             </tr>
           </tbody>
         </table>
@@ -1658,54 +2219,68 @@
         <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
           <text x="120" y="270" text-anchor="middle" font-size="11" fill="#6b7280"
             font-family="Inter,system-ui,sans-serif">Deposit</text>
-          <rect x="85" y="114" width="22" height="146" rx="3" fill="#ef4444" opacity="0.85" />
-          <rect x="109" y="114" width="22" height="146" rx="3" fill="#3b82f6" opacity="0.85" />
-          <rect x="133" y="114" width="22" height="146" rx="3" fill="#f59e0b" opacity="0.85" />
-          <text x="96" y="108" text-anchor="middle" font-size="9" fill="#ef4444"
+          <rect x="78" y="114" width="20" height="146" rx="3" fill="#ef4444" opacity="0.85" />
+          <rect x="100" y="114" width="20" height="146" rx="3" fill="#3b82f6" opacity="0.85" />
+          <rect x="122" y="114" width="20" height="146" rx="3" fill="#f59e0b" opacity="0.85" />
+          <rect x="144" y="114" width="20" height="146" rx="3" fill="#10b981" opacity="0.85" />
+          <text x="88" y="108" text-anchor="middle" font-size="9" fill="#ef4444"
             font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
-          <text x="120" y="108" text-anchor="middle" font-size="9" fill="#3b82f6"
+          <text x="110" y="108" text-anchor="middle" font-size="9" fill="#3b82f6"
             font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
-          <text x="144" y="108" text-anchor="middle" font-size="9" fill="#f59e0b"
+          <text x="132" y="108" text-anchor="middle" font-size="9" fill="#f59e0b"
+            font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
+          <text x="154" y="108" text-anchor="middle" font-size="9" fill="#10b981"
             font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
           <text x="280" y="270" text-anchor="middle" font-size="11" fill="#6b7280"
             font-family="Inter,system-ui,sans-serif">Trigger</text>
-          <rect x="245" y="121" width="22" height="139" rx="3" fill="#ef4444" opacity="0.85" />
-          <rect x="269" y="130" width="22" height="130" rx="3" fill="#3b82f6" opacity="0.85" />
-          <rect x="293" y="13" width="22" height="247" rx="3" fill="#f59e0b" opacity="0.85" />
-          <text x="256" y="115" text-anchor="middle" font-size="9" fill="#ef4444"
+          <rect x="236" y="121" width="20" height="139" rx="3" fill="#ef4444" opacity="0.85" />
+          <rect x="258" y="130" width="20" height="130" rx="3" fill="#3b82f6" opacity="0.85" />
+          <rect x="280" y="13" width="20" height="247" rx="3" fill="#f59e0b" opacity="0.85" />
+          <rect x="302" y="104" width="20" height="156" rx="3" fill="#10b981" opacity="0.85" />
+          <text x="246" y="115" text-anchor="middle" font-size="9" fill="#ef4444"
             font-family="Inter,system-ui,sans-serif" font-weight="600">164</text>
-          <text x="280" y="124" text-anchor="middle" font-size="9" fill="#3b82f6"
+          <text x="268" y="124" text-anchor="middle" font-size="9" fill="#3b82f6"
             font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
-          <text x="304" y="8" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif"
+          <text x="290" y="8" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif"
             font-weight="600">292</text>
+          <text x="312" y="98" text-anchor="middle" font-size="9" fill="#10b981" font-family="Inter,system-ui,sans-serif"
+            font-weight="600">185</text>
           <text x="440" y="270" text-anchor="middle" font-size="11" fill="#6b7280"
             font-family="Inter,system-ui,sans-serif">Withdraw</text>
-          <rect x="405" y="168" width="22" height="92" rx="3" fill="#ef4444" opacity="0.85" />
-          <rect x="429" y="167" width="22" height="93" rx="3" fill="#3b82f6" opacity="0.85" />
-          <rect x="453" y="157" width="22" height="103" rx="3" fill="#f59e0b" opacity="0.85" />
-          <text x="416" y="162" text-anchor="middle" font-size="9" fill="#ef4444"
+          <rect x="396" y="168" width="20" height="92" rx="3" fill="#ef4444" opacity="0.85" />
+          <rect x="418" y="167" width="20" height="93" rx="3" fill="#3b82f6" opacity="0.85" />
+          <rect x="440" y="157" width="20" height="103" rx="3" fill="#f59e0b" opacity="0.85" />
+          <rect x="462" y="164" width="20" height="96" rx="3" fill="#10b981" opacity="0.85" />
+          <text x="406" y="162" text-anchor="middle" font-size="9" fill="#ef4444"
             font-family="Inter,system-ui,sans-serif" font-weight="600">108</text>
-          <text x="440" y="161" text-anchor="middle" font-size="9" fill="#3b82f6"
+          <text x="428" y="161" text-anchor="middle" font-size="9" fill="#3b82f6"
             font-family="Inter,system-ui,sans-serif" font-weight="600">110</text>
-          <text x="464" y="151" text-anchor="middle" font-size="9" fill="#f59e0b"
+          <text x="450" y="151" text-anchor="middle" font-size="9" fill="#f59e0b"
             font-family="Inter,system-ui,sans-serif" font-weight="600">121</text>
+          <text x="472" y="158" text-anchor="middle" font-size="9" fill="#10b981"
+            font-family="Inter,system-ui,sans-serif" font-weight="600">114</text>
           <text x="600" y="270" text-anchor="middle" font-size="11" fill="#6b7280"
             font-family="Inter,system-ui,sans-serif">Recovery</text>
-          <rect x="565" y="108" width="22" height="152" rx="3" fill="#ef4444" opacity="0.85" />
-          <rect x="589" y="157" width="22" height="103" rx="3" fill="#3b82f6" opacity="0.85" />
-          <rect x="613" y="21" width="22" height="239" rx="3" fill="#f59e0b" opacity="0.85" />
-          <text x="576" y="102" text-anchor="middle" font-size="9" fill="#ef4444"
+          <rect x="556" y="108" width="20" height="152" rx="3" fill="#ef4444" opacity="0.85" />
+          <rect x="578" y="157" width="20" height="103" rx="3" fill="#3b82f6" opacity="0.85" />
+          <rect x="600" y="21" width="20" height="239" rx="3" fill="#f59e0b" opacity="0.85" />
+          <rect x="622" y="142" width="20" height="118" rx="3" fill="#10b981" opacity="0.85" />
+          <text x="566" y="102" text-anchor="middle" font-size="9" fill="#ef4444"
             font-family="Inter,system-ui,sans-serif" font-weight="600">180</text>
-          <text x="600" y="151" text-anchor="middle" font-size="9" fill="#3b82f6"
+          <text x="588" y="151" text-anchor="middle" font-size="9" fill="#3b82f6"
             font-family="Inter,system-ui,sans-serif" font-weight="600">122</text>
-          <text x="624" y="15" text-anchor="middle" font-size="9" fill="#f59e0b"
+          <text x="610" y="15" text-anchor="middle" font-size="9" fill="#f59e0b"
             font-family="Inter,system-ui,sans-serif" font-weight="600">246</text>
-          <rect x="680" y="100" width="10" height="10" rx="2" fill="#ef4444" />
-          <text x="696" y="110" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CTV</text>
-          <rect x="680" y="120" width="10" height="10" rx="2" fill="#3b82f6" />
-          <text x="696" y="130" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CCV</text>
-          <rect x="680" y="140" width="10" height="10" rx="2" fill="#f59e0b" />
-          <text x="696" y="150" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">OP_VAULT</text>
+          <text x="632" y="136" text-anchor="middle" font-size="9" fill="#10b981"
+            font-family="Inter,system-ui,sans-serif" font-weight="600">130</text>
+          <rect x="680" y="90" width="10" height="10" rx="2" fill="#ef4444" />
+          <text x="696" y="100" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CTV</text>
+          <rect x="680" y="108" width="10" height="10" rx="2" fill="#3b82f6" />
+          <text x="696" y="118" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CCV</text>
+          <rect x="680" y="126" width="10" height="10" rx="2" fill="#f59e0b" />
+          <text x="696" y="136" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">OP_VAULT</text>
+          <rect x="680" y="144" width="10" height="10" rx="2" fill="#10b981" />
+          <text x="696" y="154" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CAT+CSFS</text>
           <line x1="75" y1="10" x2="75" y2="260" stroke="#e5e7eb" stroke-width="1" />
           <text x="65" y="264" text-anchor="end" font-size="9" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">0
             vB</text>
@@ -1729,6 +2304,7 @@
               <th style="color:var(--ctv)">CTV</th>
               <th style="color:var(--ccv)">CCV</th>
               <th style="color:var(--opvault)">OP_VAULT</th>
+              <th style="color:var(--catcsfs)">CAT+CSFS</th>
             </tr>
           </thead>
           <tbody>
@@ -1737,17 +2313,20 @@
               <td style="color:#9ca3af">No</td>
               <td style="color:#16a34a; font-weight:600">Yes</td>
               <td style="color:#16a34a; font-weight:600">Yes</td>
+              <td style="color:#9ca3af">No</td>
             </tr>
             <tr>
               <td><strong>Batched trigger</strong></td>
               <td style="color:#9ca3af">No</td>
               <td style="color:#16a34a; font-weight:600">Yes</td>
               <td style="color:#16a34a; font-weight:600">Yes</td>
+              <td style="color:#9ca3af">No</td>
             </tr>
             <tr>
               <td><strong>Keyless recovery</strong></td>
               <td style="color:#9ca3af">No</td>
               <td style="color:#16a34a; font-weight:600">Yes</td>
+              <td style="color:#9ca3af">No</td>
               <td style="color:#9ca3af">No</td>
             </tr>
             <tr>
@@ -1755,18 +2334,28 @@
               <td style="color:#9ca3af">No</td>
               <td style="color:#9ca3af">No</td>
               <td style="color:#16a34a; font-weight:600">Yes</td>
+              <td style="color:#9ca3af">No</td>
             </tr>
             <tr>
               <td><strong>Address reuse safe</strong></td>
               <td style="color:#dc2626; font-weight:600">No — funds lost</td>
               <td style="color:#16a34a; font-weight:600">Yes</td>
               <td style="color:#16a34a; font-weight:600">Yes</td>
+              <td style="color:#dc2626; font-weight:600">No — single use</td>
+            </tr>
+            <tr>
+              <td><strong>Flexible destination</strong></td>
+              <td style="color:#ea580c">Two paths (hot/cold)</td>
+              <td style="color:#16a34a; font-weight:600">Trigger-time choice</td>
+              <td style="color:#16a34a; font-weight:600">Trigger-time choice</td>
+              <td style="color:#dc2626; font-weight:600">Locked at creation</td>
             </tr>
             <tr>
               <td><strong>Lifecycle cost</strong></td>
               <td style="font-weight:700">368 vB</td>
-              <td style="font-weight:700">565 vB</td>
+              <td style="font-weight:700">430 vB</td>
               <td style="font-weight:700">567 vB</td>
+              <td style="font-weight:700">~493 vB</td>
             </tr>
           </tbody>
         </table>
@@ -1775,7 +2364,7 @@
       <!-- Batching efficiency -->
       <div class="card mt-48" style="padding:28px">
         <h4 style="font-size:15px; font-weight:700; margin-bottom:4px">Batching Efficiency — Trigger Cost per Vault</h4>
-        <p class="small muted" style="margin-bottom:20px">CTV has no batching (constant 94 vB/vault). CCV's per-vault cost drops as N increases, reaching 34% savings at 50 inputs.</p>
+        <p class="small muted" style="margin-bottom:20px">CTV and CAT+CSFS have no batching (constant per-vault cost). CCV's per-vault cost drops as N increases, reaching 34% savings at 50 inputs.</p>
         <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
           <!-- Grid -->
           <line x1="80" y1="20" x2="80" y2="250" stroke="#e5e7eb" stroke-width="1" />
@@ -2002,6 +2591,7 @@
               <th style="color:var(--ctv)">CTV</th>
               <th style="color:var(--ccv)">CCV</th>
               <th style="color:var(--opvault)">OP_VAULT</th>
+              <th style="color:var(--catcsfs)">CAT+CSFS</th>
             </tr>
           </thead>
           <tbody>
@@ -2010,60 +2600,77 @@
               <td style="color:#16a34a;font-weight:600">Best</td>
               <td>Good</td>
               <td>Complex</td>
+              <td>Moderate (composed)</td>
             </tr>
             <tr>
               <td><strong>Partial withdrawals</strong></td>
               <td style="color:#dc2626">Not supported</td>
               <td style="color:#16a34a;font-weight:600">Native</td>
               <td style="color:#16a34a;font-weight:600">Native</td>
+              <td style="color:#dc2626">Not supported</td>
             </tr>
             <tr>
               <td><strong>Batched operations</strong></td>
               <td style="color:#dc2626">Not supported</td>
               <td style="color:#16a34a;font-weight:600">Best (106 vB/input)</td>
               <td>Supported (191 vB/input)</td>
+              <td style="color:#dc2626">Not supported</td>
             </tr>
             <tr>
               <td><strong>Address reuse safety</strong></td>
               <td style="color:#dc2626;font-weight:600">Funds lost</td>
               <td style="color:#16a34a">Safe</td>
               <td style="color:#16a34a">Safe</td>
+              <td style="color:#dc2626;font-weight:600">Single use</td>
             </tr>
             <tr>
               <td><strong>Fund safety under key loss</strong></td>
               <td>Moderate</td>
               <td style="color:#16a34a;font-weight:600">Best (keyless)</td>
               <td style="color:#ea580c">Worst (key required)</td>
+              <td>Moderate (cold key)</td>
             </tr>
             <tr>
               <td><strong>Griefing resistance</strong></td>
               <td>Moderate</td>
               <td style="color:#dc2626;font-weight:600">Worst (keyless)</td>
               <td style="color:#16a34a;font-weight:600">Best (auth required)</td>
+              <td>Moderate (cold key)</td>
             </tr>
             <tr>
               <td><strong>Watchtower cost</strong></td>
               <td style="color:#16a34a">Immune to splitting</td>
               <td>122 vB/recovery</td>
               <td style="color:#ea580c">246 vB/recovery (2×)</td>
+              <td style="color:#16a34a">Immune to splitting</td>
+            </tr>
+            <tr>
+              <td><strong>Destination flexibility</strong></td>
+              <td style="color:#ea580c">Two paths (hot/cold)</td>
+              <td style="color:#16a34a;font-weight:600">Trigger-time choice</td>
+              <td style="color:#16a34a;font-weight:600">Trigger-time choice</td>
+              <td style="color:#dc2626;font-weight:600">Locked at creation</td>
             </tr>
             <tr>
               <td><strong>Developer risk surface</strong></td>
               <td>Low (simple scripts)</td>
               <td style="color:#dc2626;font-weight:600">High (mode flags, sentinels)</td>
               <td>Moderate (API instability)</td>
+              <td style="color:#ea580c">High (sighash preimage)</td>
             </tr>
             <tr>
               <td><strong>Key management burden</strong></td>
               <td style="color:#16a34a;font-weight:600">2 keys</td>
               <td style="color:#16a34a;font-weight:600">1 key</td>
               <td style="color:#ea580c">3 keys</td>
+              <td style="color:#16a34a;font-weight:600">2 keys</td>
             </tr>
             <tr>
               <td><strong>On-chain cost (lifecycle)</strong></td>
               <td style="color:#16a34a;font-weight:600">368 vB</td>
               <td>430 vB</td>
-              <td style="color:#ea580c">567 vB (+32%)</td>
+              <td style="color:#ea580c">567 vB (+54%)</td>
+              <td>493 vB (+34%)</td>
             </tr>
           </tbody>
         </table>
@@ -2075,7 +2682,7 @@
       <div class="card" style="padding:24px; text-align:center; max-width:640px; margin:0 auto">
         <p class="small muted">
           All measurements from Bitcoin regtest. Transaction sizes (vsize) are structurally valid.
-          12 experiments, 8 threat models, 3 covenant designs.
+          16 experiments, 11 threat models, 4 covenant designs.
         </p>
       </div>
     </section>
@@ -2087,14 +2694,16 @@
       <p>Bitcoin Vault Covenant Comparison · Regtest</p>
       <p style="margin-top:8px">
         Built on <a href="https://github.com/AlejandroAkbal/simple-ctv-vault" target="_blank">simple-ctv-vault</a>,
-        <a href="https://github.com/Merkleize/pymatt" target="_blank">pymatt</a>, and
-        <a href="https://github.com/jamesob/opvault-demo" target="_blank">opvault-demo</a>
+        <a href="https://github.com/Merkleize/pymatt" target="_blank">pymatt</a>,
+        <a href="https://github.com/jamesob/opvault-demo" target="_blank">opvault-demo</a>, and
+        simple-cat-csfs-vault (custom)
       </p>
       <p style="margin-top:8px">
         Covenant designs by
         <a href="https://github.com/JeremyRubin" target="_blank">Jeremy Rubin</a> (CTV · BIP 119),
-        <a href="https://github.com/bigspider" target="_blank">Salvatore Ingala</a> (CCV · BIP 443), and
-        <a href="https://github.com/jamesob" target="_blank">James O'Beirne</a> (OP_VAULT · BIP 345)
+        <a href="https://github.com/bigspider" target="_blank">Salvatore Ingala</a> (CCV · BIP 443),
+        <a href="https://github.com/jamesob" target="_blank">James O'Beirne</a> (OP_VAULT · BIP 345), and
+        Möser-Eyal-Sirer / <a href="https://medium.com/blockstream/cat-and-schnorr-tricks-i-faf1b59bd298" target="_blank">Andrew Poelstra</a> (CAT+CSFS · BIP 347 + 348)
       </p>
       <p style="margin-top:8px"><a href="https://github.com/PraneethGunas/vault-comparison"
           target="_blank">GitHub</a></p>

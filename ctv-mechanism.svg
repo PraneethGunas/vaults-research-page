@@ -193,8 +193,8 @@
       <animateMotion path="M218,148 Q300,148 350,308" dur="0.6s" repeatCount="indefinite"/>
     </circle>
     <circle r="2" fill="#c4b5fd">
-      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
-      <animateMotion path="M218,148 Q300,148 350,308" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.7s" repeatCount="indefinite"/>
+      <animateMotion path="M218,148 Q300,148 350,308" dur="0.7s" repeatCount="indefinite"/>
     </circle>
   </g>
   <g opacity="0">
@@ -242,9 +242,9 @@
       <animate attributeName="cy" from="308" to="308" dur="0.4s" repeatCount="indefinite"/>
     </circle>
     <circle r="2" fill="#93c5fd">
-      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
-      <animate attributeName="cx" from="448" to="540" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
-      <animate attributeName="cy" from="308" to="308" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="448" to="540" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="308" to="308" dur="0.45s" repeatCount="indefinite"/>
     </circle>
   </g>
 
@@ -256,12 +256,12 @@
       <animateMotion path="M1038,168 Q980,168 948,308" dur="0.6s" repeatCount="indefinite"/>
     </circle>
     <circle r="3.5" fill="#f59e0b">
-      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.6s" repeatCount="indefinite" begin="0.15s"/>
-      <animateMotion path="M1038,348 Q980,348 948,308" dur="0.6s" repeatCount="indefinite" begin="0.15s"/>
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.65s" repeatCount="indefinite"/>
+      <animateMotion path="M1038,348 Q980,348 948,308" dur="0.65s" repeatCount="indefinite"/>
     </circle>
     <circle r="3.5" fill="#f59e0b">
-      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
-      <animateMotion path="M1038,528 Q980,528 948,308" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.7s" repeatCount="indefinite"/>
+      <animateMotion path="M1038,528 Q980,528 948,308" dur="0.7s" repeatCount="indefinite"/>
     </circle>
   </g>
 
