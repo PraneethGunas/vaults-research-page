@@ -67,6 +67,7 @@
   <!-- Background -->
   <rect width="1200" height="800" fill="#f3f4f6"/>
   <rect width="1200" height="800" fill="url(#dots)"/>
+  <text x="600" y="36" fill="#1e293b" font-size="18" text-anchor="middle" font-weight="700">CTV Mechanism — Template Hash Commitment</text>
 
   <!-- Vertical centering wrapper: content spans y=88-804, center=446, canvas center=400, shift=-46 -->
   <g transform="translate(0, -46)">

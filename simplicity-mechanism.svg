@@ -1,0 +1,730 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1200 800" width="1200" height="800"
+     font-family="system-ui, -apple-system, sans-serif">
+  <title>Simplicity Covenant Enforcement via jet::outputs_hash()</title>
+  <desc>Animated diagram showing how Simplicity enforces covenant constraints on BOTH spending paths (trigger and recovery) through jet::outputs_hash(). Unlike CAT+CSFS where recovery bypasses introspection, Simplicity's compiled DAG program ensures every branch is output-constrained.</desc>
+
+  <defs>
+    <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1" fill="#c9cdd3" opacity="0.45"/>
+    </pattern>
+
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#9ca3b0" flood-opacity="0.18"/>
+    </filter>
+    <filter id="activeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="18" flood-color="#ffffff" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#e0e7ff" flood-opacity="0.4"/>
+    </filter>
+
+    <filter id="tealGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="#14b8a6" flood-opacity="0.35"/>
+    </filter>
+    <filter id="purpleGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#8b5cf6" flood-opacity="0.3"/>
+    </filter>
+    <filter id="blueGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#3b82f6" flood-opacity="0.3"/>
+    </filter>
+    <filter id="greenGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#22c55e" flood-opacity="0.3"/>
+    </filter>
+    <filter id="cyanGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#06b6d4" flood-opacity="0.3"/>
+    </filter>
+    <filter id="redGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#ef4444" flood-opacity="0.3"/>
+    </filter>
+
+    <linearGradient id="tealGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#14b8a6"/><stop offset="100%" stop-color="#0d9488"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#f3f4f6"/>
+  <rect width="1200" height="800" fill="url(#dots)"/>
+
+  <!-- ============================================================
+       LAYOUT — Simplicity Covenant Enforcement
+
+       Top path (y~200): Trigger path — hot key
+         Witness Left → Sig Verify → Outputs Hash → Valid
+
+       Bottom path (y~550): Recovery path — cold key
+         Witness Right → Sig Verify → Outputs Hash → Constrained
+
+       Center (y~380): Simplicity Program (compiled DAG)
+         Curved connections to both Sig Verify cards
+
+       Bottom annotation (y~720): CAT+CSFS contrast note
+
+       Animation stages (16s cycle):
+       Stage 1  (0.00-0.08): Simplicity Program activates
+       Stage 2  (0.08-0.18): Witness Left → Sig Verify (top)
+       Stage 3  (0.18-0.30): Sig Verify (top) → Outputs Hash (top)
+       Stage 4  (0.30-0.42): Outputs Hash (top) → Valid (sonar)
+       Stage 5  (0.42-0.50): Pause, top path stays lit
+       Stage 6  (0.50-0.58): Witness Right → Sig Verify (bottom)
+       Stage 7  (0.58-0.70): Sig Verify (bottom) → Outputs Hash (bottom)
+       Stage 8  (0.70-0.82): Outputs Hash (bottom) → Constrained (lock)
+       Stage 9  (0.82-0.88): Both paths lit
+       Stage 10 (0.88-0.92): Red flash on contrast annotation
+       Stage 11 (0.92-1.00): Full reset
+       ============================================================ -->
+
+  <!-- ============ STATIC CONNECTION LINES ============ -->
+
+  <!-- Top path: Witness Left → Sig Verify (top) -->
+  <line x1="144" y1="200" x2="332" y2="200" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Top path: Sig Verify (top) → Outputs Hash (top) -->
+  <line x1="428" y1="200" x2="602" y2="200" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Top path: Outputs Hash (top) → Valid -->
+  <line x1="698" y1="200" x2="906" y2="200" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Bottom path: Witness Right → Sig Verify (bottom) -->
+  <line x1="144" y1="550" x2="332" y2="550" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Bottom path: Sig Verify (bottom) → Outputs Hash (bottom) -->
+  <line x1="428" y1="550" x2="602" y2="550" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Bottom path: Outputs Hash (bottom) → Constrained -->
+  <line x1="698" y1="550" x2="906" y2="550" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Simplicity Program → Sig Verify (top) curved -->
+  <path d="M380,320 Q380,260 380,248" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  <!-- Simplicity Program → Sig Verify (bottom) curved -->
+  <path d="M380,440 Q380,490 380,502" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+
+  <!-- ============ DASHED OVERLAYS ============ -->
+
+  <!-- Stage 2: Witness Left → Sig Verify (top) -->
+  <line x1="144" y1="200" x2="332" y2="200" stroke="#8b5cf6" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.08;0.10;0.17;0.18;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Stage 3: Sig Verify (top) → Outputs Hash (top) -->
+  <line x1="428" y1="200" x2="602" y2="200" stroke="#3b82f6" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.18;0.20;0.29;0.30;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Stage 4: Outputs Hash (top) → Valid -->
+  <line x1="698" y1="200" x2="906" y2="200" stroke="#22c55e" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.30;0.32;0.41;0.42;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Stage 6: Witness Right → Sig Verify (bottom) -->
+  <line x1="144" y1="550" x2="332" y2="550" stroke="#06b6d4" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.50;0.52;0.57;0.58;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Stage 7: Sig Verify (bottom) → Outputs Hash (bottom) -->
+  <line x1="428" y1="550" x2="602" y2="550" stroke="#3b82f6" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.58;0.60;0.69;0.70;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Stage 8: Outputs Hash (bottom) → Constrained -->
+  <line x1="698" y1="550" x2="906" y2="550" stroke="#06b6d4" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.70;0.72;0.81;0.82;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Simplicity Program → Sig Verify (top) dashed -->
+  <path d="M380,320 Q380,260 380,248" stroke="#14b8a6" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.02;0.05;0.48;0.50;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- Simplicity Program → Sig Verify (bottom) dashed -->
+  <path d="M380,440 Q380,490 380,502" stroke="#14b8a6" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0" keyTimes="0;0.02;0.05;0.88;0.90;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- ============ PARTICLES ============ -->
+
+  <!-- Stage 2: Witness Left → Sig Verify (top) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.09;0.11;0.17;0.18;1" dur="16s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#8b5cf6">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="144" to="332" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="200" to="200" dur="0.6s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#c4b5fd">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="cx" from="144" to="332" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="cy" from="200" to="200" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+    </circle>
+  </g>
+
+  <!-- Stage 3: Sig Verify (top) → Outputs Hash (top) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.19;0.21;0.29;0.30;1" dur="16s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#3b82f6">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="428" to="602" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="200" to="200" dur="0.6s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#93c5fd">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="cx" from="428" to="602" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="cy" from="200" to="200" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+    </circle>
+  </g>
+
+  <!-- Stage 4: Outputs Hash (top) → Valid -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.31;0.33;0.41;0.42;1" dur="16s" repeatCount="indefinite"/>
+    <circle r="4" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.9;0.9;0.1" dur="0.7s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="698" to="906" dur="0.7s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="200" to="200" dur="0.7s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2.5" fill="#22c55e">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.7s" repeatCount="indefinite" begin="0.35s"/>
+      <animate attributeName="cx" from="698" to="906" dur="0.7s" repeatCount="indefinite" begin="0.35s"/>
+      <animate attributeName="cy" from="200" to="200" dur="0.7s" repeatCount="indefinite" begin="0.35s"/>
+    </circle>
+  </g>
+
+  <!-- Stage 6: Witness Right → Sig Verify (bottom) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.51;0.53;0.57;0.58;1" dur="16s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#06b6d4">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="144" to="332" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="550" to="550" dur="0.6s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#67e8f9">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="cx" from="144" to="332" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="cy" from="550" to="550" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+    </circle>
+  </g>
+
+  <!-- Stage 7: Sig Verify (bottom) → Outputs Hash (bottom) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.59;0.61;0.69;0.70;1" dur="16s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#3b82f6">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="428" to="602" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="550" to="550" dur="0.6s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#93c5fd">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="cx" from="428" to="602" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="cy" from="550" to="550" dur="0.6s" repeatCount="indefinite" begin="0.3s"/>
+    </circle>
+  </g>
+
+  <!-- Stage 8: Outputs Hash (bottom) → Constrained -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.71;0.73;0.81;0.82;1" dur="16s" repeatCount="indefinite"/>
+    <circle r="4" fill="#06b6d4">
+      <animate attributeName="opacity" values="0.1;0.9;0.9;0.1" dur="0.7s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="698" to="906" dur="0.7s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="550" to="550" dur="0.7s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2.5" fill="#67e8f9">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.7s" repeatCount="indefinite" begin="0.35s"/>
+      <animate attributeName="cx" from="698" to="906" dur="0.7s" repeatCount="indefinite" begin="0.35s"/>
+      <animate attributeName="cy" from="550" to="550" dur="0.7s" repeatCount="indefinite" begin="0.35s"/>
+    </circle>
+  </g>
+
+  <!-- ============ CARD: WITNESS LEFT (purple, 88x88, top path) ============ -->
+  <g aria-label="Witness Left — trigger branch selector">
+    <g transform="translate(56, 156)">
+      <!-- Colored background -->
+      <rect width="88" height="88" rx="20" fill="url(#purpleGrad)" filter="url(#purpleGlow)"/>
+      <!-- White icon: path fork -->
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <line x1="0" y1="10" x2="0" y2="-2"/>
+        <line x1="0" y1="-2" x2="-10" y2="-12"/>
+        <line x1="0" y1="-2" x2="10" y2="-12"/>
+        <!-- Arrow on left branch -->
+        <polyline points="-7,-6 -10,-12 -4,-10"/>
+      </g>
+
+      <!-- White overlay -->
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.08;0.10;0.48;0.50;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Gray icon -->
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.08;0.10;0.48;0.50;1" dur="16s" repeatCount="indefinite"/>
+        <line x1="0" y1="10" x2="0" y2="-2"/>
+        <line x1="0" y1="-2" x2="-10" y2="-12"/>
+        <line x1="0" y1="-2" x2="10" y2="-12"/>
+        <polyline points="-7,-6 -10,-12 -4,-10"/>
+      </g>
+
+      <!-- Glow ring -->
+      <rect x="-5" y="-5" width="98" height="98" rx="25" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.09;0.10;0.12;0.14;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Breathing ring -->
+      <rect x="-5" y="-5" width="98" height="98" rx="25" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0.4;0;0" keyTimes="0;0.10;0.12;0.46;0.48;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="98;106;98" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="98;106;98" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="100" y="262" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Witness (Left)</text>
+  </g>
+
+  <!-- ============ CARD: SIG VERIFY TOP (blue, 96x96) ============ -->
+  <g aria-label="Sig Verify — hot key signature check (trigger path)">
+    <g transform="translate(332, 152)">
+      <!-- Colored background -->
+      <rect width="96" height="96" rx="22" fill="url(#blueGrad)" filter="url(#blueGlow)"/>
+      <!-- White icon: key + checkmark -->
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <!-- Key -->
+        <circle cx="-8" cy="-8" r="7" stroke-width="1.8"/>
+        <line x1="-3" y1="-3" x2="10" y2="10"/>
+        <line x1="10" y1="10" x2="10" y2="5"/>
+        <line x1="10" y1="10" x2="5" y2="10"/>
+      </g>
+
+      <!-- White overlay -->
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.10;0.13;0.48;0.50;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Gray icon -->
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.10;0.13;0.48;0.50;1" dur="16s" repeatCount="indefinite"/>
+        <circle cx="-8" cy="-8" r="7" stroke-width="1.8"/>
+        <line x1="-3" y1="-3" x2="10" y2="10"/>
+        <line x1="10" y1="10" x2="10" y2="5"/>
+        <line x1="10" y1="10" x2="5" y2="10"/>
+      </g>
+
+      <!-- Glow ring -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.12;0.14;0.16;0.18;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Breathing ring -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0.4;0;0" keyTimes="0;0.13;0.15;0.46;0.48;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="380" y="266" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Sig Verify</text>
+  </g>
+
+  <!-- ============ CARD: OUTPUTS HASH TOP (green, 96x96) ============ -->
+  <g aria-label="Outputs Hash — jet::outputs_hash() verification (trigger path)">
+    <g transform="translate(602, 152)">
+      <!-- Colored background -->
+      <rect width="96" height="96" rx="22" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <!-- White icon: hash/grid (# symbol) -->
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none">
+        <line x1="-6" y1="-12" x2="-6" y2="12"/>
+        <line x1="6" y1="-12" x2="6" y2="12"/>
+        <line x1="-12" y1="-5" x2="12" y2="-5"/>
+        <line x1="-12" y1="5" x2="12" y2="5"/>
+      </g>
+
+      <!-- White overlay -->
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.20;0.23;0.48;0.50;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Gray icon -->
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.5" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.20;0.23;0.48;0.50;1" dur="16s" repeatCount="indefinite"/>
+        <line x1="-6" y1="-12" x2="-6" y2="12"/>
+        <line x1="6" y1="-12" x2="6" y2="12"/>
+        <line x1="-12" y1="-5" x2="12" y2="-5"/>
+        <line x1="-12" y1="5" x2="12" y2="5"/>
+      </g>
+
+      <!-- Glow ring -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.22;0.24;0.26;0.28;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Green glow when outputs hash verifies -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="#22c55e" stroke-width="2.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0.6;0;0" keyTimes="0;0.24;0.27;0.40;0.42;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Breathing ring -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0.4;0;0" keyTimes="0;0.23;0.25;0.46;0.48;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="650" y="266" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Outputs Hash</text>
+  </g>
+
+  <!-- ============ CARD: VALID (green, 88x88) ============ -->
+  <g aria-label="Valid — trigger transaction accepted">
+    <g transform="translate(906, 156)">
+      <!-- Colored background -->
+      <rect width="88" height="88" rx="20" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <!-- White icon: checkmark -->
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none">
+        <polyline points="-12,0 -4,8 14,-10"/>
+      </g>
+
+      <!-- White overlay -->
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.33;0.36;0.48;0.50;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Gray icon -->
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2.5" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.33;0.36;0.48;0.50;1" dur="16s" repeatCount="indefinite"/>
+        <polyline points="-12,0 -4,8 14,-10"/>
+      </g>
+
+      <!-- Glow ring -->
+      <rect x="-5" y="-5" width="98" height="98" rx="25" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.35;0.37;0.39;0.41;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+
+      <!-- Sonar ripple 1 -->
+      <rect x="44" y="44" width="0" height="0" rx="0" fill="none" stroke="#22c55e" stroke-width="2" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0;0" keyTimes="0;0.36;0.37;0.41;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="44;44;-20;-20;44" keyTimes="0;0.36;0.41;0.42;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="44;44;-20;-20;44" keyTimes="0;0.36;0.41;0.42;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;128;128;0" keyTimes="0;0.36;0.41;0.42;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;128;128;0" keyTimes="0;0.36;0.41;0.42;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;36;36;0" keyTimes="0;0.36;0.41;0.42;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Sonar ripple 2 -->
+      <rect x="44" y="44" width="0" height="0" rx="0" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0;0" keyTimes="0;0.38;0.39;0.43;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="44;44;-28;-28;44" keyTimes="0;0.38;0.43;0.44;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="44;44;-28;-28;44" keyTimes="0;0.38;0.43;0.44;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;144;144;0" keyTimes="0;0.38;0.43;0.44;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;144;144;0" keyTimes="0;0.38;0.43;0.44;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;40;40;0" keyTimes="0;0.38;0.43;0.44;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Sonar ripple 3 -->
+      <rect x="44" y="44" width="0" height="0" rx="0" fill="none" stroke="#22c55e" stroke-width="1" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0;0" keyTimes="0;0.40;0.41;0.45;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="44;44;-36;-36;44" keyTimes="0;0.40;0.45;0.46;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="44;44;-36;-36;44" keyTimes="0;0.40;0.45;0.46;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;160;160;0" keyTimes="0;0.40;0.45;0.46;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;160;160;0" keyTimes="0;0.40;0.45;0.46;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;44;44;0" keyTimes="0;0.40;0.45;0.46;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="950" y="262" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Valid</text>
+  </g>
+
+  <!-- ============ CARD: WITNESS RIGHT (cyan, 88x88, bottom path) ============ -->
+  <g aria-label="Witness Right — recovery branch selector">
+    <g transform="translate(56, 506)">
+      <!-- Colored background -->
+      <rect width="88" height="88" rx="20" fill="url(#cyanGrad)" filter="url(#cyanGlow)"/>
+      <!-- White icon: path fork with right arrow -->
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <line x1="0" y1="10" x2="0" y2="-2"/>
+        <line x1="0" y1="-2" x2="-10" y2="-12"/>
+        <line x1="0" y1="-2" x2="10" y2="-12"/>
+        <!-- Arrow on right branch -->
+        <polyline points="7,-6 10,-12 4,-10"/>
+      </g>
+
+      <!-- White overlay -->
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.50;0.52;0.88;0.90;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Gray icon -->
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.50;0.52;0.88;0.90;1" dur="16s" repeatCount="indefinite"/>
+        <line x1="0" y1="10" x2="0" y2="-2"/>
+        <line x1="0" y1="-2" x2="-10" y2="-12"/>
+        <line x1="0" y1="-2" x2="10" y2="-12"/>
+        <polyline points="7,-6 10,-12 4,-10"/>
+      </g>
+
+      <!-- Glow ring -->
+      <rect x="-5" y="-5" width="98" height="98" rx="25" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.51;0.52;0.54;0.56;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Breathing ring -->
+      <rect x="-5" y="-5" width="98" height="98" rx="25" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0.4;0;0" keyTimes="0;0.52;0.54;0.86;0.88;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="98;106;98" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="98;106;98" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="100" y="612" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Witness (Right)</text>
+  </g>
+
+  <!-- ============ CARD: SIG VERIFY BOTTOM (blue, 96x96) ============ -->
+  <g aria-label="Sig Verify — cold key signature check (recovery path)">
+    <g transform="translate(332, 502)">
+      <!-- Colored background -->
+      <rect width="96" height="96" rx="22" fill="url(#blueGrad)" filter="url(#blueGlow)"/>
+      <!-- White icon: key + checkmark -->
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <circle cx="-8" cy="-8" r="7" stroke-width="1.8"/>
+        <line x1="-3" y1="-3" x2="10" y2="10"/>
+        <line x1="10" y1="10" x2="10" y2="5"/>
+        <line x1="10" y1="10" x2="5" y2="10"/>
+      </g>
+
+      <!-- White overlay -->
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.52;0.55;0.88;0.90;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Gray icon -->
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.52;0.55;0.88;0.90;1" dur="16s" repeatCount="indefinite"/>
+        <circle cx="-8" cy="-8" r="7" stroke-width="1.8"/>
+        <line x1="-3" y1="-3" x2="10" y2="10"/>
+        <line x1="10" y1="10" x2="10" y2="5"/>
+        <line x1="10" y1="10" x2="5" y2="10"/>
+      </g>
+
+      <!-- Glow ring -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.54;0.56;0.58;0.60;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Breathing ring -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0.4;0;0" keyTimes="0;0.55;0.57;0.86;0.88;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="380" y="616" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Sig Verify</text>
+  </g>
+
+  <!-- ============ CARD: OUTPUTS HASH BOTTOM (green, 96x96) ============ -->
+  <g aria-label="Outputs Hash — jet::outputs_hash() verification (recovery path)">
+    <g transform="translate(602, 502)">
+      <!-- Colored background -->
+      <rect width="96" height="96" rx="22" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <!-- White icon: hash/grid -->
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none">
+        <line x1="-6" y1="-12" x2="-6" y2="12"/>
+        <line x1="6" y1="-12" x2="6" y2="12"/>
+        <line x1="-12" y1="-5" x2="12" y2="-5"/>
+        <line x1="-12" y1="5" x2="12" y2="5"/>
+      </g>
+
+      <!-- White overlay -->
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.60;0.63;0.88;0.90;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Gray icon -->
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.5" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.60;0.63;0.88;0.90;1" dur="16s" repeatCount="indefinite"/>
+        <line x1="-6" y1="-12" x2="-6" y2="12"/>
+        <line x1="6" y1="-12" x2="6" y2="12"/>
+        <line x1="-12" y1="-5" x2="12" y2="-5"/>
+        <line x1="-12" y1="5" x2="12" y2="5"/>
+      </g>
+
+      <!-- Glow ring -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.62;0.64;0.66;0.68;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Green glow when outputs hash verifies -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="#22c55e" stroke-width="2.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0.6;0;0" keyTimes="0;0.64;0.67;0.80;0.82;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Breathing ring -->
+      <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0.4;0;0" keyTimes="0;0.63;0.65;0.86;0.88;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="650" y="616" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Outputs Hash</text>
+  </g>
+
+  <!-- ============ CARD: CONSTRAINED (cyan, 88x88) ============ -->
+  <g aria-label="Constrained — recovery transaction valid but output-constrained">
+    <g transform="translate(906, 506)">
+      <!-- Colored background -->
+      <rect width="88" height="88" rx="20" fill="url(#cyanGrad)" filter="url(#cyanGlow)"/>
+      <!-- White icon: lock + checkmark -->
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <!-- Lock body -->
+        <rect x="-10" y="-2" width="20" height="14" rx="3" fill="none" stroke-width="2"/>
+        <!-- Lock shackle -->
+        <path d="M-6,-2 L-6,-8 Q-6,-14 0,-14 Q6,-14 6,-8 L6,-2" fill="none"/>
+        <!-- Small check inside -->
+        <polyline points="-3,5 -1,8 4,3" stroke-width="1.8"/>
+      </g>
+
+      <!-- White overlay -->
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.73;0.76;0.88;0.90;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Gray icon -->
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.73;0.76;0.88;0.90;1" dur="16s" repeatCount="indefinite"/>
+        <rect x="-10" y="-2" width="20" height="14" rx="3" fill="none" stroke-width="2"/>
+        <path d="M-6,-2 L-6,-8 Q-6,-14 0,-14 Q6,-14 6,-8 L6,-2" fill="none"/>
+        <polyline points="-3,5 -1,8 4,3" stroke-width="1.8"/>
+      </g>
+
+      <!-- Glow ring -->
+      <rect x="-5" y="-5" width="98" height="98" rx="25" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.75;0.77;0.79;0.81;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Cyan glow -->
+      <rect x="-5" y="-5" width="98" height="98" rx="25" fill="none" stroke="#06b6d4" stroke-width="2.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0.6;0;0" keyTimes="0;0.76;0.78;0.86;0.88;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+
+      <!-- Sonar ripple 1 (cyan) -->
+      <rect x="44" y="44" width="0" height="0" rx="0" fill="none" stroke="#06b6d4" stroke-width="2" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.6;0;0" keyTimes="0;0.76;0.77;0.81;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="44;44;-20;-20;44" keyTimes="0;0.76;0.81;0.82;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="44;44;-20;-20;44" keyTimes="0;0.76;0.81;0.82;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;128;128;0" keyTimes="0;0.76;0.81;0.82;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;128;128;0" keyTimes="0;0.76;0.81;0.82;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;36;36;0" keyTimes="0;0.76;0.81;0.82;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Sonar ripple 2 -->
+      <rect x="44" y="44" width="0" height="0" rx="0" fill="none" stroke="#06b6d4" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.5;0;0" keyTimes="0;0.78;0.79;0.83;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="44;44;-28;-28;44" keyTimes="0;0.78;0.83;0.84;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="44;44;-28;-28;44" keyTimes="0;0.78;0.83;0.84;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;144;144;0" keyTimes="0;0.78;0.83;0.84;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;144;144;0" keyTimes="0;0.78;0.83;0.84;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;40;40;0" keyTimes="0;0.78;0.83;0.84;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="950" y="612" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Constrained</text>
+  </g>
+
+  <!-- ============ CARD: SIMPLICITY PROGRAM (teal, 120x120, center) ============ -->
+  <g aria-label="Simplicity Program — compiled DAG containing both spending branches">
+    <g transform="translate(320, 320)">
+      <!-- Colored background -->
+      <rect width="120" height="120" rx="26" fill="url(#tealGrad)" filter="url(#tealGlow)"/>
+      <!-- White icon: DAG/tree (branching lines converging to a point) -->
+      <g transform="translate(60, 60)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <!-- Top branches splitting out -->
+        <line x1="0" y1="-20" x2="-16" y2="-6"/>
+        <line x1="0" y1="-20" x2="16" y2="-6"/>
+        <!-- Mid branches converging -->
+        <line x1="-16" y1="-6" x2="-8" y2="8"/>
+        <line x1="16" y1="-6" x2="8" y2="8"/>
+        <!-- Converge to bottom -->
+        <line x1="-8" y1="8" x2="0" y2="20"/>
+        <line x1="8" y1="8" x2="0" y2="20"/>
+        <!-- Nodes -->
+        <circle cx="0" cy="-20" r="3" fill="white" stroke="none"/>
+        <circle cx="-16" cy="-6" r="2.5" fill="white" stroke="none"/>
+        <circle cx="16" cy="-6" r="2.5" fill="white" stroke="none"/>
+        <circle cx="-8" cy="8" r="2.5" fill="white" stroke="none"/>
+        <circle cx="8" cy="8" r="2.5" fill="white" stroke="none"/>
+        <circle cx="0" cy="20" r="3" fill="white" stroke="none"/>
+      </g>
+
+      <!-- White overlay -->
+      <rect width="120" height="120" rx="26" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.01;0.05;0.90;0.92;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Gray icon -->
+      <g transform="translate(60, 60)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.01;0.05;0.90;0.92;1" dur="16s" repeatCount="indefinite"/>
+        <line x1="0" y1="-20" x2="-16" y2="-6"/>
+        <line x1="0" y1="-20" x2="16" y2="-6"/>
+        <line x1="-16" y1="-6" x2="-8" y2="8"/>
+        <line x1="16" y1="-6" x2="8" y2="8"/>
+        <line x1="-8" y1="8" x2="0" y2="20"/>
+        <line x1="8" y1="8" x2="0" y2="20"/>
+        <circle cx="0" cy="-20" r="3" fill="#374151" stroke="none"/>
+        <circle cx="-16" cy="-6" r="2.5" fill="#374151" stroke="none"/>
+        <circle cx="16" cy="-6" r="2.5" fill="#374151" stroke="none"/>
+        <circle cx="-8" cy="8" r="2.5" fill="#374151" stroke="none"/>
+        <circle cx="8" cy="8" r="2.5" fill="#374151" stroke="none"/>
+        <circle cx="0" cy="20" r="3" fill="#374151" stroke="none"/>
+      </g>
+
+      <!-- Glow ring -->
+      <rect x="-5" y="-5" width="130" height="130" rx="31" fill="none" stroke="white" stroke-width="2" opacity="0" filter="url(#activeGlow)">
+        <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.02;0.04;0.06;0.08;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Breathing ring -->
+      <rect x="-5" y="-5" width="130" height="130" rx="31" fill="none" stroke="white" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.4;0.4;0;0" keyTimes="0;0.04;0.06;0.88;0.90;1" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="130;138;130" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="130;138;130" dur="1.4s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="380" y="458" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Simplicity Program</text>
+  </g>
+
+  <!-- jet function labels (appear during active stages) -->
+  <text x="380" y="288" fill="#3b82f6" font-size="9" text-anchor="middle" font-weight="600" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0" keyTimes="0;0.13;0.15;0.46;0.48;1" dur="16s" repeatCount="indefinite"/>
+    jet::bip_0340_verify()
+  </text>
+  <text x="650" y="288" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0" keyTimes="0;0.23;0.25;0.46;0.48;1" dur="16s" repeatCount="indefinite"/>
+    jet::outputs_hash()
+  </text>
+
+  <text x="380" y="638" fill="#3b82f6" font-size="9" text-anchor="middle" font-weight="600" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0" keyTimes="0;0.55;0.57;0.86;0.88;1" dur="16s" repeatCount="indefinite"/>
+    jet::bip_0340_verify()
+  </text>
+  <text x="650" y="638" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0" keyTimes="0;0.63;0.65;0.86;0.88;1" dur="16s" repeatCount="indefinite"/>
+    jet::outputs_hash()
+  </text>
+
+  <!-- ============ STAGE 9: BOTH PATHS LIT — highlight that BOTH are constrained ============ -->
+
+  <!-- Connecting bracket/emphasis: green glow lines linking both Outputs Hash cards -->
+  <line x1="650" y1="252" x2="650" y2="500" stroke="#22c55e" stroke-width="2" stroke-dasharray="6,4" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.5;0.5;0;0" keyTimes="0;0.82;0.84;0.87;0.88;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-10" dur="0.6s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- "SAME check" annotation between the two Outputs Hash cards -->
+  <text x="672" y="380" fill="#22c55e" font-size="10" text-anchor="start" font-weight="700" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.82;0.84;0.87;0.88;1" dur="16s" repeatCount="indefinite"/>
+    SAME
+  </text>
+  <text x="672" y="393" fill="#22c55e" font-size="10" text-anchor="start" font-weight="700" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.82;0.84;0.87;0.88;1" dur="16s" repeatCount="indefinite"/>
+    CHECK
+  </text>
+
+  <!-- ============ TITLE ============ -->
+  <text x="600" y="36" fill="#1e293b" font-size="18" text-anchor="middle" font-weight="700">Simplicity Mechanism — Dual-Path Output Constraint</text>
+
+</svg>

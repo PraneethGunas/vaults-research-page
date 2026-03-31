@@ -76,6 +76,7 @@
   <!-- ===== BACKGROUND ===== -->
   <rect width="1200" height="800" fill="#f3f4f6"/>
   <rect width="1200" height="800" fill="url(#dots)"/>
+  <text x="600" y="36" fill="#1e293b" font-size="18" text-anchor="middle" font-weight="700">OP_VAULT Opcode Logic — Three-Tier Key Hierarchy</text>
 
   <!-- ===== GROUND PLANE ===== -->
   <rect x="0" y="460" width="1200" height="340" fill="url(#soilGrad)"/>

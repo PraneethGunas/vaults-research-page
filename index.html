@@ -24,6 +24,7 @@
       --ccv: #3b82f6;
       --opvault: #f59e0b;
       --catcsfs: #10b981;
+      --simplicity: #06b6d4;
       --card-bg: rgba(255, 255, 255, 0.72);
       --card-border: rgba(0, 0, 0, 0.06);
       --section-gap: 100px;
@@ -687,6 +688,25 @@
       .feasibility-row { grid-template-columns: 60px 1fr 64px; font-size: 11px; }
     }
 
+    /* ── Simplicity / sidechain ────────────────────────────── */
+    .sidechain-badge {
+      display: inline-flex;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      background: #ecfeff;
+      color: #0891b2;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+
+    .simplicity-col {
+      background: rgba(6, 182, 212, 0.04);
+    }
+
     /* ── Footer ──────────────────────────────────────────── */
     footer {
       margin-top: var(--section-gap);
@@ -757,6 +777,7 @@
         <a href="#attacks">Threat Models</a>
         <a href="#tradeoffs">Tradeoffs</a>
         <a href="#findings">Findings</a>
+        <a href="#simplicity">Simplicity</a>
         <a href="#realworld">Use Cases</a>
       </div>
     </div>
@@ -785,6 +806,9 @@
         <a href="https://bips.dev/347/" target="_blank" class="pill" style="text-decoration:none;color:inherit">
           <div class="dot" style="background:var(--catcsfs)"></div>CAT+CSFS (BIP 347+348)
         </a>
+        <a href="#simplicity" class="pill" style="text-decoration:none;color:inherit;border-style:dashed;opacity:0.7">
+          <div class="dot" style="background:var(--simplicity)"></div>Simplicity <span style="font-size:10px;color:var(--text-muted);margin-left:2px">(Elements)</span>
+        </a>
       </div>
     </div>
 
@@ -798,7 +822,7 @@
             rigid.</p>
           <div class="stat-row">
             <div class="stat">
-              <div class="num" style="color:var(--ctv)">368</div>
+              <div class="num" style="color:var(--ctv)">367</div>
               <div class="label">vB lifecycle</div>
             </div>
             <div class="stat">
@@ -814,11 +838,11 @@
         <div class="card vault-card">
           <div class="tag" style="color:var(--ccv)">CCV · BIP 443</div>
           <h3>The Flexible One</h3>
-          <p>Contract verification for state transitions. Partial withdrawals, batched triggers, keyless recovery.
-            Capable but exposed.</p>
+          <p>Contract verification for state transitions. Partial withdrawals via revault, batched triggers, keyless recovery.
+            The measured lifecycle includes a trigger-and-revault step unique to CCV.</p>
           <div class="stat-row">
             <div class="stat">
-              <div class="num" style="color:var(--ccv)">430</div>
+              <div class="num" style="color:var(--ccv)">565</div>
               <div class="label">vB lifecycle</div>
             </div>
             <div class="stat">
@@ -857,7 +881,7 @@
           <p>General-purpose opcodes (OP_CAT + OP_CSFS) composed into a vault via dual Schnorr verification. Destination locked at creation. Conservative and introspective.</p>
           <div class="stat-row">
             <div class="stat">
-              <div class="num" style="color:var(--catcsfs)">493</div>
+              <div class="num" style="color:var(--catcsfs)">553</div>
               <div class="label">vB lifecycle</div>
             </div>
             <div class="stat">
@@ -888,7 +912,7 @@
           unauthorized. If no one intervenes, the hot wallet withdrawal completes after the delay. There is no partial
           withdrawal — the entire vault balance moves as a single unit every time. This rigidity is what makes CTV
           auditable: you can regenerate the full transaction tree from the initial parameters and verify that no
-          unauthorized paths exist. The total lifecycle costs 368 vB across three transactions (deposit 122 vB, trigger
+          unauthorized paths exist. The total lifecycle costs 367 vB across three transactions (deposit 121 vB, trigger
           94 vB, withdraw 152 vB). CTV uses two keys — a hot key for spending and a cold key for recovery — making it
           the simplest key management model of the three designs.
         </div>
@@ -959,9 +983,10 @@
           and optionally a change output that returns remaining funds to a new vault with the same contract rules. This
           change-back mechanism is the revault: you can withdraw 0.5 BTC from a 10 BTC vault and the other 9.5 BTC stays
           vaulted under identical protections. Recovery is keyless — anyone who knows the vault address can broadcast
-          the recovery transaction, which sends all funds to the pre-committed recovery address. The total lifecycle
-          costs 430 vB (deposit 165 vB, trigger 154 vB, withdraw 111 vB). CCV uses
-          only one key for the trigger, with recovery requiring no key at all.
+          the recovery transaction, which sends all funds to the pre-committed recovery address. The measured lifecycle
+          costs 565 vB across three transactions (deposit 300 vB, trigger-and-revault 154 vB, withdraw 111 vB),
+          reflecting CCV's ability to trigger a partial withdrawal and return the remainder to a new vault in a single
+          transaction. CCV uses only one key for the trigger, with recovery requiring no key at all.
         </div>
         <div class="svg-wrap">
           <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
@@ -1115,7 +1140,7 @@
           sha_single_output constant embedded in the script. The destination cannot be changed without recovering
           to cold storage and creating a new vault. Recovery uses the cold key via a simple OP_CHECKSIG in the
           recover leaf — no introspection needed, no constraints on where funds go. The total lifecycle costs
-          approximately 493 vB (deposit ~154 vB, trigger ~185 vB, withdraw ~154 vB). Like CTV, it uses two keys
+          553 vB across three transactions (deposit 122 vB, trigger 221 vB, withdraw 210 vB). Like CTV, it uses two keys
           (hot + cold) and does not support partial withdrawals or revaulting.
         </div>
         <div class="svg-wrap">
@@ -1556,6 +1581,8 @@
           address. To actually steal funds, the attacker would need to compromise the recovery address itself (a
           separate key or multisig), making this effectively a three-key attack threshold. CCV's single-key model means
           this specific scenario does not apply — there is only one trigger key and recovery is keyless.
+          Simplicity (on Elements) constrains both spending paths via <code>jet::outputs_hash()</code>, so
+          dual-key compromise produces DoS only — matching OP_VAULT's outcome through a different mechanism.
         </div>
         <div class="evidence-panel">
           <h5>Compromise Outcomes</h5>
@@ -1616,7 +1643,9 @@
           immediate, unrestricted, total theft. The 125 vB recovery transaction looks identical to a legitimate cold sweep
           on-chain; there is no way for a watchtower to distinguish theft from legitimate recovery. Poelstra's recursive
           reset model (from "CAT and Schnorr Tricks II") would upgrade this to liveness denial only, matching OP_VAULT's
-          security profile, but is not implemented in the current design.
+          security profile, but is not implemented in the current design. Simplicity constrains recovery outputs via
+          <code>jet::outputs_hash()</code>, making cold key compromise recovery-address-locked — matching CCV and
+          OP_VAULT, not CAT+CSFS.
         </div>
         <div class="evidence-panel">
           <h5>Recovery Security Ranking</h5>
@@ -1920,12 +1949,12 @@
             </div>
             <div class="stat">
               <div class="label">CTV per step</div>
-              <div class="value">~368 vB</div>
+              <div class="value">~367 vB</div>
               <div class="context">Full cycle: destroy + recreate</div>
             </div>
             <div class="stat">
               <div class="label">CAT+CSFS per step</div>
-              <div class="value">~493 vB</div>
+              <div class="value">~553 vB</div>
               <div class="context">Full cycle: destroy + recreate</div>
             </div>
             <div class="stat">
@@ -1985,7 +2014,7 @@
     <!-- ═══════════════════════ FINDINGS ═══════════════════════ -->
     <section id="findings">
       <div class="section-label">What We Found</div>
-      <div class="section-title">Seven Insights From Regtest</div>
+      <div class="section-title">Eight Insights From Regtest</div>
 
       <div class="findings-grid">
         <div class="card finding-card">
@@ -2048,6 +2077,16 @@
             CTV and CAT+CSFS permanently lose funds on address reuse — CTV at the script level, CAT+CSFS at the
             signature level. For any customer-facing deposit system, only CCV and OP_VAULT are viable without
             strict wallet-layer enforcement of single-use discipline.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">08</div>
+          <h4>Constraining both spending paths costs witness size</h4>
+          <p>
+            Simplicity's 865 vB lifecycle (on Elements) is 2.4x CTV's, but every spending path — trigger and
+            recovery — is output-locked via <code>jet::outputs_hash()</code>. CAT+CSFS achieves hot-key safety
+            with similar composability but leaves recovery unconstrained. The witness-size cost of typed
+            functional programs is the price of comprehensive output enforcement.
           </p>
         </div>
       </div>
@@ -2217,62 +2256,60 @@
       <div class="card mt-48" style="padding:28px">
         <h4 style="font-size:15px; font-weight:700; margin-bottom:16px">Transaction Size Breakdown (vB)</h4>
         <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
-          <text x="120" y="270" text-anchor="middle" font-size="11" fill="#6b7280"
-            font-family="Inter,system-ui,sans-serif">Deposit</text>
-          <rect x="78" y="114" width="20" height="146" rx="3" fill="#ef4444" opacity="0.85" />
-          <rect x="100" y="114" width="20" height="146" rx="3" fill="#3b82f6" opacity="0.85" />
-          <rect x="122" y="114" width="20" height="146" rx="3" fill="#f59e0b" opacity="0.85" />
-          <rect x="144" y="114" width="20" height="146" rx="3" fill="#10b981" opacity="0.85" />
-          <text x="88" y="108" text-anchor="middle" font-size="9" fill="#ef4444"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
-          <text x="110" y="108" text-anchor="middle" font-size="9" fill="#3b82f6"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
-          <text x="132" y="108" text-anchor="middle" font-size="9" fill="#f59e0b"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
-          <text x="154" y="108" text-anchor="middle" font-size="9" fill="#10b981"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
-          <text x="280" y="270" text-anchor="middle" font-size="11" fill="#6b7280"
-            font-family="Inter,system-ui,sans-serif">Trigger</text>
-          <rect x="236" y="121" width="20" height="139" rx="3" fill="#ef4444" opacity="0.85" />
-          <rect x="258" y="130" width="20" height="130" rx="3" fill="#3b82f6" opacity="0.85" />
-          <rect x="280" y="13" width="20" height="247" rx="3" fill="#f59e0b" opacity="0.85" />
-          <rect x="302" y="104" width="20" height="156" rx="3" fill="#10b981" opacity="0.85" />
-          <text x="246" y="115" text-anchor="middle" font-size="9" fill="#ef4444"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">164</text>
-          <text x="268" y="124" text-anchor="middle" font-size="9" fill="#3b82f6"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
-          <text x="290" y="8" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif"
-            font-weight="600">292</text>
-          <text x="312" y="98" text-anchor="middle" font-size="9" fill="#10b981" font-family="Inter,system-ui,sans-serif"
-            font-weight="600">185</text>
-          <text x="440" y="270" text-anchor="middle" font-size="11" fill="#6b7280"
-            font-family="Inter,system-ui,sans-serif">Withdraw</text>
-          <rect x="396" y="168" width="20" height="92" rx="3" fill="#ef4444" opacity="0.85" />
-          <rect x="418" y="167" width="20" height="93" rx="3" fill="#3b82f6" opacity="0.85" />
-          <rect x="440" y="157" width="20" height="103" rx="3" fill="#f59e0b" opacity="0.85" />
-          <rect x="462" y="164" width="20" height="96" rx="3" fill="#10b981" opacity="0.85" />
-          <text x="406" y="162" text-anchor="middle" font-size="9" fill="#ef4444"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">108</text>
-          <text x="428" y="161" text-anchor="middle" font-size="9" fill="#3b82f6"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">110</text>
-          <text x="450" y="151" text-anchor="middle" font-size="9" fill="#f59e0b"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">121</text>
-          <text x="472" y="158" text-anchor="middle" font-size="9" fill="#10b981"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">114</text>
-          <text x="600" y="270" text-anchor="middle" font-size="11" fill="#6b7280"
-            font-family="Inter,system-ui,sans-serif">Recovery</text>
-          <rect x="556" y="108" width="20" height="152" rx="3" fill="#ef4444" opacity="0.85" />
-          <rect x="578" y="157" width="20" height="103" rx="3" fill="#3b82f6" opacity="0.85" />
-          <rect x="600" y="21" width="20" height="239" rx="3" fill="#f59e0b" opacity="0.85" />
-          <rect x="622" y="142" width="20" height="118" rx="3" fill="#10b981" opacity="0.85" />
-          <text x="566" y="102" text-anchor="middle" font-size="9" fill="#ef4444"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">180</text>
-          <text x="588" y="151" text-anchor="middle" font-size="9" fill="#3b82f6"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">122</text>
-          <text x="610" y="15" text-anchor="middle" font-size="9" fill="#f59e0b"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">246</text>
-          <text x="632" y="136" text-anchor="middle" font-size="9" fill="#10b981"
-            font-family="Inter,system-ui,sans-serif" font-weight="600">130</text>
+          <!-- Y axis -->
+          <line x1="75" y1="10" x2="75" y2="260" stroke="#e5e7eb" stroke-width="1" />
+          <text x="65" y="264" text-anchor="end" font-size="9" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">0 vB</text>
+          <text x="65" y="164" text-anchor="end" font-size="9" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">150</text>
+          <text x="65" y="64" text-anchor="end" font-size="9" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">300</text>
+          <!-- Grid lines -->
+          <line x1="75" y1="160" x2="660" y2="160" stroke="#f3f4f6" stroke-width="1" />
+          <line x1="75" y1="60" x2="660" y2="60" stroke="#f3f4f6" stroke-width="1" />
+
+          <!-- Deposit: CTV=121, CCV=300, OPV=154, CAT=122 -->
+          <text x="120" y="270" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">Deposit</text>
+          <rect x="78" y="179" width="20" height="81" rx="3" fill="#ef4444" opacity="0.85" />
+          <rect x="100" y="60" width="20" height="200" rx="3" fill="#3b82f6" opacity="0.85" />
+          <rect x="122" y="157" width="20" height="103" rx="3" fill="#f59e0b" opacity="0.85" />
+          <rect x="144" y="179" width="20" height="81" rx="3" fill="#10b981" opacity="0.85" />
+          <text x="88" y="173" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">121</text>
+          <text x="110" y="54" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">300</text>
+          <text x="132" y="151" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
+          <text x="154" y="173" text-anchor="middle" font-size="9" fill="#10b981" font-family="Inter,system-ui,sans-serif" font-weight="600">122</text>
+
+          <!-- Trigger: CTV=94, CCV=154, OPV=292, CAT=221 -->
+          <text x="280" y="270" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">Trigger</text>
+          <rect x="236" y="197" width="20" height="63" rx="3" fill="#ef4444" opacity="0.85" />
+          <rect x="258" y="157" width="20" height="103" rx="3" fill="#3b82f6" opacity="0.85" />
+          <rect x="280" y="65" width="20" height="195" rx="3" fill="#f59e0b" opacity="0.85" />
+          <rect x="302" y="113" width="20" height="147" rx="3" fill="#10b981" opacity="0.85" />
+          <text x="246" y="191" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">94</text>
+          <text x="268" y="151" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
+          <text x="290" y="59" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">292</text>
+          <text x="312" y="107" text-anchor="middle" font-size="9" fill="#10b981" font-family="Inter,system-ui,sans-serif" font-weight="600">221</text>
+
+          <!-- Withdraw: CTV=152, CCV=111, OPV=121, CAT=210 -->
+          <text x="440" y="270" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">Withdraw</text>
+          <rect x="396" y="159" width="20" height="101" rx="3" fill="#ef4444" opacity="0.85" />
+          <rect x="418" y="186" width="20" height="74" rx="3" fill="#3b82f6" opacity="0.85" />
+          <rect x="440" y="179" width="20" height="81" rx="3" fill="#f59e0b" opacity="0.85" />
+          <rect x="462" y="120" width="20" height="140" rx="3" fill="#10b981" opacity="0.85" />
+          <text x="406" y="153" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">152</text>
+          <text x="428" y="180" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">111</text>
+          <text x="450" y="173" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">121</text>
+          <text x="472" y="114" text-anchor="middle" font-size="9" fill="#10b981" font-family="Inter,system-ui,sans-serif" font-weight="600">210</text>
+
+          <!-- Recovery: CTV=180, CCV=122, OPV=246, CAT=130 -->
+          <text x="600" y="270" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">Recovery</text>
+          <rect x="556" y="140" width="20" height="120" rx="3" fill="#ef4444" opacity="0.85" />
+          <rect x="578" y="179" width="20" height="81" rx="3" fill="#3b82f6" opacity="0.85" />
+          <rect x="600" y="96" width="20" height="164" rx="3" fill="#f59e0b" opacity="0.85" />
+          <rect x="622" y="173" width="20" height="87" rx="3" fill="#10b981" opacity="0.85" />
+          <text x="566" y="134" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">180</text>
+          <text x="588" y="173" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">122</text>
+          <text x="610" y="90" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">246</text>
+          <text x="632" y="167" text-anchor="middle" font-size="9" fill="#10b981" font-family="Inter,system-ui,sans-serif" font-weight="600">130</text>
+
+          <!-- Legend -->
           <rect x="680" y="90" width="10" height="10" rx="2" fill="#ef4444" />
           <text x="696" y="100" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CTV</text>
           <rect x="680" y="108" width="10" height="10" rx="2" fill="#3b82f6" />
@@ -2281,13 +2318,6 @@
           <text x="696" y="136" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">OP_VAULT</text>
           <rect x="680" y="144" width="10" height="10" rx="2" fill="#10b981" />
           <text x="696" y="154" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CAT+CSFS</text>
-          <line x1="75" y1="10" x2="75" y2="260" stroke="#e5e7eb" stroke-width="1" />
-          <text x="65" y="264" text-anchor="end" font-size="9" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">0
-            vB</text>
-          <text x="65" y="164" text-anchor="end" font-size="9" fill="#9ca3af"
-            font-family="Inter,system-ui,sans-serif">150</text>
-          <text x="65" y="64" text-anchor="end" font-size="9" fill="#9ca3af"
-            font-family="Inter,system-ui,sans-serif">300</text>
         </svg>
       </div>
 
@@ -2305,6 +2335,7 @@
               <th style="color:var(--ccv)">CCV</th>
               <th style="color:var(--opvault)">OP_VAULT</th>
               <th style="color:var(--catcsfs)">CAT+CSFS</th>
+              <th class="simplicity-col" style="color:var(--simplicity)">Simplicity <span class="sidechain-badge">Elements</span></th>
             </tr>
           </thead>
           <tbody>
@@ -2314,6 +2345,7 @@
               <td style="color:#16a34a; font-weight:600">Yes</td>
               <td style="color:#16a34a; font-weight:600">Yes</td>
               <td style="color:#9ca3af">No</td>
+              <td class="simplicity-col" style="color:#9ca3af">No</td>
             </tr>
             <tr>
               <td><strong>Batched trigger</strong></td>
@@ -2321,6 +2353,7 @@
               <td style="color:#16a34a; font-weight:600">Yes</td>
               <td style="color:#16a34a; font-weight:600">Yes</td>
               <td style="color:#9ca3af">No</td>
+              <td class="simplicity-col" style="color:#9ca3af">No</td>
             </tr>
             <tr>
               <td><strong>Keyless recovery</strong></td>
@@ -2328,6 +2361,7 @@
               <td style="color:#16a34a; font-weight:600">Yes</td>
               <td style="color:#9ca3af">No</td>
               <td style="color:#9ca3af">No</td>
+              <td class="simplicity-col" style="color:#9ca3af">No</td>
             </tr>
             <tr>
               <td><strong>Authorized recovery</strong></td>
@@ -2335,6 +2369,7 @@
               <td style="color:#9ca3af">No</td>
               <td style="color:#16a34a; font-weight:600">Yes</td>
               <td style="color:#9ca3af">No</td>
+              <td class="simplicity-col" style="color:#9ca3af">No</td>
             </tr>
             <tr>
               <td><strong>Address reuse safe</strong></td>
@@ -2342,6 +2377,7 @@
               <td style="color:#16a34a; font-weight:600">Yes</td>
               <td style="color:#16a34a; font-weight:600">Yes</td>
               <td style="color:#dc2626; font-weight:600">No — single use</td>
+              <td class="simplicity-col" style="color:#dc2626; font-weight:600">No — single use</td>
             </tr>
             <tr>
               <td><strong>Flexible destination</strong></td>
@@ -2349,13 +2385,15 @@
               <td style="color:#16a34a; font-weight:600">Trigger-time choice</td>
               <td style="color:#16a34a; font-weight:600">Trigger-time choice</td>
               <td style="color:#dc2626; font-weight:600">Locked at creation</td>
+              <td class="simplicity-col" style="color:#dc2626; font-weight:600">Locked at creation</td>
             </tr>
             <tr>
               <td><strong>Lifecycle cost</strong></td>
-              <td style="font-weight:700">368 vB</td>
-              <td style="font-weight:700">430 vB</td>
+              <td style="font-weight:700">367 vB</td>
+              <td style="font-weight:700">565 vB</td>
               <td style="font-weight:700">567 vB</td>
-              <td style="font-weight:700">~493 vB</td>
+              <td style="font-weight:700">553 vB</td>
+              <td class="simplicity-col" style="font-weight:700">865 vB</td>
             </tr>
           </tbody>
         </table>
@@ -2430,6 +2468,226 @@
 
     </section>
 
+    <!-- ═══════════════════════ SIMPLICITY ═══════════════════════ -->
+    <section id="simplicity">
+      <div class="section-label">Beyond Bitcoin</div>
+      <div class="section-title">Simplicity on Elements</div>
+      <div class="section-subtitle">
+        Simplicity is a typed functional language for blockchain covenants, deployed on Elements/Liquid — a
+        federated sidechain. It is not a Bitcoin opcode proposal. We include it as a reference implementation
+        to show how a fundamentally different programming model and trust architecture affect vault design.
+        The measurements below are from Elements regtest and are not directly comparable to Bitcoin regtest
+        due to differences in fee markets, witness structure, and consensus model.
+      </div>
+
+      <!-- Simplicity vault card -->
+      <div class="card vault-card" style="border-left:3px solid var(--simplicity); max-width:640px; margin-bottom:48px">
+        <div class="tag" style="color:var(--simplicity)">Simplicity <span class="sidechain-badge">Elements / Liquid</span></div>
+        <h3>The Typed One</h3>
+        <p>Pure functional programs compiled to a directed acyclic graph (DAG). Covenant enforcement via native
+          <code>jet::outputs_hash()</code> introspection — both the trigger path and recovery path are
+          output-constrained. Runs on a federated sidechain with explicit fee outputs, eliminating fee pinning
+          structurally rather than through script design.</p>
+        <div class="stat-row">
+          <div class="stat">
+            <div class="num" style="color:var(--simplicity)">865</div>
+            <div class="label">vB lifecycle</div>
+          </div>
+          <div class="stat">
+            <div class="num" style="color:var(--simplicity)">2</div>
+            <div class="label">keys</div>
+          </div>
+          <div class="stat">
+            <div class="num" style="color:var(--simplicity)">0</div>
+            <div class="label">revaults</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simplicity lifecycle SVG -->
+      <div class="svg-block">
+        <div class="svg-description">
+          The Simplicity vault lifecycle operates on Elements regtest. Funds enter the vault through a deposit
+          to a P2TR output whose spending conditions are defined by a Simplicity program — a typed functional
+          DAG rather than a stack-based Bitcoin Script. The vault program embeds two BIP-340 Schnorr public keys
+          (hot and cold, derived from separate BIP-39 mnemonics) and two pre-computed output hashes as compile-time
+          parameters. To trigger a withdrawal, the hot key holder signs a transaction that is validated by the
+          Simplicity program: <code>jet::bip_0340_verify()</code> checks the signature, and
+          <code>jet::outputs_hash()</code> verifies that the spending transaction's outputs match the pre-committed
+          hash. After a CSV timelock delay enforced by <code>jet::check_lock_distance()</code>, the withdrawal
+          completes to the pre-committed destination. Recovery uses the cold key but is also output-constrained —
+          unlike CAT+CSFS where the recovery leaf is an unconstrained <code>OP_CHECKSIG</code>, Simplicity's
+          recovery path runs the same <code>jet::outputs_hash()</code> check, ensuring funds can only move to the
+          pre-committed recovery address. The total lifecycle costs 865 vB across three transactions (deposit
+          269 vB, trigger 298 vB, withdraw 298 vB). The larger witness size reflects Simplicity's bit-oriented
+          DAG encoding, which includes the pruned program, Merkle proof, and serialized witness data. Elements
+          uses explicit fee outputs rather than the implicit fee model (input sum minus output sum) used in
+          Bitcoin, which eliminates descendant-chain fee pinning at the protocol level.
+        </div>
+        <div class="svg-wrap">
+          <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
+              <path d="M1 4v6h6" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg></button>
+          <div class="svg-display"><img src="simplicity-vault-animation.svg" alt="Simplicity vault lifecycle on Elements" loading="lazy"></div>
+        </div>
+      </div>
+
+      <!-- Simplicity mechanism SVG -->
+      <div class="svg-block">
+        <div class="svg-description">
+          The covenant enforcement mechanism in Simplicity centers on <code>jet::outputs_hash()</code> — a
+          native jet (optimized built-in function) that computes the Merkle hash of the spending transaction's
+          outputs at consensus time. The vault program is a DAG with two branches selected by the witness
+          spend-path: Left for the trigger (hot key) and Right for recovery (cold key). Both branches execute
+          the same verification pipeline: <code>jet::bip_0340_verify()</code> checks the Schnorr signature
+          against the appropriate public key, then <code>jet::outputs_hash()</code> computes the actual output
+          hash and compares it against the pre-committed parameter (<code>param::TRIGGER_OUTPUTS_HASH</code> or
+          <code>param::RECOVER_OUTPUTS_HASH</code>). If the hashes do not match, the program evaluates to false
+          and the transaction is invalid. This is the key structural difference from CAT+CSFS: in a CAT+CSFS
+          vault, the trigger leaf uses dual CSFS+CHECKSIG verification to constrain outputs, but the recovery
+          leaf is a bare <code>cold_pk OP_CHECKSIG</code> with no introspection — a compromised cold key can
+          sweep funds to any address. In Simplicity, both paths are output-constrained by the same mechanism.
+          The cost of this comprehensive enforcement is witness size: Simplicity's trigger and withdraw
+          transactions are each 298 vB, compared to CAT+CSFS's 221 vB and 210 vB respectively.
+        </div>
+        <div class="svg-wrap">
+          <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
+              <path d="M1 4v6h6" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg></button>
+          <div class="svg-display"><img src="simplicity-mechanism.svg" alt="Simplicity covenant mechanism — jet::outputs_hash() enforcement" loading="lazy"></div>
+        </div>
+      </div>
+
+      <!-- Cross-chain comparison table -->
+      <div class="card" style="padding:0; overflow:hidden">
+        <div style="padding:20px 20px 4px">
+          <h4 style="font-size:15px; font-weight:700; margin-bottom:2px">Cross-Chain Comparison</h4>
+          <p class="small muted">Simplicity operates on a fundamentally different chain and trust model. This table shows where the designs align structurally and where they diverge.</p>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th style="color:var(--ctv)">CTV</th>
+              <th style="color:var(--ccv)">CCV</th>
+              <th style="color:var(--opvault)">OP_VAULT</th>
+              <th style="color:var(--catcsfs)">CAT+CSFS</th>
+              <th class="simplicity-col" style="color:var(--simplicity)">Simplicity <span class="sidechain-badge">Elements</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Chain</strong></td>
+              <td>Bitcoin</td>
+              <td>Bitcoin</td>
+              <td>Bitcoin</td>
+              <td>Bitcoin</td>
+              <td class="simplicity-col" style="font-weight:600;color:var(--simplicity)">Elements (federated)</td>
+            </tr>
+            <tr>
+              <td><strong>Trust model</strong></td>
+              <td>PoW miners</td>
+              <td>PoW miners</td>
+              <td>PoW miners</td>
+              <td>PoW miners</td>
+              <td class="simplicity-col">Federation (11-of-15)</td>
+            </tr>
+            <tr>
+              <td><strong>Script model</strong></td>
+              <td>P2WSH</td>
+              <td>P2TR (Tapscript)</td>
+              <td>P2TR (Tapscript)</td>
+              <td>P2TR (Tapscript)</td>
+              <td class="simplicity-col">P2TR (Simplicity DAG)</td>
+            </tr>
+            <tr>
+              <td><strong>Covenant mechanism</strong></td>
+              <td>CTV template hash</td>
+              <td>CCV opcode</td>
+              <td>OP_VAULT opcode</td>
+              <td>CSFS + CAT</td>
+              <td class="simplicity-col">jet::outputs_hash()</td>
+            </tr>
+            <tr>
+              <td><strong>Lifecycle cost</strong></td>
+              <td style="font-weight:700">367 vB</td>
+              <td style="font-weight:700">565 vB</td>
+              <td style="font-weight:700">567 vB</td>
+              <td style="font-weight:700">553 vB</td>
+              <td class="simplicity-col" style="font-weight:700">865 vB</td>
+            </tr>
+            <tr>
+              <td><strong>Recovery constraint</strong></td>
+              <td>Template-locked</td>
+              <td style="color:#16a34a;font-weight:600">Output-constrained</td>
+              <td style="color:#16a34a;font-weight:600">Output + key</td>
+              <td style="color:#dc2626;font-weight:600">None (unconstrained)</td>
+              <td class="simplicity-col" style="color:#16a34a;font-weight:600">Output-constrained (both paths)</td>
+            </tr>
+            <tr>
+              <td><strong>Partial withdrawal</strong></td>
+              <td style="color:#9ca3af">No</td>
+              <td style="color:#16a34a;font-weight:600">Yes (revault)</td>
+              <td style="color:#16a34a;font-weight:600">Yes</td>
+              <td style="color:#9ca3af">No</td>
+              <td class="simplicity-col" style="color:#9ca3af">No</td>
+            </tr>
+            <tr>
+              <td><strong>Key model</strong></td>
+              <td>2 keys (hot + cold)</td>
+              <td>1 key (trigger)</td>
+              <td>3 keys (trigger + auth + recovery)</td>
+              <td>2 keys (hot + cold)</td>
+              <td class="simplicity-col">2 keys (hot + cold)</td>
+            </tr>
+            <tr>
+              <td><strong>Fee management</strong></td>
+              <td>CPFP anchor</td>
+              <td>Integrated</td>
+              <td>Fee wallet (2-input)</td>
+              <td>Extra input (SIGHASH_SINGLE)</td>
+              <td class="simplicity-col">Explicit fee output</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Simplicity callout cards -->
+      <div class="findings-grid" style="grid-template-columns:repeat(3,1fr); margin-top:48px">
+        <div class="card finding-card">
+          <div class="number" style="color:var(--simplicity)">01</div>
+          <h4>Output-constrained recovery on both paths</h4>
+          <p>
+            Both trigger and recovery paths enforce <code>jet::outputs_hash()</code>. A compromised cold key
+            can only recover funds to the pre-committed recovery address — it cannot sweep to an arbitrary
+            destination. This matches CCV and OP_VAULT's recovery security, unlike CAT+CSFS where the cold
+            key has unconstrained control.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number" style="color:var(--simplicity)">02</div>
+          <h4>Explicit fee outputs eliminate fee pinning</h4>
+          <p>
+            Elements replaces Bitcoin's implicit fee model (input sum minus output sum) with explicit fee
+            outputs. There are no anchor outputs and no descendant chains to pin. Fee pinning is not just
+            mitigated by script design — it is architecturally impossible at the protocol level.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number" style="color:var(--simplicity)">03</div>
+          <h4>Typed functional programs with formal verification</h4>
+          <p>
+            Simplicity programs are directed acyclic graphs with denotational semantics and a Coq-verified
+            type system. Covenant properties can be verified as language-level guarantees, not testing
+            outcomes. The tradeoff is witness size: the bit-oriented DAG encoding produces 298 vB transactions
+            where Bitcoin Script equivalents use 94–221 vB.
+          </p>
+        </div>
+      </div>
+    </section>
+
     <!-- ═══════════════════════ REAL WORLD ═══════════════════════ -->
     <section id="realworld">
       <div class="section-label">Use Cases</div>
@@ -2466,8 +2724,8 @@
             to run a watchtower but want fund safety above all else.
           </p>
           <div class="rec" style="background:#eff6ff; color:#2563eb">
-            Best fit: <strong>CCV</strong> — native partial withdrawal via revault, moderate per-transaction cost (430
-            vB lifecycle), keyless recovery means even if you lose your trigger key your funds are never permanently
+            Best fit: <strong>CCV</strong> — native partial withdrawal via revault, moderate per-transaction cost (565
+            vB lifecycle including revault step), keyless recovery means even if you lose your trigger key your funds are never permanently
             stuck. Tradeoff: you need to accept occasional griefing risk from anyone who knows your vault address.
           </div>
         </div>
@@ -2667,10 +2925,10 @@
             </tr>
             <tr>
               <td><strong>On-chain cost (lifecycle)</strong></td>
-              <td style="color:#16a34a;font-weight:600">368 vB</td>
-              <td>430 vB</td>
-              <td style="color:#ea580c">567 vB (+54%)</td>
-              <td>493 vB (+34%)</td>
+              <td style="color:#16a34a;font-weight:600">367 vB</td>
+              <td>565 vB</td>
+              <td style="color:#ea580c">567 vB (+55%)</td>
+              <td>553 vB (+51%)</td>
             </tr>
           </tbody>
         </table>
@@ -2681,8 +2939,9 @@
     <section style="padding-top:60px">
       <div class="card" style="padding:24px; text-align:center; max-width:640px; margin:0 auto">
         <p class="small muted">
-          All measurements from Bitcoin regtest. Transaction sizes (vsize) are structurally valid.
-          16 experiments, 11 threat models, 4 covenant designs.
+          All measurements from regtest. Transaction sizes (vsize) are structurally valid.
+          15 experiments, 11 threat models, 5 vault implementations — 4 Bitcoin covenant designs
+          plus Simplicity on Elements regtest (federated sidechain).
         </p>
       </div>
     </section>
@@ -2695,15 +2954,17 @@
       <p style="margin-top:8px">
         Built on <a href="https://github.com/AlejandroAkbal/simple-ctv-vault" target="_blank">simple-ctv-vault</a>,
         <a href="https://github.com/Merkleize/pymatt" target="_blank">pymatt</a>,
-        <a href="https://github.com/jamesob/opvault-demo" target="_blank">opvault-demo</a>, and
-        simple-cat-csfs-vault (custom)
+        <a href="https://github.com/jamesob/opvault-demo" target="_blank">opvault-demo</a>,
+        simple-cat-csfs-vault (custom), and
+        simple-simplicity-vault (Simplicity/Elements)
       </p>
       <p style="margin-top:8px">
         Covenant designs by
         <a href="https://github.com/JeremyRubin" target="_blank">Jeremy Rubin</a> (CTV · BIP 119),
         <a href="https://github.com/bigspider" target="_blank">Salvatore Ingala</a> (CCV · BIP 443),
-        <a href="https://github.com/jamesob" target="_blank">James O'Beirne</a> (OP_VAULT · BIP 345), and
-        Möser-Eyal-Sirer / <a href="https://medium.com/blockstream/cat-and-schnorr-tricks-i-faf1b59bd298" target="_blank">Andrew Poelstra</a> (CAT+CSFS · BIP 347 + 348)
+        <a href="https://github.com/jamesob" target="_blank">James O'Beirne</a> (OP_VAULT · BIP 345),
+        Möser-Eyal-Sirer / <a href="https://medium.com/blockstream/cat-and-schnorr-tricks-i-faf1b59bd298" target="_blank">Andrew Poelstra</a> (CAT+CSFS · BIP 347 + 348), and
+        <a href="https://github.com/roconnor-blockstream" target="_blank">Russell O'Connor</a> (Simplicity)
       </p>
       <p style="margin-top:8px"><a href="https://github.com/PraneethGunas/vault-comparison"
           target="_blank">GitHub</a></p>

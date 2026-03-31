@@ -349,7 +349,7 @@
         <path d="M0,-16 L14,-8 L14,4 C14,12 0,18 0,18 C0,18 -14,12 -14,4 L-14,-8 Z"/>
       </g>
     </g>
-    <text x="718" y="228" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600">cold sweep</text>
+    <text x="718" y="228" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600">Recovery</text>
   </g>
 
   <!-- CTV Outcome (green check) -->
@@ -445,7 +445,7 @@
         <path d="M0,-16 L14,-8 L14,4 C14,12 0,18 0,18 C0,18 -14,12 -14,4 L-14,-8 Z"/>
       </g>
     </g>
-    <text x="718" y="418" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600">keyless · 122 vB</text>
+    <text x="718" y="418" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600">Recovery</text>
   </g>
 
   <!-- CCV Outcome -->
@@ -530,7 +530,7 @@
         <path d="M0,-16 L14,-8 L14,4 C14,12 0,18 0,18 C0,18 -14,12 -14,4 L-14,-8 Z"/>
       </g>
     </g>
-    <text x="718" y="598" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600">auth recovery · 246 vB</text>
+    <text x="718" y="598" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600">Recovery</text>
   </g>
 
   <!-- OP_VAULT Outcome -->

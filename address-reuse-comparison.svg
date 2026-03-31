@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 1200 700" width="1200" height="700"
+     viewBox="0 0 1200 820" width="1200" height="820"
      font-family="system-ui, -apple-system, sans-serif">
   <title>Address Reuse — Four Vaults Compared</title>
   <desc>Animated diagram showing what happens when a user accidentally sends two deposits to the same vault address. CTV and CAT+CSFS get stuck due to amount commitments. CCV and OP_VAULT handle it cleanly with independent contracts/UTXOs.</desc>
@@ -57,8 +57,8 @@
   </defs>
 
   <!-- Canvas background -->
-  <rect width="1200" height="700" fill="#f3f4f6"/>
-  <rect width="1200" height="700" fill="url(#dots)"/>
+  <rect width="1200" height="820" fill="#f3f4f6"/>
+  <rect width="1200" height="820" fill="url(#dots)"/>
 
   <!-- Title -->
   <text x="600" y="36" fill="#1e293b" font-size="18" text-anchor="middle" font-weight="700">Address Reuse — Four Vaults Compared</text>

@@ -2,7 +2,7 @@
      viewBox="0 0 1200 700" width="1200" height="700"
      font-family="system-ui, -apple-system, sans-serif">
   <title>Dual-Key Compromise — DoS Not Theft</title>
-  <desc>Animated diagram showing how OP_VAULT's worst case — trigger key plus recoveryauth key compromised — results in a denial-of-service loop but NOT fund theft, because recovery always goes to the pre-committed immutable address.</desc>
+  <desc>Animated diagram showing how OP_VAULT dual-key compromise (trigger + recoveryauth) results in a denial-of-service loop, not fund theft, because recovery always goes to the immutable pre-committed address.</desc>
 
   <defs>
     <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
@@ -27,10 +27,6 @@
     <filter id="amberGlow" x="-40%" y="-40%" width="180%" height="180%">
       <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#f59e0b" flood-opacity="0.3"/>
     </filter>
-    <filter id="purpleGlow" x="-40%" y="-40%" width="180%" height="180%">
-      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#8b5cf6" flood-opacity="0.3"/>
-    </filter>
-
     <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/>
     </linearGradient>
@@ -43,208 +39,236 @@
     <linearGradient id="amberGrad" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/>
     </linearGradient>
-    <linearGradient id="purpleGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#6d28d9"/>
-    </linearGradient>
   </defs>
+
+  <!-- ============================================================
+       DUAL-KEY COMPROMISE DoS (TM6) — OP_VAULT
+
+       Layout:
+         Attacker (red, two keys) ──→ Vault UTXO (blue) ──→ Trigger Output (amber)
+                                                                    │
+                                                          ┌────────┴────────┐
+                                                    Watchtower (green)  Attacker path (red)
+                                                      upper, slow         lower, fast
+                                                          │                     │
+                                                          └────────┬────────────┘
+                                                                   ▼
+                                                         Recovery Address (green, large)
+                                                                   │
+                                                             loop back ↻
+
+       Timing (18s cycle):
+         0.00–0.06  Vault activates
+         0.06–0.10  Attacker card red-flashes (stolen keys)
+         0.06–0.18  Red particles: Attacker → Vault → Trigger Output
+         0.18–0.24  Trigger Output activates
+         0.24–0.32  Watchtower activates, green particles on upper path (slow 1.0s)
+         0.28–0.38  Attacker red particles on lower path (fast 0.4s, overtakes)
+         0.34–0.38  Red X on watchtower (defeated), watchtower dims to 0.75
+         0.38–0.48  Recovery Address activates, sonar ripple (safe!)
+         0.48–0.60  Loop back: amber particles arch over top back to vault
+         0.60–0.68  Vault re-activates briefly (cycle repeats visually)
+         0.68–0.72  Attacker red-flashes again (can repeat)
+         0.72–1.00  Hold + full reset
+       ============================================================ -->
 
   <rect width="1200" height="700" fill="#f3f4f6"/>
   <rect width="1200" height="700" fill="url(#dots)"/>
 
-  <!-- ============================================================
-       DUAL-KEY COMPROMISE DoS (TM6) — OP_VAULT SPECIFIC
+  <text x="600" y="45" fill="#1e293b" font-size="18" text-anchor="middle" font-weight="700">Dual-Key Compromise — DoS Not Theft</text>
 
-       Layout (linear with loop-back):
-         x=90:   Vault UTXO (blue)
-         x=350:  Trigger Output (amber) — attacker-initiated
-         x=620:  Watchtower vs Attacker race zone
-         x=890:  Recovery Address (green) — funds SAFE
-         Loop:   Curved path from recovery back to vault (arching over top)
-
-       Key story: trigger + recoveryauth compromised = DoS only.
-       Recovery ALWAYS goes to immutable pre-committed address.
-
-       Timing (18s cycle):
-         0.00–0.06  Vault activates
-         0.06–0.16  Attacker triggers with stolen trigger key (red particles)
-         0.16–0.22  Trigger output activates
-         0.22–0.30  Watchtower detects, prepares recovery (green starts)
-         0.28–0.36  Attacker front-runs with recoveryauth (fast red overtakes)
-         0.36–0.44  Recovery address receives funds (green glow — SAFE!)
-         0.44–0.54  "DoS Not Theft" callout pulses
-         0.54–0.66  Loop arrow glows — attacker can repeat
-         0.66–0.76  Comparison callout: CTV dual-key = THEFT
-         0.76–0.86  Defense banner
-         0.86–1.00  Hold + reset
-       ============================================================ -->
-
-  <!-- ============ TITLE ============ -->
-  <text x="600" y="45" fill="#1e293b" font-size="20" text-anchor="middle" font-weight="700">Dual-Key Compromise — DoS Not Theft</text>
-
-  <!-- ============ ATTACKER KEY BADGES (top, always visible) ============ -->
-  <g opacity="0">
-    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
-             keyTimes="0;0.06;0.10;0.66;0.76;1" dur="18s" repeatCount="indefinite"/>
-    <!-- trigger key -->
-    <rect x="200" y="130" width="140" height="30" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="1.2"/>
-    <text x="252" y="150" fill="#6b7280" font-size="9" font-weight="500">Trigger Key</text>
-    <text x="335" y="150" fill="#dc2626" font-size="9" font-weight="700">STOLEN</text>
-    <!-- recoveryauth key -->
-    <rect x="370" y="130" width="170" height="30" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="1.2"/>
-    <text x="420" y="150" fill="#6b7280" font-size="9" font-weight="500">Auth Key</text>
-    <text x="533" y="150" fill="#dc2626" font-size="9" font-weight="700">STOLEN</text>
-    <!-- recovery address -->
-    <rect x="570" y="130" width="200" height="30" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.2"/>
-    <text x="630" y="150" fill="#6b7280" font-size="9" font-weight="500">Recovery Addr</text>
-    <text x="764" y="150" fill="#16a34a" font-size="9" font-weight="700">IMMUTABLE</text>
-  </g>
+  <!-- Center content vertically: content spans ~380px, canvas is 700px -->
+  <g transform="translate(0, 80)">
 
   <!-- ============ STATIC CONNECTIONS ============ -->
+  <!-- Attacker → Vault UTXO -->
+  <path d="M182,230 Q230,290 280,330" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round" fill="none"/>
   <!-- Vault → Trigger Output -->
-  <line x1="186" y1="330" x2="330" y2="330" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
-  <!-- Trigger Output → Race zone (fork) -->
-  <line x1="446" y1="330" x2="550" y2="330" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
-  <!-- Race zone → upper: watchtower recovery (green, gets overtaken) -->
-  <path d="M550,330 Q590,270 640,270 L780,270" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-  <!-- Race zone → lower: attacker recovery (red, faster) -->
-  <path d="M550,330 Q590,390 640,390 L780,390" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-  <!-- Both converge → Recovery Address -->
-  <path d="M780,270 Q830,270 870,300" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-  <path d="M780,390 Q830,390 870,360" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-  <!-- Recovery Address → Loop back (arching over top) -->
-  <path d="M986,282 Q1040,250 1060,200 Q1080,130 1000,110 Q800,80 600,80 Q300,80 160,180 Q130,210 138,282"
+  <line x1="376" y1="350" x2="510" y2="350" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Trigger Output → fork point -->
+  <line x1="606" y1="350" x2="680" y2="350" stroke="#d1d5db" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Fork → upper: watchtower (green) -->
+  <path d="M680,350 Q710,260 760,260 L870,260" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <!-- Fork → lower: attacker (red) -->
+  <path d="M680,350 Q710,440 760,440 L870,440" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <!-- Upper converge → Recovery Address -->
+  <path d="M870,260 Q910,260 940,310" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <!-- Lower converge → Recovery Address -->
+  <path d="M870,440 Q910,440 940,390" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <!-- Recovery → loop back (arch over top) -->
+  <path d="M1050,302 Q1100,260 1110,200 Q1120,120 1020,95 Q800,60 600,60 Q350,60 220,140 Q170,175 138,230"
         stroke="#d1d5db" stroke-width="1.2" stroke-dasharray="4,4" stroke-linecap="round" fill="none"/>
 
   <!-- ============ DASHED OVERLAYS ============ -->
-  <!-- Vault → Trigger Output (red — attacker initiates) -->
-  <line x1="186" y1="330" x2="330" y2="330"
-        stroke="#ef4444" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+  <!-- Attacker → Vault (red) -->
+  <path d="M182,230 Q230,290 280,330"
+        stroke="#ef4444" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
     <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
              keyTimes="0;0.06;0.08;0.16;0.18;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
+  </path>
+  <!-- Vault → Trigger Output (red) -->
+  <line x1="376" y1="350" x2="510" y2="350"
+        stroke="#ef4444" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
+             keyTimes="0;0.10;0.12;0.20;0.22;1" dur="18s" repeatCount="indefinite"/>
     <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.35s" repeatCount="indefinite"/>
   </line>
-  <!-- Trigger Output → fork point -->
-  <line x1="446" y1="330" x2="550" y2="330"
+  <!-- Trigger Output → fork (amber) -->
+  <line x1="606" y1="350" x2="680" y2="350"
         stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" opacity="0">
     <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
-             keyTimes="0;0.20;0.22;0.30;0.32;1" dur="18s" repeatCount="indefinite"/>
+             keyTimes="0;0.22;0.24;0.32;0.34;1" dur="18s" repeatCount="indefinite"/>
     <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.4s" repeatCount="indefinite"/>
   </line>
-  <!-- Upper: watchtower recovery attempt (green, slower) -->
-  <path d="M550,330 Q590,270 640,270 L780,270"
+  <!-- Upper: watchtower recovery (green, slower) -->
+  <path d="M680,350 Q710,260 760,260 L870,260"
         stroke="#22c55e" stroke-width="2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
-    <animate attributeName="opacity" values="0;0;0.5;0.5;0;0;0"
-             keyTimes="0;0.22;0.24;0.34;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
+             keyTimes="0;0.24;0.26;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
     <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.7s" repeatCount="indefinite"/>
   </path>
-  <!-- Lower: attacker recovery (red, faster, overtakes) -->
-  <path d="M550,330 Q590,390 640,390 L780,390"
+  <!-- Lower: attacker recovery (red, fast) -->
+  <path d="M680,350 Q710,440 760,440 L870,440"
         stroke="#ef4444" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
     <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
-             keyTimes="0;0.28;0.30;0.38;0.40;1" dur="18s" repeatCount="indefinite"/>
+             keyTimes="0;0.28;0.30;0.40;0.42;1" dur="18s" repeatCount="indefinite"/>
     <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.25s" repeatCount="indefinite"/>
   </path>
-  <!-- Attacker path → Recovery Address -->
-  <path d="M780,390 Q830,390 870,360"
+  <!-- Attacker path → Recovery Address (red) -->
+  <path d="M870,440 Q910,440 940,390"
         stroke="#ef4444" stroke-width="2.2" stroke-dasharray="8,6" stroke-linecap="round" fill="none" opacity="0">
     <animate attributeName="opacity" values="0;0;0.55;0.55;0;0"
-             keyTimes="0;0.34;0.36;0.42;0.44;1" dur="18s" repeatCount="indefinite"/>
+             keyTimes="0;0.36;0.38;0.44;0.46;1" dur="18s" repeatCount="indefinite"/>
     <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.3s" repeatCount="indefinite"/>
   </path>
   <!-- Loop path (amber) -->
-  <path d="M986,282 Q1040,250 1060,200 Q1080,130 1000,110 Q800,80 600,80 Q300,80 160,180 Q130,210 138,282"
+  <path d="M1050,302 Q1100,260 1110,200 Q1120,120 1020,95 Q800,60 600,60 Q350,60 220,140 Q170,175 138,230"
         stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,5" stroke-linecap="round" fill="none" opacity="0">
     <animate attributeName="opacity" values="0;0;0.4;0.4;0;0"
-             keyTimes="0;0.54;0.58;0.72;0.76;1" dur="18s" repeatCount="indefinite"/>
+             keyTimes="0;0.48;0.52;0.66;0.70;1" dur="18s" repeatCount="indefinite"/>
     <animate attributeName="stroke-dashoffset" from="0" to="-11" dur="1.2s" repeatCount="indefinite"/>
   </path>
 
-  <!-- ============ RACE ZONE LABELS ============ -->
-  <!-- Watchtower label (upper path) -->
-  <g aria-label="Watchtower recovery attempt — slower, gets front-run by attacker" opacity="0">
-    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
-             keyTimes="0;0.22;0.26;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
-    <text x="710" y="258" fill="#22c55e" font-size="9" text-anchor="middle" font-weight="600">watchtower recovery</text>
-  </g>
-  <!-- Attacker label (lower path) -->
-  <g aria-label="Attacker front-runs with stolen recoveryauth key" opacity="0">
-    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
-             keyTimes="0;0.28;0.32;0.40;0.42;1" dur="18s" repeatCount="indefinite"/>
-    <text x="710" y="410" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="700">attacker front-runs!</text>
-  </g>
-  <!-- "overtakes" indicator -->
-  <g opacity="0">
-    <animate attributeName="opacity" values="0;0;0.9;0;0.8;0;0"
-             keyTimes="0;0.32;0.33;0.34;0.35;0.36;1" dur="18s" repeatCount="indefinite"/>
-    <text x="660" y="340" fill="#ef4444" font-size="14" text-anchor="middle" font-weight="700">⚡</text>
-  </g>
-
   <!-- ============ PARTICLES ============ -->
-  <!-- Vault → Trigger Output (red, attacker-initiated) -->
+  <!-- Attacker → Vault (red) -->
   <g opacity="0">
     <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.08;0.16;0.18;1" dur="18s" repeatCount="indefinite"/>
     <circle r="3.5" fill="#ef4444">
       <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.5s" repeatCount="indefinite"/>
-      <animate attributeName="cx" from="186" to="330" dur="0.5s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values="330;330" dur="0.5s" repeatCount="indefinite"/>
+      <animateMotion path="M182,230 Q230,290 280,330" dur="0.5s" repeatCount="indefinite"/>
     </circle>
     <circle r="2" fill="#fca5a5">
       <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
-      <animate attributeName="cx" from="186" to="330" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
-      <animate attributeName="cy" values="330;330" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
+      <animateMotion path="M182,230 Q230,290 280,330" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
     </circle>
   </g>
-  <!-- Trigger Output → fork (amber) -->
+  <!-- Vault → Trigger Output (red) -->
   <g opacity="0">
-    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.20;0.22;0.30;0.32;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.10;0.12;0.20;0.22;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3.5" fill="#ef4444">
+      <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="376" to="510" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="350;350" dur="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#fca5a5">
+      <animate attributeName="opacity" values="0.1;0.5;0.5;0.1" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
+      <animate attributeName="cx" from="376" to="510" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
+      <animate attributeName="cy" values="350;350" dur="0.5s" repeatCount="indefinite" begin="0.25s"/>
+    </circle>
+  </g>
+  <!-- Trigger → fork (amber) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.22;0.24;0.32;0.34;1" dur="18s" repeatCount="indefinite"/>
     <circle r="3" fill="#f59e0b">
       <animate attributeName="opacity" values="0.1;0.7;0.7;0.1" dur="0.5s" repeatCount="indefinite"/>
-      <animate attributeName="cx" from="446" to="550" dur="0.5s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values="330;330" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cx" from="606" to="680" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="350;350" dur="0.5s" repeatCount="indefinite"/>
     </circle>
   </g>
-  <!-- Upper: watchtower recovery (green, slower) -->
+  <!-- Upper: watchtower (green, slow 1.0s) -->
   <g opacity="0">
-    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.22;0.24;0.34;0.36;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.24;0.26;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
     <circle r="3" fill="#22c55e">
       <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="1.0s" repeatCount="indefinite"/>
-      <animateMotion path="M0,0 Q40,-60 90,-60 L230,-60" dur="1.0s" repeatCount="indefinite"/>
+      <animateMotion path="M680,350 Q710,260 760,260 L870,260" dur="1.0s" repeatCount="indefinite"/>
     </circle>
     <circle r="1.5" fill="#86efac">
       <animate attributeName="opacity" values="0.1;0.4;0.4;0.1" dur="1.0s" repeatCount="indefinite" begin="0.5s"/>
-      <animateMotion path="M0,0 Q40,-60 90,-60 L230,-60" dur="1.0s" repeatCount="indefinite" begin="0.5s"/>
+      <animateMotion path="M680,350 Q710,260 760,260 L870,260" dur="1.0s" repeatCount="indefinite" begin="0.5s"/>
     </circle>
   </g>
-  <!-- Lower: attacker recovery (red, very fast) -->
+  <!-- Lower: attacker (red, fast 0.4s) -->
   <g opacity="0">
     <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.28;0.30;0.40;0.42;1" dur="18s" repeatCount="indefinite"/>
     <circle r="4" fill="#ef4444">
       <animate attributeName="opacity" values="0.1;0.9;0.9;0.1" dur="0.4s" repeatCount="indefinite"/>
-      <animateMotion path="M0,0 Q40,60 90,60 L230,60" dur="0.4s" repeatCount="indefinite"/>
+      <animateMotion path="M680,350 Q710,440 760,440 L870,440" dur="0.4s" repeatCount="indefinite"/>
     </circle>
     <circle r="2.5" fill="#fca5a5">
       <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
-      <animateMotion path="M0,0 Q40,60 90,60 L230,60" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
+      <animateMotion path="M680,350 Q710,440 760,440 L870,440" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
     </circle>
     <circle r="1.5" fill="#fca5a5">
       <animate attributeName="opacity" values="0.1;0.4;0.4;0.1" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
-      <animateMotion path="M0,0 Q40,60 90,60 L230,60" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
+      <animateMotion path="M680,350 Q710,440 760,440 L870,440" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
     </circle>
   </g>
-  <!-- Attacker → Recovery Address (red) -->
+  <!-- Attacker → Recovery (red) -->
   <g opacity="0">
-    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.34;0.36;0.42;0.44;1" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.36;0.38;0.44;0.46;1" dur="18s" repeatCount="indefinite"/>
     <circle r="3.5" fill="#ef4444">
       <animate attributeName="opacity" values="0.1;0.8;0.8;0.1" dur="0.35s" repeatCount="indefinite"/>
-      <animateMotion path="M0,0 Q50,0 90,-30" dur="0.35s" repeatCount="indefinite"/>
+      <animateMotion path="M870,440 Q910,440 940,390" dur="0.35s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <!-- Loop-back particles (amber, slow) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.50;0.54;0.66;0.70;1" dur="18s" repeatCount="indefinite"/>
+    <circle r="3" fill="#f59e0b">
+      <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="1.6s" repeatCount="indefinite"/>
+      <animateMotion path="M1050,302 Q1100,260 1110,200 Q1120,120 1020,95 Q800,60 600,60 Q350,60 220,140 Q170,175 138,230" dur="1.6s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="1.5" fill="#fde68a">
+      <animate attributeName="opacity" values="0.1;0.4;0.4;0.1" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
+      <animateMotion path="M1050,302 Q1100,260 1110,200 Q1120,120 1020,95 Q800,60 600,60 Q350,60 220,140 Q170,175 138,230" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
     </circle>
   </g>
 
   <!-- ============ CARDS ============ -->
 
-  <!-- Card 1: Vault UTXO (blue) -->
+  <!-- Card 1: Attacker (red — holds stolen trigger key + auth key) -->
+  <g aria-label="Attacker with stolen keys">
+    <g transform="translate(90, 166)">
+      <rect width="96" height="96" rx="22" fill="url(#redGrad)" filter="url(#redGlow)"/>
+      <!-- Two keys icon (stolen) -->
+      <g transform="translate(48, 48)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <circle cx="-8" cy="-10" r="6"/><line x1="-8" y1="-4" x2="-8" y2="12"/><line x1="-8" y1="6" x2="-2" y2="6"/><line x1="-8" y1="10" x2="-2" y2="10"/>
+        <circle cx="8" cy="-4" r="6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="8" y1="12" x2="14" y2="12"/><line x1="8" y1="16" x2="14" y2="16"/>
+      </g>
+      <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;1;1;0;0;1;1"
+                 keyTimes="0;0.04;0.06;0.18;0.20;0.66;0.68;0.72;0.74;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(48, 48)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;1;1;0;0;1;1"
+                 keyTimes="0;0.04;0.06;0.18;0.20;0.66;0.68;0.72;0.74;1" dur="18s" repeatCount="indefinite"/>
+        <circle cx="-8" cy="-10" r="6"/><line x1="-8" y1="-4" x2="-8" y2="12"/><line x1="-8" y1="6" x2="-2" y2="6"/><line x1="-8" y1="10" x2="-2" y2="10"/>
+        <circle cx="8" cy="-4" r="6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="8" y1="12" x2="14" y2="12"/><line x1="8" y1="16" x2="14" y2="16"/>
+      </g>
+      <!-- Red warning flash on activation -->
+      <rect width="96" height="96" rx="22" fill="none" stroke="#ef4444" stroke-width="2.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.8;0;0.7;0;0;0;0.8;0;0.7;0;0"
+                 keyTimes="0;0.06;0.07;0.08;0.09;0.10;0.20;0.68;0.69;0.70;0.71;0.72;1"
+                 dur="18s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <text x="138" y="278" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Attacker</text>
+  </g>
+
+  <!-- Card 2: Vault UTXO (blue, central) -->
   <g aria-label="Vault UTXO">
-    <g transform="translate(90, 282)">
+    <g transform="translate(280, 302)">
       <rect width="96" height="96" rx="22" fill="url(#blueGrad)" filter="url(#blueGlow)"/>
       <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
         <rect x="-16" y="-6" width="32" height="22" rx="3"/>
@@ -252,136 +276,128 @@
         <circle cx="0" cy="5" r="2.5" fill="white"/>
       </g>
       <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
-        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
-                 keyTimes="0;0.03;0.05;0.16;0.18;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;0;0;0.8;1;1"
+                 keyTimes="0;0.03;0.05;0.18;0.20;0.58;0.60;0.68;0.70;0.74;1" dur="18s" repeatCount="indefinite"/>
       </rect>
       <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
-        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;1;1"
-                 keyTimes="0;0.03;0.05;0.16;0.18;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="1;1;0;0;0.8;0.8;0;0;0.8;1;1"
+                 keyTimes="0;0.03;0.05;0.18;0.20;0.58;0.60;0.68;0.70;0.74;1" dur="18s" repeatCount="indefinite"/>
         <rect x="-16" y="-6" width="32" height="22" rx="3"/>
         <path d="M-8,-6 L-8,-14 a8,8 0 0,1 16,0 L8,-6"/>
         <circle cx="0" cy="5" r="2.5" fill="#374151"/>
       </g>
     </g>
-    <text x="138" y="395" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Vault UTXO</text>
+    <text x="328" y="414" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Vault UTXO</text>
   </g>
 
-  <!-- Card 2: Trigger Output (amber) — attacker-initiated -->
+  <!-- Card 3: Trigger Output (amber) -->
   <g aria-label="Trigger Output">
-    <g transform="translate(350, 282)">
+    <g transform="translate(510, 302)">
       <rect width="96" height="96" rx="22" fill="url(#amberGrad)" filter="url(#amberGlow)"/>
       <g transform="translate(48, 48)" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none">
-        <!-- trigger/lightning icon -->
         <path d="M4,-18 L-8,2 L2,2 L-4,18 L8,-2 L-2,-2 Z"/>
       </g>
       <rect width="96" height="96" rx="22" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
         <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
-                 keyTimes="0;0.14;0.16;0.44;0.46;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+                 keyTimes="0;0.16;0.18;0.46;0.48;0.72;0.74;1" dur="18s" repeatCount="indefinite"/>
       </rect>
       <g transform="translate(48, 48)" stroke="#374151" stroke-width="2.2" stroke-linecap="round" fill="none">
         <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
-                 keyTimes="0;0.14;0.16;0.44;0.46;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+                 keyTimes="0;0.16;0.18;0.46;0.48;0.72;0.74;1" dur="18s" repeatCount="indefinite"/>
         <path d="M4,-18 L-8,2 L2,2 L-4,18 L8,-2 L-2,-2 Z"/>
       </g>
-      <!-- Breathing ring while active -->
+      <!-- Breathing ring -->
       <rect x="-5" y="-5" width="106" height="106" rx="27" fill="none" stroke="#f59e0b" stroke-width="1.5" opacity="0">
         <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
-                 keyTimes="0;0.16;0.18;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
-        <animate attributeName="x" values="-5;-9;-5" dur="1.4s" repeatCount="indefinite"/>
-        <animate attributeName="y" values="-5;-9;-5" dur="1.4s" repeatCount="indefinite"/>
-        <animate attributeName="width" values="106;114;106" dur="1.4s" repeatCount="indefinite"/>
-        <animate attributeName="height" values="106;114;106" dur="1.4s" repeatCount="indefinite"/>
+                 keyTimes="0;0.18;0.20;0.38;0.40;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="106;114;106" dur="1.2s" repeatCount="indefinite"/>
       </rect>
     </g>
-    <text x="398" y="395" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Trigger Output</text>
+    <text x="558" y="414" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Trigger Output</text>
   </g>
 
-  <!-- Card 3: Recovery Address (green, large — the SAFE destination) -->
+  <!-- Card 4: Watchtower (green, small — upper fork, gets defeated) -->
+  <g aria-label="Watchtower">
+    <g transform="translate(774, 216)">
+      <rect width="88" height="88" rx="20" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
+      <!-- Eye/watchtower icon -->
+      <g transform="translate(44, 44)" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+        <path d="M-18,0 Q0,-16 18,0 Q0,16 -18,0 Z"/>
+        <circle cx="0" cy="0" r="5"/>
+      </g>
+      <rect width="88" height="88" rx="20" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.24;0.26;0.34;0.36;0.44;0.46;1" dur="18s" repeatCount="indefinite"/>
+      </rect>
+      <g transform="translate(44, 44)" stroke="#374151" stroke-width="2" stroke-linecap="round" fill="none">
+        <animate attributeName="opacity" values="1;1;0;0;0.75;0.75;1;1"
+                 keyTimes="0;0.24;0.26;0.34;0.36;0.44;0.46;1" dur="18s" repeatCount="indefinite"/>
+        <path d="M-18,0 Q0,-16 18,0 Q0,16 -18,0 Z"/>
+        <circle cx="0" cy="0" r="5"/>
+      </g>
+      <!-- Red X on defeat (dims the card to 0.75 via overlay above) -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
+                 keyTimes="0;0.34;0.36;0.44;0.46;1" dur="18s" repeatCount="indefinite"/>
+        <line x1="28" y1="28" x2="60" y2="60" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="60" y1="28" x2="28" y2="60" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
+    </g>
+    <text x="818" y="318" fill="#9ca3af" font-size="11" text-anchor="middle" font-weight="500">Watchtower</text>
+  </g>
+
+  <!-- Card 5: Recovery Address (green, large — the immutable destination) -->
   <g aria-label="Recovery Address">
-    <g transform="translate(890, 282)">
+    <g transform="translate(940, 296)">
       <rect width="108" height="108" rx="26" fill="url(#greenGrad)" filter="url(#greenGlow)"/>
-      <!-- Shield icon -->
       <g transform="translate(54, 54)" stroke="white" stroke-width="2.4" stroke-linecap="round" fill="none">
         <path d="M0,-22 L20,-12 L20,6 C20,18 0,28 0,28 C0,28 -20,18 -20,6 L-20,-12 Z"/>
-        <!-- Checkmark inside shield -->
         <path d="M-8,2 L-2,8 L8,-4" stroke-width="2.8"/>
       </g>
       <rect width="108" height="108" rx="26" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#cardShadow)">
         <animate attributeName="opacity" values="1;1;0;0;0;1;1"
-                 keyTimes="0;0.38;0.40;0.54;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+                 keyTimes="0;0.40;0.42;0.56;0.72;0.74;1" dur="18s" repeatCount="indefinite"/>
       </rect>
       <g transform="translate(54, 54)" stroke="#374151" stroke-width="2.4" stroke-linecap="round" fill="none">
         <animate attributeName="opacity" values="1;1;0;0;0;1;1"
-                 keyTimes="0;0.38;0.40;0.54;0.82;0.90;1" dur="18s" repeatCount="indefinite"/>
+                 keyTimes="0;0.40;0.42;0.56;0.72;0.74;1" dur="18s" repeatCount="indefinite"/>
         <path d="M0,-22 L20,-12 L20,6 C20,18 0,28 0,28 C0,28 -20,18 -20,6 L-20,-12 Z"/>
         <path d="M-8,2 L-2,8 L8,-4" stroke-width="2.8"/>
       </g>
-      <!-- Sonar ripple on fund arrival -->
+      <!-- Sonar ripple 1 on fund arrival -->
       <rect x="54" y="54" width="0" height="0" rx="0" fill="none" stroke="#22c55e" stroke-width="2" opacity="0">
-        <animate attributeName="opacity" values="0;0;0.6;0;0" keyTimes="0;0.40;0.42;0.48;1" dur="18s" repeatCount="indefinite"/>
-        <animate attributeName="x" values="54;54;-15;-15;54" keyTimes="0;0.40;0.48;0.50;1" dur="18s" repeatCount="indefinite"/>
-        <animate attributeName="y" values="54;54;-15;-15;54" keyTimes="0;0.40;0.48;0.50;1" dur="18s" repeatCount="indefinite"/>
-        <animate attributeName="width" values="0;0;138;138;0" keyTimes="0;0.40;0.48;0.50;1" dur="18s" repeatCount="indefinite"/>
-        <animate attributeName="height" values="0;0;138;138;0" keyTimes="0;0.40;0.48;0.50;1" dur="18s" repeatCount="indefinite"/>
-        <animate attributeName="rx" values="0;0;42;42;0" keyTimes="0;0.40;0.48;0.50;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;0;0.6;0;0" keyTimes="0;0.42;0.44;0.50;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="54;54;-15;-15;54" keyTimes="0;0.42;0.50;0.52;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="54;54;-15;-15;54" keyTimes="0;0.42;0.50;0.52;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;138;138;0" keyTimes="0;0.42;0.50;0.52;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;138;138;0" keyTimes="0;0.42;0.50;0.52;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;42;42;0" keyTimes="0;0.42;0.50;0.52;1" dur="18s" repeatCount="indefinite"/>
       </rect>
-      <!-- Second sonar ring (delayed) -->
+      <!-- Sonar ripple 2 (staggered) -->
       <rect x="54" y="54" width="0" height="0" rx="0" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
-        <animate attributeName="opacity" values="0;0;0.4;0;0" keyTimes="0;0.43;0.45;0.51;1" dur="18s" repeatCount="indefinite"/>
-        <animate attributeName="x" values="54;54;-25;-25;54" keyTimes="0;0.43;0.51;0.53;1" dur="18s" repeatCount="indefinite"/>
-        <animate attributeName="y" values="54;54;-25;-25;54" keyTimes="0;0.43;0.51;0.53;1" dur="18s" repeatCount="indefinite"/>
-        <animate attributeName="width" values="0;0;158;158;0" keyTimes="0;0.43;0.51;0.53;1" dur="18s" repeatCount="indefinite"/>
-        <animate attributeName="height" values="0;0;158;158;0" keyTimes="0;0.43;0.51;0.53;1" dur="18s" repeatCount="indefinite"/>
-        <animate attributeName="rx" values="0;0;48;48;0" keyTimes="0;0.43;0.51;0.53;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;0;0.4;0;0" keyTimes="0;0.45;0.47;0.53;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="x" values="54;54;-25;-25;54" keyTimes="0;0.45;0.53;0.55;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="54;54;-25;-25;54" keyTimes="0;0.45;0.53;0.55;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="width" values="0;0;158;158;0" keyTimes="0;0.45;0.53;0.55;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="0;0;158;158;0" keyTimes="0;0.45;0.53;0.55;1" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="0;0;48;48;0" keyTimes="0;0.45;0.53;0.55;1" dur="18s" repeatCount="indefinite"/>
       </rect>
       <!-- Breathing ring -->
       <rect x="-5" y="-5" width="118" height="118" rx="31" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0">
         <animate attributeName="opacity" values="0;0;0.5;0.5;0;0"
-                 keyTimes="0;0.40;0.44;0.66;0.70;1" dur="18s" repeatCount="indefinite"/>
+                 keyTimes="0;0.42;0.46;0.66;0.70;1" dur="18s" repeatCount="indefinite"/>
         <animate attributeName="x" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
         <animate attributeName="y" values="-5;-9;-5" dur="1.2s" repeatCount="indefinite"/>
         <animate attributeName="width" values="118;126;118" dur="1.2s" repeatCount="indefinite"/>
         <animate attributeName="height" values="118;126;118" dur="1.2s" repeatCount="indefinite"/>
       </rect>
     </g>
-    <text x="944" y="408" fill="#22c55e" font-size="12" text-anchor="middle" font-weight="700">Recovery Address</text>
+    <text x="994" y="420" fill="#22c55e" font-size="12" text-anchor="middle" font-weight="700">Recovery Address</text>
   </g>
 
-  <!-- ============ "DoS NOT THEFT" STATUS ============ -->
-  <g aria-label="Result: denial of service only, not fund theft — recovery address is immutable" opacity="0">
-    <animate attributeName="opacity" values="0;0;1;1;0;0"
-             keyTimes="0;0.44;0.48;0.64;0.68;1" dur="18s" repeatCount="indefinite"/>
-    <text x="520" y="494" fill="#16a34a" font-size="15" text-anchor="middle" font-weight="800">DoS — NOT THEFT</text>
-  </g>
-
-  <!-- ============ LOOP INDICATOR ============ -->
-  <g aria-label="Attack loop: funds cycle back to vault, attacker can repeat indefinitely" opacity="0">
-    <animate attributeName="opacity" values="0;0;0.8;0.8;0;0"
-             keyTimes="0;0.54;0.58;0.72;0.76;1" dur="18s" repeatCount="indefinite"/>
-    <text x="600" y="94" fill="#f59e0b" font-size="28" text-anchor="middle" font-weight="700">↻</text>
-    <text x="640" y="94" fill="#f59e0b" font-size="10" text-anchor="start" font-weight="600">attacker can repeat — funds cycle back</text>
-  </g>
-
-  <!-- ============ COMPARISON CALLOUT: CTV/CAT+CSFS = THEFT ============ -->
-  <g aria-label="Comparison: CTV and CAT+CSFS dual-key compromise leads to fund theft, not just DoS" opacity="0">
-    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
-             keyTimes="0;0.66;0.70;0.82;0.86;1" dur="18s" repeatCount="indefinite"/>
-    <rect x="280" y="530" width="640" height="60" rx="12" fill="#fef2f2" stroke="#ef4444" stroke-width="1.2"/>
-    <text x="600" y="555" fill="#1e293b" font-size="12" text-anchor="middle" font-weight="600">In CTV &amp; CAT+CSFS: hot + cold key compromised = FUND THEFT (cold key bypasses all constraints)</text>
-    <text x="600" y="575" fill="#6b7280" font-size="10" text-anchor="middle">OP_VAULT uniquely survives dual-key compromise — immutable recovery address prevents theft</text>
-  </g>
-
-  <!-- ============ WATCHTOWER DEFEATED INDICATOR ============ -->
-  <g aria-label="Watchtower recovery blocked — attacker's recoveryauth is faster" opacity="0">
-    <animate attributeName="opacity" values="0;0;0.9;0.9;0;0"
-             keyTimes="0;0.32;0.36;0.44;0.46;1" dur="18s" repeatCount="indefinite"/>
-    <!-- Red X on watchtower path -->
-    <g transform="translate(780, 258)">
-      <line x1="-8" y1="-8" x2="8" y2="8" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
-      <line x1="8" y1="-8" x2="-8" y2="8" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
-    </g>
-  </g>
-
-
+  </g><!-- end centering transform -->
 
 </svg>
