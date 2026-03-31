@@ -1975,7 +1975,7 @@
           CCV and OP_VAULT can batch multiple vault UTXOs into a single trigger transaction, reducing per-vault marginal
           cost as N increases. CTV and CAT+CSFS cannot batch — each vault UTXO requires its own trigger transaction.
           At N=50 inputs, CCV reaches a per-vault cost of ~101 vB (34% savings vs N=1), while CTV and CAT+CSFS remain
-          constant regardless of count. OP_VAULT batching is also sub-linear but with higher marginal cost (~191 vB per
+          constant regardless of count. OP_VAULT batching is also sub-linear with ~94 vB marginal cost per
           additional input vs CCV's ~106 vB). CCV has a DEDUCT footgun: if multiple inputs use DEDUCT mode pointing to
           the same revault output, the accounting creates contradictory constraints and the transaction is rejected.
           Safe patterns include single-input DEDUCT, mixed trigger+trigger_and_revault, or separate revault outputs per
@@ -2402,21 +2402,20 @@
       <!-- Batching efficiency -->
       <div class="card mt-48" style="padding:28px">
         <h4 style="font-size:15px; font-weight:700; margin-bottom:4px">Batching Efficiency — Trigger Cost per Vault</h4>
-        <p class="small muted" style="margin-bottom:20px">CTV and CAT+CSFS have no batching (constant per-vault cost). CCV's per-vault cost drops as N increases, reaching 34% savings at 50 inputs.</p>
-        <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
-          <!-- Grid -->
+        <p class="small muted" style="margin-bottom:20px">CTV and CAT+CSFS have no batching (constant per-vault cost). CCV and OP_VAULT achieve sub-linear scaling, with per-vault cost dropping as N increases.</p>
+        <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+          <!-- Scale: 0-300 vB, chart area y=20..250, so val→y = 250 - (val/300)*230 -->
           <line x1="80" y1="20" x2="80" y2="250" stroke="#e5e7eb" stroke-width="1" />
           <line x1="80" y1="250" x2="760" y2="250" stroke="#e5e7eb" stroke-width="1" />
-          <line x1="80" y1="190" x2="760" y2="190" stroke="#f3f4f6" stroke-width="1" />
-          <line x1="80" y1="130" x2="760" y2="130" stroke="#f3f4f6" stroke-width="1" />
-          <line x1="80" y1="70" x2="760" y2="70" stroke="#f3f4f6" stroke-width="1" />
+          <line x1="80" y1="174" x2="760" y2="174" stroke="#f3f4f6" stroke-width="1" />
+          <line x1="80" y1="97" x2="760" y2="97" stroke="#f3f4f6" stroke-width="1" />
 
           <!-- Y-axis labels -->
           <text x="70" y="254" text-anchor="end" font-size="10" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">0</text>
-          <text x="70" y="194" text-anchor="end" font-size="10" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">50</text>
-          <text x="70" y="134" text-anchor="end" font-size="10" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">100</text>
-          <text x="70" y="74" text-anchor="end" font-size="10" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">150</text>
-          <text x="24" y="160" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif" transform="rotate(-90 24 160)">vB per vault</text>
+          <text x="70" y="178" text-anchor="end" font-size="10" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">100</text>
+          <text x="70" y="101" text-anchor="end" font-size="10" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">200</text>
+          <text x="70" y="25" text-anchor="end" font-size="10" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">300</text>
+          <text x="24" y="140" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif" transform="rotate(-90 24 140)">vB per vault</text>
 
           <!-- X-axis: N=1, 2, 5, 10, 50 -->
           <text x="148" y="270" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">N=1</text>
@@ -2426,43 +2425,49 @@
           <text x="692" y="270" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">N=50</text>
           <text x="420" y="292" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Vaults Triggered in Single Transaction</text>
 
-          <!-- CTV bars (constant 94 vB) — y = 250 - (94/160)*180 = 250 - 105.75 ≈ 144 -->
-          <rect x="128" y="144" width="26" height="106" rx="3" fill="#ef4444" opacity="0.85" />
-          <rect x="264" y="144" width="26" height="106" rx="3" fill="#ef4444" opacity="0.85" />
-          <rect x="400" y="144" width="26" height="106" rx="3" fill="#ef4444" opacity="0.85" />
-          <rect x="536" y="144" width="26" height="106" rx="3" fill="#ef4444" opacity="0.85" />
-          <rect x="672" y="144" width="26" height="106" rx="3" fill="#ef4444" opacity="0.85" />
-          <!-- CTV labels -->
-          <text x="141" y="138" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">94</text>
-          <text x="277" y="138" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">94</text>
-          <text x="413" y="138" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">94</text>
-          <text x="549" y="138" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">94</text>
-          <text x="685" y="138" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">94</text>
+          <!-- CTV bars (constant 94 vB) — y = 250 - (94/300)*230 = 250 - 72 = 178 -->
+          <rect x="118" y="178" width="20" height="72" rx="3" fill="#ef4444" opacity="0.85" />
+          <rect x="254" y="178" width="20" height="72" rx="3" fill="#ef4444" opacity="0.85" />
+          <rect x="390" y="178" width="20" height="72" rx="3" fill="#ef4444" opacity="0.85" />
+          <rect x="526" y="178" width="20" height="72" rx="3" fill="#ef4444" opacity="0.85" />
+          <rect x="662" y="178" width="20" height="72" rx="3" fill="#ef4444" opacity="0.85" />
+          <text x="128" y="173" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">94</text>
+          <text x="264" y="173" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">94</text>
+          <text x="400" y="173" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">94</text>
+          <text x="536" y="173" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">94</text>
+          <text x="672" y="173" text-anchor="middle" font-size="9" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">94</text>
 
-          <!-- CCV bars: 154, 127, 111, 105.6, 101.3 vB/vault -->
-          <!-- y = 250 - (val/160)*180 -->
-          <!-- 154: y=250-173.25=77  h=173 -->
-          <rect x="158" y="77" width="26" height="173" rx="3" fill="#3b82f6" opacity="0.85" />
-          <!-- 127: y=250-142.9=107  h=143 -->
-          <rect x="294" y="107" width="26" height="143" rx="3" fill="#3b82f6" opacity="0.85" />
-          <!-- 111: y=250-124.9=125  h=125 -->
-          <rect x="430" y="125" width="26" height="125" rx="3" fill="#3b82f6" opacity="0.85" />
-          <!-- 105.6: y=250-118.8=131  h=119 -->
-          <rect x="566" y="131" width="26" height="119" rx="3" fill="#3b82f6" opacity="0.85" />
-          <!-- 101.3: y=250-113.96=136  h=114 -->
-          <rect x="702" y="136" width="26" height="114" rx="3" fill="#3b82f6" opacity="0.85" />
-          <!-- CCV labels -->
-          <text x="171" y="71" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
-          <text x="307" y="101" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">127</text>
-          <text x="443" y="119" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">111</text>
-          <text x="579" y="125" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">106</text>
-          <text x="715" y="130" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">101</text>
+          <!-- CCV bars: 154, 127, 111, 106, 101 — y = 250 - (val/300)*230 -->
+          <rect x="142" y="132" width="20" height="118" rx="3" fill="#3b82f6" opacity="0.85" />
+          <rect x="278" y="153" width="20" height="97" rx="3" fill="#3b82f6" opacity="0.85" />
+          <rect x="414" y="165" width="20" height="85" rx="3" fill="#3b82f6" opacity="0.85" />
+          <rect x="550" y="169" width="20" height="81" rx="3" fill="#3b82f6" opacity="0.85" />
+          <rect x="686" y="172" width="20" height="78" rx="3" fill="#3b82f6" opacity="0.85" />
+          <text x="152" y="127" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">154</text>
+          <text x="288" y="148" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">127</text>
+          <text x="424" y="160" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">111</text>
+          <text x="560" y="164" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">106</text>
+          <text x="696" y="167" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">101</text>
+
+          <!-- OP_VAULT bars: 292, 193, 133, 114, 98 — y = 250 - (val/300)*230 -->
+          <rect x="166" y="26" width="20" height="224" rx="3" fill="#f59e0b" opacity="0.85" />
+          <rect x="302" y="102" width="20" height="148" rx="3" fill="#f59e0b" opacity="0.85" />
+          <rect x="438" y="148" width="20" height="102" rx="3" fill="#f59e0b" opacity="0.85" />
+          <rect x="574" y="163" width="20" height="87" rx="3" fill="#f59e0b" opacity="0.85" />
+          <rect x="710" y="175" width="20" height="75" rx="3" fill="#f59e0b" opacity="0.85" />
+          <text x="176" y="21" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">292</text>
+          <text x="312" y="97" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">193</text>
+          <text x="448" y="143" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">133</text>
+          <text x="584" y="158" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">114</text>
+          <text x="720" y="170" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">98</text>
 
           <!-- Legend -->
-          <rect x="640" y="20" width="10" height="10" rx="2" fill="#ef4444" />
-          <text x="656" y="30" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CTV (no batching)</text>
-          <rect x="640" y="38" width="10" height="10" rx="2" fill="#3b82f6" />
-          <text x="656" y="48" font-size="11" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CCV (batched)</text>
+          <rect x="590" y="20" width="10" height="10" rx="2" fill="#ef4444" />
+          <text x="606" y="30" font-size="10" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CTV (no batching)</text>
+          <rect x="590" y="36" width="10" height="10" rx="2" fill="#3b82f6" />
+          <text x="606" y="46" font-size="10" fill="#6b7280" font-family="Inter,system-ui,sans-serif">CCV (batched)</text>
+          <rect x="590" y="52" width="10" height="10" rx="2" fill="#f59e0b" />
+          <text x="606" y="62" font-size="10" fill="#6b7280" font-family="Inter,system-ui,sans-serif">OP_VAULT (batched)</text>
         </svg>
       </div>
 
@@ -2745,7 +2750,7 @@
           <div class="rec" style="background:#eff6ff; color:#2563eb">
             Best fit: <strong>CCV</strong> — batched triggers across multiple vault UTXOs in a single transaction.
             Partial withdrawal means payroll doesn't require a full vault cycle. 106 vB per additional vault in a batch
-            vs OP_VAULT's 191 vB. Your team needs to audit CCV mode flags carefully (TM8), but the operational savings
+            vs OP_VAULT's 94 vB. Your team needs to audit CCV mode flags carefully (TM8), but the operational savings
             are substantial at scale.
           </div>
         </div>
@@ -2871,7 +2876,7 @@
               <td><strong>Batched operations</strong></td>
               <td style="color:#dc2626">Not supported</td>
               <td style="color:#16a34a;font-weight:600">Best (106 vB/input)</td>
-              <td>Supported (191 vB/input)</td>
+              <td>Supported (94 vB/input)</td>
               <td style="color:#dc2626">Not supported</td>
             </tr>
             <tr>
