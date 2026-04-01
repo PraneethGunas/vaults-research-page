@@ -822,7 +822,7 @@
             rigid.</p>
           <div class="stat-row">
             <div class="stat">
-              <div class="num" style="color:var(--ctv)">367</div>
+              <div class="num" style="color:var(--ctv)">368</div>
               <div class="label">vB lifecycle</div>
             </div>
             <div class="stat">
@@ -912,7 +912,7 @@
           unauthorized. If no one intervenes, the hot wallet withdrawal completes after the delay. There is no partial
           withdrawal — the entire vault balance moves as a single unit every time. This rigidity is what makes CTV
           auditable: you can regenerate the full transaction tree from the initial parameters and verify that no
-          unauthorized paths exist. The total lifecycle costs 367 vB across three transactions (deposit 121 vB, trigger
+          unauthorized paths exist. The total lifecycle costs 368 vB across three transactions (deposit 122 vB, trigger
           94 vB, withdraw 152 vB). CTV uses two keys — a hot key for spending and a cold key for recovery — making it
           the simplest key management model of the three designs.
         </div>
@@ -1268,7 +1268,7 @@
             </div>
             <div class="stat">
               <div class="label">Defender Blocked</div>
-              <div class="value">180 vB</div>
+              <div class="value">133 vB</div>
               <div class="context">Cold sweep rejected — desc limit full</div>
             </div>
             <div class="stat">
@@ -1293,7 +1293,7 @@
         <div style="margin-bottom:12px"><span class="tm-tag critical">CRITICAL</span> <strong
             style="margin-left:6px">CCV Mode Bypass (TM8)</strong></div>
         <div class="svg-description">
-          CCV mode bypass is the highest-severity developer footgun we found. The CCV opcode accepts a mode byte that
+          CCV mode bypass is the most consequential developer footgun we documented. The CCV opcode accepts a mode byte that
           controls verification behavior: mode 0 checks scriptPubKey, mode 1 checks amount, mode 2 checks both. Any mode
           value outside this set — 3, 4, 255, anything — triggers OP_SUCCESS, a consensus rule designed for future
           soft-fork extensibility. OP_SUCCESS makes the entire script evaluate to true unconditionally: no signature
@@ -1366,7 +1366,7 @@
           withdrawals and attempts to steal funds before the watchtower can react. In all four vault designs, the
           attack follows the same pattern — the attacker triggers an unauthorized withdrawal, the timelock delay begins,
           and the watchtower races to broadcast recovery. The difference is recovery cost. CTV recovery uses a
-          pre-signed cold sweep at 180 vB. CCV recovery is the cheapest at 122 vB because keyless recovery requires no
+          pre-signed cold sweep at 133 vB. CCV recovery is the cheapest at 122 vB because keyless recovery requires no
           signature, just knowledge of the vault address. OP_VAULT recovery is the most expensive at 246 vB because the
           2-input fee wallet pattern adds overhead and the recoveryauth signature adds witness data. Across all three
           designs, the watchtower wins this race as long as it is online and funded — the timelock gives it blocks, not
@@ -1387,10 +1387,10 @@
             </tr>
             <tr>
               <td>Recovery tx</td>
-              <td class="val">180 vB</td>
+              <td class="val">133 vB</td>
               <td class="val">122 vB</td>
               <td class="val">246 vB</td>
-              <td class="val">~130 vB</td>
+              <td class="val">125 vB</td>
             </tr>
             <tr>
               <td>Mechanism</td>
@@ -1401,10 +1401,10 @@
             </tr>
             <tr>
               <td>Cost vs attacker</td>
-              <td class="val">1.91×</td>
+              <td class="val">1.41×</td>
               <td class="val">1.26×</td>
               <td class="val">1.19×</td>
-              <td class="val">~0.70×</td>
+              <td class="val">~0.57×</td>
             </tr>
           </table>
           <div class="evidence-note">Watchtower wins the race in all cases — timelocks give blocks, not seconds, to respond. The cost difference matters in sustained multi-round attacks (see TM4). CAT+CSFS recovery is cheap because the recover leaf is a simple CHECKSIG — no introspection overhead.</div>
@@ -1452,21 +1452,21 @@
               <td class="val">94 vB</td>
               <td class="val">154 vB</td>
               <td class="val">292 vB</td>
-              <td class="val">~185 vB</td>
+              <td class="val">221 vB</td>
             </tr>
             <tr>
               <td>Recovery tx</td>
-              <td class="val">180 vB</td>
+              <td class="val">133 vB</td>
               <td class="val">122 vB</td>
               <td class="val">246 vB</td>
-              <td class="val">~130 vB</td>
+              <td class="val">125 vB</td>
             </tr>
             <tr>
               <td>Asymmetry</td>
-              <td class="val">0.52×</td>
+              <td class="val">0.71×</td>
               <td class="val">1.26×</td>
               <td class="val">1.19×</td>
-              <td class="val">~0.70×</td>
+              <td class="val">1.77×</td>
             </tr>
             <tr>
               <td>Grief barrier</td>
@@ -1630,7 +1630,7 @@
 
       <!-- TM11 -->
       <div class="svg-block">
-        <div style="margin-bottom:12px"><span class="tm-tag critical">CRITICAL</span> <strong
+        <div style="margin-bottom:12px"><span class="tm-tag high">HIGH</span> <strong
             style="margin-left:6px">Cold Key Recovery Theft (TM11)</strong></div>
         <div class="svg-description">
           This is the most severe CAT+CSFS vulnerability. The recovery leaf uses a simple <code>cold_pk OP_CHECKSIG</code>
@@ -1949,7 +1949,7 @@
             </div>
             <div class="stat">
               <div class="label">CTV per step</div>
-              <div class="value">~367 vB</div>
+              <div class="value">~368 vB</div>
               <div class="context">Full cycle: destroy + recreate</div>
             </div>
             <div class="stat">
@@ -2021,35 +2021,38 @@
           <div class="number">01</div>
           <h4>Safety rankings flip based on fees</h4>
           <p>
-            Low fees → CCV and OP_VAULT are safer (pinning is cheap, splitting is infeasible).
-            High fees → CTV is safer (watchtower exhaustion becomes viable against the others).
-            There is no universally safest vault.
+            Low fees (&lt;50 sat/vB) → CCV and OP_VAULT are safer (pinning is cheap, splitting is infeasible).
+            High fees (&gt;100 sat/vB) → CTV is safer (watchtower exhaustion becomes viable against the others).
+            The crossover occurs around 50–100 sat/vB. There is no universally safest vault.
           </p>
         </div>
         <div class="card finding-card">
           <div class="number">02</div>
-          <h4>Griefing resistance and fund safety are opposites</h4>
+          <h4>Griefing resistance and fund safety are mutually exclusive</h4>
           <p>
-            OP_VAULT blocks griefing best (authorized recovery). CCV protects funds best under key loss (keyless
-            recovery).
-            You can't have both — blocking unauthorized recovery requires a key whose loss disables recovery.
+            No vault can simultaneously achieve permissionless recoverability (fund safety under key loss) and
+            griefing resistance (bounded adversary advantage without keys). OP_VAULT blocks griefing best
+            (authorized recovery) but key loss disables recovery. CCV protects funds best under key loss
+            (keyless recovery) but anyone can grief. This is a necessary design tradeoff, not an implementation gap.
           </p>
         </div>
         <div class="card finding-card">
           <div class="number">03</div>
-          <h4>OP_VAULT costs 36% more than it should</h4>
+          <h4>OP_VAULT's fee-input overhead costs 36% more per lifecycle</h4>
           <p>
-            The 2-input fee wallet pattern adds 80–90 vB to every transaction. Trigger: 292 vB vs CCV's 154.
-            Recovery: 246 vB vs CCV's 122. That gap compounds in multi-round scenarios.
+            BIP-345's value preservation rule requires exogenous fee payment via a separate input, adding 80–90 vB
+            to every transaction. Trigger: 292 vB vs CCV's 154. Recovery: 246 vB vs CCV's 122. This is inherent
+            to the design, not an implementation artifact — and the gap compounds in multi-round scenarios.
           </p>
         </div>
         <div class="card finding-card">
           <div class="number">04</div>
-          <h4>One byte can destroy a CCV vault</h4>
+          <h4>CCV mode values are a developer footgun</h4>
           <p>
-            CCV mode flags outside [0, 1, 2] trigger OP_SUCCESS. We built a production-shaped vault with mode=3
-            and drained it. 110 vB, no signature. By design for soft-fork safety — but the highest-severity footgun we
-            found.
+            CCV mode flags outside {-1, 0, 1, 2} trigger OP_SUCCESS — specified BIP-443 behavior for forward-compatible
+            soft-fork extensions. We verified this on a production-shaped vault taptree: mode=3 bypasses all covenant
+            checks. 110 vB, no signature required. The pymatt library prevents misuse via named constants, but raw
+            script authors must validate mode values explicitly.
           </p>
         </div>
         <div class="card finding-card">
@@ -2389,7 +2392,7 @@
             </tr>
             <tr>
               <td><strong>Lifecycle cost</strong></td>
-              <td style="font-weight:700">367 vB</td>
+              <td style="font-weight:700">368 vB</td>
               <td style="font-weight:700">565 vB</td>
               <td style="font-weight:700">567 vB</td>
               <td style="font-weight:700">553 vB</td>
@@ -2617,7 +2620,7 @@
             </tr>
             <tr>
               <td><strong>Lifecycle cost</strong></td>
-              <td style="font-weight:700">367 vB</td>
+              <td style="font-weight:700">368 vB</td>
               <td style="font-weight:700">565 vB</td>
               <td style="font-weight:700">567 vB</td>
               <td style="font-weight:700">553 vB</td>
@@ -2930,7 +2933,7 @@
             </tr>
             <tr>
               <td><strong>On-chain cost (lifecycle)</strong></td>
-              <td style="color:#16a34a;font-weight:600">367 vB</td>
+              <td style="color:#16a34a;font-weight:600">368 vB</td>
               <td>565 vB</td>
               <td style="color:#ea580c">567 vB (+55%)</td>
               <td>553 vB (+51%)</td>
