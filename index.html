@@ -4,7 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bitcoin Vault Covenants — A Visual Comparison</title>
+  <title>Bitcoin Vault Covenants — An Empirical Evaluation</title>
+  <meta name="description" content="First empirical comparison of four Bitcoin covenant vault designs (CTV, CCV, OP_VAULT, CAT+CSFS) plus Simplicity. 15 experiments, 11 threat models, measured on real Bitcoin nodes.">
+  <meta name="author" content="Praneeth Gunasekaran">
+  <meta property="og:title" content="Bitcoin Vault Covenants — An Empirical Evaluation">
+  <meta property="og:description" content="We built all four proposed Bitcoin vault designs, ran 15 experiments on regtest, and discovered that security rankings invert depending on the fee environment.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://research.praneethg.xyz">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:creator" content="@PraneethGunas">
+  <meta name="twitter:title" content="Bitcoin Vault Covenants — An Empirical Evaluation">
+  <meta name="twitter:description" content="First empirical four-way comparison of Bitcoin covenant vault designs. Security rankings flip based on fees.">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -762,6 +772,142 @@
         --section-gap: 80px;
       }
     }
+
+    /* ── Author card ─────────────────────────────────────── */
+    .author-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 24px;
+      border-radius: 100px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(8px);
+      margin-top: 28px;
+    }
+
+    .author-card .author-info {
+      text-align: left;
+    }
+
+    .author-card .author-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .author-card .author-affiliation {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    .author-card .author-links {
+      display: flex;
+      gap: 12px;
+      margin-left: 8px;
+    }
+
+    .author-card .author-links a {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .author-card .author-links a:hover {
+      color: var(--text);
+    }
+
+    @media (max-width: 640px) {
+      .author-card {
+        flex-direction: column;
+        border-radius: 16px;
+        padding: 16px;
+        gap: 10px;
+      }
+      .author-card .author-info { text-align: center; }
+      .author-card .author-links { margin-left: 0; }
+    }
+
+    /* ── Contributions grid ──────────────────────────────── */
+    .contributions-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+
+    @media (max-width: 768px) {
+      .contributions-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .contribution-card {
+      padding: 24px;
+    }
+
+    .contribution-card .contrib-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .contribution-card .contrib-label.novel {
+      color: #16a34a;
+    }
+
+    .contribution-card h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .contribution-card p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ── Resources bar ───────────────────────────────────── */
+    .resources-bar {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 32px 0;
+    }
+
+    .resources-bar a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(8px);
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .resources-bar a:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .resources-bar a .res-icon {
+      font-size: 15px;
+    }
   </style>
 </head>
 
@@ -773,10 +919,10 @@
       <div class="logo">Vault Covenants <span style="font-weight:400;color:var(--text-muted);font-size:13px">by Praneeth
           Gunasekaran</span></div>
       <div class="links">
+        <a href="#findings">Findings</a>
         <a href="#vaults">Vaults</a>
         <a href="#attacks">Threat Models</a>
         <a href="#tradeoffs">Tradeoffs</a>
-        <a href="#findings">Findings</a>
         <a href="#simplicity">Simplicity</a>
         <a href="#realworld">Use Cases</a>
       </div>
@@ -787,13 +933,27 @@
 
     <!-- ═══════════════════════ HERO ═══════════════════════ -->
     <div class="hero">
-      <h1><span class="gradient">Bitcoin Vault</span><br>Research</h1>
+      <h1><span class="gradient">Bitcoin Vault Covenants</span><br>An Empirical Evaluation</h1>
       <p>
-        CTV, CCV, OP_VAULT, and CAT+CSFS are four proposed Bitcoin covenant designs for self-custody vaults.
-        We ran them head-to-head on regtest, measured everything, and found out which one breaks first —
-        and when.
+        The first empirical comparison of four Bitcoin covenant vault designs, measured head-to-head
+        on real nodes. 15 experiments, 11 threat models, and a finding that changes the debate:
+        the safest vault depends on the fee environment.
       </p>
-      <div class="pill-row">
+      <div style="display:flex;justify-content:center">
+        <div class="author-card">
+          <div class="author-info">
+            <div class="author-name">Praneeth Gunasekaran</div>
+            <div class="author-affiliation">MS CS, Virginia Tech &middot; Research Assistant, Commonwealth Cyber Initiative</div>
+          </div>
+          <div class="author-links">
+            <a href="#" target="_blank">Paper</a>
+            <a href="https://github.com/PraneethGunas/covenant-vault-research" target="_blank">GitHub</a>
+            <a href="https://linkedin.com/in/praneeth-g" target="_blank">LinkedIn</a>
+            <a href="https://x.com/PraneethGunas" target="_blank">X</a>
+          </div>
+        </div>
+      </div>
+      <div class="pill-row" style="margin-top:28px">
         <a href="https://bips.dev/119/" target="_blank" class="pill" style="text-decoration:none;color:inherit">
           <div class="dot" style="background:var(--ctv)"></div>CTV (BIP 119)
         </a>
@@ -810,6 +970,201 @@
           <div class="dot" style="background:var(--simplicity)"></div>Simplicity <span style="font-size:10px;color:var(--text-muted);margin-left:2px">(Elements)</span>
         </a>
       </div>
+    </div>
+
+    <!-- ═══════════════════════ CONTRIBUTIONS ═══════════════════════ -->
+    <section id="contributions">
+      <div class="section-label">What's New</div>
+      <div class="section-title">Research Contributions</div>
+      <div class="section-subtitle">Prior work compared vault designs qualitatively or analyzed them in isolation. This is the first study to build all four, run them on real Bitcoin nodes, and measure the results.</div>
+
+      <div class="contributions-grid">
+        <div class="card contribution-card">
+          <div class="contrib-label novel">Novel</div>
+          <h4>First empirical four-way comparison</h4>
+          <p>5 vault implementations (CTV, CCV, OP_VAULT, CAT+CSFS, Simplicity) tested across 15 experiments on regtest. All prior comparisons were qualitative or feature-matrix based.</p>
+        </div>
+        <div class="card contribution-card">
+          <div class="contrib-label novel">Novel Finding</div>
+          <h4>Security rankings invert with fees</h4>
+          <p>At low fees, CCV/OP_VAULT are safer. At high fees, CTV is safer. The crossover occurs at 50-100 sat/vB. No prior work identified this inversion.</p>
+        </div>
+        <div class="card contribution-card">
+          <div class="contrib-label novel">First Measurements</div>
+          <h4>Concrete lifecycle costs</h4>
+          <p>First published vsize data for all four designs. Corrected BIP-345 hand-estimates by 30-46%. OP_VAULT's fee-input overhead (80-90 vB/tx) was previously unquantified.</p>
+        </div>
+        <div class="card contribution-card">
+          <div class="contrib-label">Implementation</div>
+          <h4>Two original vault implementations</h4>
+          <p>Built the first working CAT+CSFS vault (dual Schnorr verification) and a Simplicity vault on Elements. Plus Alloy formal verification models for all five designs.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ FINDINGS ═══════════════════════ -->
+    <section id="findings">
+      <div class="section-label">What We Found</div>
+      <div class="section-title">Eight Insights From Regtest</div>
+
+      <div class="findings-grid">
+        <div class="card finding-card">
+          <div class="number">01</div>
+          <h4>Safety rankings flip based on fees</h4>
+          <p>
+            Low fees (&lt;50 sat/vB) &rarr; CCV and OP_VAULT are safer (pinning is cheap, splitting is infeasible).
+            High fees (&gt;100 sat/vB) &rarr; CTV is safer (watchtower exhaustion becomes viable against the others).
+            The crossover occurs around 50&ndash;100 sat/vB. There is no universally safest vault.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">02</div>
+          <h4>Griefing resistance and fund safety are mutually exclusive</h4>
+          <p>
+            No vault can simultaneously achieve permissionless recoverability (fund safety under key loss) and
+            griefing resistance (bounded adversary advantage without keys). OP_VAULT blocks griefing best
+            (authorized recovery) but key loss disables recovery. CCV protects funds best under key loss
+            (keyless recovery) but anyone can grief. This is a necessary design tradeoff, not an implementation gap.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">03</div>
+          <h4>OP_VAULT's fee-input overhead costs 36% more per lifecycle</h4>
+          <p>
+            BIP-345's value preservation rule requires exogenous fee payment via a separate input, adding 80&ndash;90 vB
+            to every transaction. Trigger: 292 vB vs CCV's 154. Recovery: 246 vB vs CCV's 122. This is inherent
+            to the design, not an implementation artifact &mdash; and the gap compounds in multi-round scenarios.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">04</div>
+          <h4>CCV mode values are a developer footgun</h4>
+          <p>
+            CCV mode flags outside {-1, 0, 1, 2} trigger OP_SUCCESS &mdash; specified BIP-443 behavior for forward-compatible
+            soft-fork extensions. We verified this on a production-shaped vault taptree: mode=3 bypasses all covenant
+            checks. 110 vB, no signature required. The pymatt library prevents misuse via named constants, but raw
+            script authors must validate mode values explicitly.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">05</div>
+          <h4>Composability comes at the cost of destination flexibility</h4>
+          <p>
+            CAT+CSFS builds a vault from general-purpose opcodes &mdash; no dedicated opcode needed. But the destination
+            is baked into the script as a hash constant. Changing where funds go requires recovery + re-vaulting.
+            Purpose-built opcodes (CCV, OP_VAULT) allow trigger-time destination choice.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">06</div>
+          <h4>CAT+CSFS recovery is the weakest of all four designs</h4>
+          <p>
+            The recovery leaf is a bare <code>cold_pk OP_CHECKSIG</code> &mdash; no output constraints, no timelock,
+            no introspection. A compromised cold key means immediate, unrestricted theft indistinguishable from
+            legitimate recovery. CCV (keyless, constrained) and OP_VAULT (keyed, constrained) both survive cold key loss.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">07</div>
+          <h4>Single-use addresses disqualify two vaults from deposit systems</h4>
+          <p>
+            CTV and CAT+CSFS permanently lose funds on address reuse &mdash; CTV at the script level, CAT+CSFS at the
+            signature level. For any customer-facing deposit system, only CCV and OP_VAULT are viable without
+            strict wallet-layer enforcement of single-use discipline.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">08</div>
+          <h4>Constraining both spending paths costs witness size</h4>
+          <p>
+            Simplicity's 865 vB lifecycle (on Elements) is 2.4x CTV's, but every spending path &mdash; trigger and
+            recovery &mdash; is output-locked via <code>jet::outputs_hash()</code>. CAT+CSFS achieves hot-key safety
+            with similar composability but leaves recovery unconstrained. The witness-size cost of typed
+            functional programs is the price of comprehensive output enforcement.
+          </p>
+        </div>
+      </div>
+
+      <!-- Fee sensitivity chart -->
+      <div class="card" style="padding:28px">
+        <h4 style="font-size:15px; font-weight:700; margin-bottom:4px">Fee-Dependent Security Inversion</h4>
+        <p class="small muted" style="margin-bottom:20px">How each vault's danger level shifts with fee environment.
+          Higher = more vulnerable.</p>
+        <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+          <line x1="80" y1="20" x2="80" y2="280" stroke="#e5e7eb" stroke-width="1" />
+          <line x1="80" y1="280" x2="760" y2="280" stroke="#e5e7eb" stroke-width="1" />
+          <line x1="80" y1="215" x2="760" y2="215" stroke="#f3f4f6" stroke-width="1" />
+          <line x1="80" y1="150" x2="760" y2="150" stroke="#f3f4f6" stroke-width="1" />
+          <line x1="80" y1="85" x2="760" y2="85" stroke="#f3f4f6" stroke-width="1" />
+          <text x="70" y="284" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">0%</text>
+          <text x="70" y="219" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">25%</text>
+          <text x="70" y="154" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">50%</text>
+          <text x="70" y="89" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">75%</text>
+          <text x="70" y="24" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">100%</text>
+          <text x="24" y="150" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif" transform="rotate(-90 24 150)">Danger Level</text>
+          <text x="80" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">1</text>
+          <text x="216" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">10</text>
+          <text x="352" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">50</text>
+          <text x="488" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">100</text>
+          <text x="624" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">300</text>
+          <text x="760" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">500</text>
+          <text x="420" y="325" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Fee Rate (sat/vB)</text>
+          <polyline points="80,33 216,36 352,39 488,41 624,44 760,46" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <polyline points="80,254 216,228 352,176 488,124 624,72 760,52" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <polyline points="80,241 216,210 352,150 488,98 624,52 760,36" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <rect x="300" y="20" width="120" height="260" fill="#fef3c7" opacity="0.2" rx="4" />
+          <text x="360" y="14" text-anchor="middle" font-size="10" fill="#ca8a04" font-family="Inter,system-ui,sans-serif" font-weight="600">crossover zone</text>
+          <circle cx="80" cy="33" r="3.5" fill="#ef4444" />
+          <circle cx="216" cy="36" r="3.5" fill="#ef4444" />
+          <circle cx="352" cy="39" r="3.5" fill="#ef4444" />
+          <circle cx="488" cy="41" r="3.5" fill="#ef4444" />
+          <circle cx="624" cy="44" r="3.5" fill="#ef4444" />
+          <circle cx="760" cy="46" r="3.5" fill="#ef4444" />
+          <circle cx="80" cy="254" r="3.5" fill="#3b82f6" />
+          <circle cx="216" cy="228" r="3.5" fill="#3b82f6" />
+          <circle cx="352" cy="176" r="3.5" fill="#3b82f6" />
+          <circle cx="488" cy="124" r="3.5" fill="#3b82f6" />
+          <circle cx="624" cy="72" r="3.5" fill="#3b82f6" />
+          <circle cx="760" cy="52" r="3.5" fill="#3b82f6" />
+          <circle cx="80" cy="241" r="3.5" fill="#f59e0b" />
+          <circle cx="216" cy="210" r="3.5" fill="#f59e0b" />
+          <circle cx="352" cy="150" r="3.5" fill="#f59e0b" />
+          <circle cx="488" cy="98" r="3.5" fill="#f59e0b" />
+          <circle cx="624" cy="52" r="3.5" fill="#f59e0b" />
+          <circle cx="760" cy="36" r="3.5" fill="#f59e0b" />
+          <line x1="520" y1="12" x2="540" y2="12" stroke="#ef4444" stroke-width="2.5" />
+          <text x="546" y="16" font-size="11" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">CTV</text>
+          <line x1="590" y1="12" x2="610" y2="12" stroke="#3b82f6" stroke-width="2.5" />
+          <text x="616" y="16" font-size="11" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">CCV</text>
+          <line x1="656" y1="12" x2="676" y2="12" stroke="#f59e0b" stroke-width="2.5" />
+          <text x="682" y="16" font-size="11" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">OP_VAULT</text>
+          <polyline points="80,46 216,49 352,52 488,54 624,57 760,59" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8,4" />
+          <circle cx="80" cy="46" r="3.5" fill="#10b981" />
+          <circle cx="216" cy="49" r="3.5" fill="#10b981" />
+          <circle cx="352" cy="52" r="3.5" fill="#10b981" />
+          <circle cx="488" cy="54" r="3.5" fill="#10b981" />
+          <circle cx="624" cy="57" r="3.5" fill="#10b981" />
+          <circle cx="760" cy="59" r="3.5" fill="#10b981" />
+          <line x1="520" y1="26" x2="540" y2="26" stroke="#10b981" stroke-width="2.5" stroke-dasharray="8,4" />
+          <text x="546" y="30" font-size="11" fill="#10b981" font-family="Inter,system-ui,sans-serif" font-weight="600">CAT+CSFS</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ RESOURCES ═══════════════════════ -->
+    <div class="resources-bar">
+      <a href="#" target="_blank">
+        <span class="res-icon">&#128196;</span> Paper (PDF)
+      </a>
+      <a href="https://github.com/PraneethGunas/covenant-vault-research" target="_blank">
+        <span class="res-icon">&#128187;</span> GitHub
+      </a>
+      <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/DESIGN.md" target="_blank">
+        <span class="res-icon">&#128209;</span> Design Doc
+      </a>
+      <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/REFERENCES.md" target="_blank">
+        <span class="res-icon">&#128218;</span> References
+      </a>
     </div>
 
     <!-- ═══════════════════════ OVERVIEW ═══════════════════════ -->
@@ -2011,10 +2366,8 @@
       </div>
     </section>
 
-    <!-- ═══════════════════════ FINDINGS ═══════════════════════ -->
-    <section id="findings">
-      <div class="section-label">What We Found</div>
-      <div class="section-title">Eight Insights From Regtest</div>
+    <!-- Findings section moved to top (after Contributions) -->
+    <section id="findings-old-removed" style="display:none">
 
       <div class="findings-grid">
         <div class="card finding-card">
@@ -2978,8 +3331,9 @@
         <a href="https://github.com/PraneethGunas/covenant-vault-research" target="_blank">GitHub</a> ·
         <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/DESIGN.md" target="_blank">Design Doc</a> ·
         <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/REFERENCES.md" target="_blank">References</a> ·
-        <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/formalization/covenant-vault-paper.pdf" target="_blank">Paper</a>
+        <a href="#" target="_blank">Paper</a>
       </p>
+      <p style="margin-top:16px;font-size:11px;color:var(--text-muted);opacity:0.6">Site built with AI assistance</p>
     </div>
   </footer>
 
