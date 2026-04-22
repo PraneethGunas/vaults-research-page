@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bitcoin Vault Covenants — An Empirical Evaluation</title>
-  <meta name="description" content="First empirical comparison of four Bitcoin-mainnet covenant vault designs (CTV, CCV, OP_VAULT, CAT+CSFS) plus Simplicity on Elements as a cross-substrate reference. 7-axis design space, 6 attack classes, 15 experiments, 11 threat models, measured on real nodes.">
+  <meta name="description" content="First empirical comparison of four Bitcoin covenant vault designs (CTV, CCV, OP_VAULT, CAT+CSFS) plus Simplicity on Elements as a cross-substrate reference. 7-axis design space, 6 attack classes, 15 experiments, 11 threat models, measured on real nodes.">
   <meta name="author" content="Praneeth Gunasekaran">
   <meta property="og:title" content="Bitcoin Vault Covenants — An Empirical Evaluation">
   <meta property="og:description" content="Built all four proposed Bitcoin vault designs, ran 15 experiments on regtest, and discovered that security rankings invert depending on the fee environment AND on whether the watchtower batches recovery.">
@@ -1351,11 +1351,11 @@
       <!-- Four-covenant position table -->
       <div class="card" style="padding:0; overflow:hidden; margin-top:36px">
         <div style="padding:20px 24px; border-bottom:1px solid #e5e7eb">
-          <h4 style="margin:0">Position of each Bitcoin-mainnet covenant</h4>
+          <h4 style="margin:0">Position of each Bitcoin covenant</h4>
           <p class="small" style="color:var(--text-secondary); margin:6px 0 0 0">
             Every attack-class susceptibility claim below is a lookup against this table.
             Simplicity on Elements occupies the strict-best position on A1, A2, A4, A5, and A7 simultaneously (see the
-            <a href="#simplicity" style="color:inherit">Simplicity section</a>); no Bitcoin-mainnet proposal does.
+            <a href="#simplicity" style="color:inherit">Simplicity section</a>); no Bitcoin proposal does.
           </p>
         </div>
         <table class="data-table">
@@ -3170,9 +3170,9 @@
         federated sidechain. It is not a Bitcoin opcode proposal. We include it as a cross-substrate
         <strong>existence proof</strong>: Simplicity's atomic-vault program occupies the strict-best position on
         <span class="axis-pill">A1</span><span class="axis-pill">A2</span><span class="axis-pill">A4</span><span class="axis-pill">A5</span><span class="axis-pill">A7</span> simultaneously,
-        whereas no Bitcoin-mainnet proposal does. This demonstrates the
+        whereas no Bitcoin proposal does. This demonstrates the
         dominant corner <em>is</em> occupiable; the gap identified in this work is about the unoccupied status on
-        Bitcoin mainnet, not about theoretical impossibility. The measurements below are from Elements regtest and
+        Bitcoin, not about theoretical impossibility. The measurements below are from Elements regtest and
         are not directly comparable to Bitcoin regtest due to differences in fee markets, witness structure, and
         consensus model.
       </div>
