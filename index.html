@@ -1156,7 +1156,7 @@
           <h4>Constraining both spending paths costs witness size</h4>
           <p>
             Simplicity's 865 vB lifecycle (on Elements) is 2.4x CTV's, but every spending path &mdash; trigger and
-            recovery &mdash; is output-locked via <code>jet::outputs_hash()</code>. CAT+CSFS achieves hot-key safety
+            recovery &mdash; is output-locked via per-output jets. CAT+CSFS achieves hot-key safety
             with similar composability but leaves recovery unconstrained. The witness-size cost of typed
             functional programs is the price of comprehensive output enforcement.
           </p>
@@ -1354,7 +1354,7 @@
           <h4 style="margin:0">Position of each Bitcoin covenant</h4>
           <p class="small" style="color:var(--text-secondary); margin:6px 0 0 0">
             Every attack-class susceptibility claim below is a lookup against this table.
-            Simplicity on Elements occupies the strict-best position on A1, A2, A4, A5, and A7 simultaneously (see the
+            Our Simplicity vault on Elements occupies the strict-best position on A1, A2, A4, A5, and A7 simultaneously in its atomic configuration (see the
             <a href="#simplicity" style="color:inherit">Simplicity section</a>); no Bitcoin proposal does.
           </p>
         </div>
@@ -2264,7 +2264,7 @@
           address. To actually steal funds, the attacker would need to compromise the recovery address itself (a
           separate key or multisig), making this effectively a three-key attack threshold. CCV's single-key model means
           this specific scenario does not apply — there is only one trigger key and recovery is keyless.
-          Simplicity (on Elements) constrains both spending paths via <code>jet::outputs_hash()</code>, so
+          Simplicity (on Elements) constrains both spending paths via per-output binding (<code>jet::output_script_hash(0)</code> + <code>jet::output_amount(0)</code>), so
           dual-key compromise produces DoS only — matching OP_VAULT's outcome through a different mechanism.
         </div>
         <div class="evidence-panel">
@@ -2328,7 +2328,7 @@
           on-chain; there is no way for a watchtower to distinguish theft from legitimate recovery. Poelstra's recursive
           reset model (from "CAT and Schnorr Tricks II") would upgrade this to liveness denial only, matching OP_VAULT's
           security profile, but is not implemented in the current design. Simplicity constrains recovery outputs via
-          <code>jet::outputs_hash()</code>, making cold key compromise recovery-address-locked — matching CCV and
+          per-output binding, making cold-key compromise recovery-address-locked — matching CCV and
           OP_VAULT, not CAT+CSFS.
         </div>
         <div class="evidence-panel">
@@ -2771,7 +2771,7 @@
           <h4>Constraining both spending paths costs witness size</h4>
           <p>
             Simplicity's 865 vB lifecycle (on Elements) is 2.4x CTV's, but every spending path — trigger and
-            recovery — is output-locked via <code>jet::outputs_hash()</code>. CAT+CSFS achieves hot-key safety
+            recovery — is output-locked via per-output jets. CAT+CSFS achieves hot-key safety
             with similar composability but leaves recovery unconstrained. The witness-size cost of typed
             functional programs is the price of comprehensive output enforcement.
           </p>
@@ -3166,26 +3166,28 @@
       <div class="section-label">Beyond Bitcoin</div>
       <div class="section-title">Simplicity on Elements</div>
       <div class="section-subtitle">
-        Simplicity is a typed functional language for blockchain covenants, deployed on Elements/Liquid &mdash; a
-        federated sidechain. It is not a Bitcoin opcode proposal. We include it as a cross-substrate
-        <strong>existence proof</strong>: Simplicity's atomic-vault program occupies the strict-best position on
-        <span class="axis-pill">A1</span><span class="axis-pill">A2</span><span class="axis-pill">A4</span><span class="axis-pill">A5</span><span class="axis-pill">A7</span> simultaneously,
-        whereas no Bitcoin proposal does. This demonstrates the
-        dominant corner <em>is</em> occupiable; the gap identified in this work is about the unoccupied status on
-        Bitcoin, not about theoretical impossibility. The measurements below are from Elements regtest and
-        are not directly comparable to Bitcoin regtest due to differences in fee markets, witness structure, and
-        consensus model.
+        Simplicity is a typed functional language for blockchain covenants, deployed on Elements/Liquid. Our Simplicity vault supports per-output binding on both trigger and recovery paths, atomic or bounded partial withdrawal, cold-key recovery with an optional keyless post-timeout sweep, and MAX_FEE-capped in-value fee deduction. In the atomic configuration with cold-key-only recovery, it occupies a strict-best position on
+        <span class="axis-pill">A1</span><span class="axis-pill">A2</span><span class="axis-pill">A4</span><span class="axis-pill">A5</span><span class="axis-pill">A7</span> simultaneously. Measurements are from Elements regtest and are not directly comparable to Bitcoin regtest (different fee markets, witness structure, consensus model).
+      </div>
+
+      <!-- Capability summary -->
+      <div class="card" style="padding:20px 24px; margin-bottom:28px; background:#fafafa">
+        <div style="font-weight:600; font-size:14px; margin-bottom:10px">What our Simplicity vault does</div>
+        <ul class="small" style="margin:0 0 0 18px; line-height:1.7; color:var(--text-secondary)">
+          <li><strong>Per-output binding.</strong> Both trigger and recovery paths commit output 0's scriptPubKey and amount via <code>jet::output_script_hash(0)</code> and <code>jet::output_amount(0)</code>.</li>
+          <li><strong>Atomic or bounded partial withdrawal.</strong> Spend the full amount, or a partial amount with a covenant-enforced residual floor that structurally caps the UTXO count.</li>
+          <li><strong>Cold-key recovery, optional keyless post-timeout sweep.</strong> Recovery is gated by a cold key; an optional construction allows a keyless sweep to a pre-committed heir address after a timeout.</li>
+          <li><strong>MAX_FEE-capped in-value fees.</strong> Fees come from the vault amount, capped at a compile-time ceiling; the signer chooses the fee at broadcast.</li>
+          <li><strong>Typed combinator introspection.</strong> All checks are Coq-specified jets; witness validity is typed, not digest-matched.</li>
+        </ul>
       </div>
 
       <div class="card" style="padding:16px 20px; margin-bottom:32px; font-size:13px; color:var(--text-secondary); background:#fafafa">
-        <strong>Axis position:</strong>
-        <span class="axis-pill">A1=cold-key</span><span class="axis-pill">A2=no</span><span class="axis-pill">A3=dynamic</span><span class="axis-pill">A4=dedicated-jets-combinator</span><span class="axis-pill">A5=dedicated-jets-combinator</span><span class="axis-pill">A6=single-mode</span><span class="axis-pill">A7=typed-combinator-introspection</span>
+        <strong>Axis position (atomic configuration):</strong>
+        <span class="axis-pill">A1=cold-key</span><span class="axis-pill">A2=no</span><span class="axis-pill">A3=dynamic (MAX_FEE cap)</span><span class="axis-pill">A4=dedicated-jets-combinator</span><span class="axis-pill">A5=dedicated-jets-combinator</span><span class="axis-pill">A6=single-mode</span><span class="axis-pill">A7=typed-combinator-introspection</span>
         <br>
         <span class="small" style="display:block; margin-top:8px">
-          Immune by construction to every attack class Z1&ndash;Z6. The substrate trade-off is consensus: Simplicity on Liquid is
-          live under federation trust; Bitcoin covenants remain under proof-of-work consensus review. Porting the optimal corner to
-          Bitcoin requires either Simplicity's taproot leaf type (draft BIP, not under active review) or a CAT+CSFS-based bound-recovery
-          construction (Poelstra's sketch) that moves <span class="axis-pill">A5=signature-dual-bind</span>.
+          In the atomic configuration, immune by construction to every attack class Z1&ndash;Z6. The bounded-partial construction admits a bounded class-Z3 exposure governed by the residual floor; the keyless-post-timeout construction introduces a class-Z2 / class-Z11 timing trade-off after the timeout. The substrate is consensus-separate: Simplicity on Liquid is live under federation trust; Bitcoin covenants remain under proof-of-work consensus review. Porting the optimal corner to Bitcoin requires either Simplicity's taproot leaf type (draft BIP, not under active review) or a CAT+CSFS-based bound-recovery construction (Poelstra's sketch) that moves <span class="axis-pill">A5=signature-dual-bind</span>.
         </span>
       </div>
 
@@ -3194,8 +3196,7 @@
         <div class="tag" style="color:var(--simplicity)">Simplicity <span class="sidechain-badge">Elements / Liquid</span></div>
         <h3>The Typed One</h3>
         <p>Pure functional programs compiled to a directed acyclic graph (DAG). Covenant enforcement via native
-          <code>jet::outputs_hash()</code> introspection — both the trigger path and recovery path are
-          output-constrained. Runs on a federated sidechain with explicit fee outputs, eliminating fee pinning
+          per-output binding (<code>jet::output_script_hash(0)</code> + <code>jet::output_amount(0)</code>) — both the trigger path and recovery path are output-constrained. Runs on a federated sidechain with explicit fee outputs, eliminating fee pinning
           structurally rather than through script design.</p>
         <div class="stat-row">
           <div class="stat">
@@ -3222,11 +3223,11 @@
           (hot and cold, derived from separate BIP-39 mnemonics) and two pre-computed output hashes as compile-time
           parameters. To trigger a withdrawal, the hot key holder signs a transaction that is validated by the
           Simplicity program: <code>jet::bip_0340_verify()</code> checks the signature, and
-          <code>jet::outputs_hash()</code> verifies that the spending transaction's outputs match the pre-committed
+          per-output binding jets verify that output 0 of the spending transaction matches the pre-committed
           hash. After a CSV timelock delay enforced by <code>jet::check_lock_distance()</code>, the withdrawal
           completes to the pre-committed destination. Recovery uses the cold key but is also output-constrained —
           unlike CAT+CSFS where the recovery leaf is an unconstrained <code>OP_CHECKSIG</code>, Simplicity's
-          recovery path runs the same <code>jet::outputs_hash()</code> check, ensuring funds can only move to the
+          recovery path runs the same per-output binding, ensuring funds can only move to the
           pre-committed recovery address. The total lifecycle costs 865 vB across three transactions (deposit
           269 vB, trigger 298 vB, withdraw 298 vB). The larger witness size reflects Simplicity's bit-oriented
           DAG encoding, which includes the pruned program, Merkle proof, and serialized witness data. Elements
@@ -3245,12 +3246,12 @@
       <!-- Simplicity mechanism SVG -->
       <div class="svg-block">
         <div class="svg-description">
-          The covenant enforcement mechanism in Simplicity centers on <code>jet::outputs_hash()</code> — a
+          The covenant enforcement mechanism in our Simplicity vault centers on per-output binding via <code>jet::output_script_hash(0)</code> and <code>jet::output_amount(0)</code> — a
           native jet (optimized built-in function) that computes the Merkle hash of the spending transaction's
           outputs at consensus time. The vault program is a DAG with two branches selected by the witness
           spend-path: Left for the trigger (hot key) and Right for recovery (cold key). Both branches execute
           the same verification pipeline: <code>jet::bip_0340_verify()</code> checks the Schnorr signature
-          against the appropriate public key, then <code>jet::outputs_hash()</code> computes the actual output
+          against the appropriate public key, then <code>jet::output_script_hash(0)</code> computes the actual scriptPubKey
           hash and compares it against the pre-committed parameter (<code>param::TRIGGER_OUTPUTS_HASH</code> or
           <code>param::RECOVER_OUTPUTS_HASH</code>). If the hashes do not match, the program evaluates to false
           and the transaction is invalid. This is the key structural difference from CAT+CSFS: in a CAT+CSFS
@@ -3265,7 +3266,7 @@
               <path d="M1 4v6h6" />
               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
             </svg></button>
-          <div class="svg-display"><img src="simplicity-mechanism.svg" alt="Simplicity covenant mechanism — jet::outputs_hash() enforcement" loading="lazy"></div>
+          <div class="svg-display"><img src="simplicity-mechanism.svg" alt="Simplicity covenant mechanism — per-output binding enforcement" loading="lazy"></div>
         </div>
       </div>
 
@@ -3317,7 +3318,7 @@
               <td>CCV opcode</td>
               <td>OP_VAULT opcode</td>
               <td>CSFS + CAT</td>
-              <td class="simplicity-col">jet::outputs_hash()</td>
+              <td class="simplicity-col">per-output jets</td>
             </tr>
             <tr>
               <td><strong>Lifecycle cost</strong></td>
@@ -3369,10 +3370,11 @@
           <div class="number" style="color:var(--simplicity)">01</div>
           <h4>Output-constrained recovery on both paths</h4>
           <p>
-            Both trigger and recovery paths enforce <code>jet::outputs_hash()</code>. A compromised cold key
-            can only recover funds to the pre-committed recovery address — it cannot sweep to an arbitrary
-            destination. This matches CCV and OP_VAULT's recovery security, unlike CAT+CSFS where the cold
-            key has unconstrained control.
+            Both trigger and recovery paths bind output 0 via per-output jets
+            (<code>jet::output_script_hash(0)</code> + <code>jet::output_amount(0)</code>). A compromised
+            cold key can only recover funds to the pre-committed recovery address &mdash; it cannot sweep
+            to an arbitrary destination. This matches CCV and OP_VAULT's recovery security, unlike
+            CAT+CSFS where the cold key has unconstrained control.
           </p>
         </div>
         <div class="card finding-card">
