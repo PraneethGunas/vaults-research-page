@@ -145,11 +145,11 @@
     <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.14;0.16;0.36;0.38;1" dur="18s" repeatCount="indefinite"/>
     <circle r="3" fill="#22c55e">
       <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="1.6s" repeatCount="indefinite"/>
-      <animateMotion path="M0,0 Q104,-90 314,-90" dur="1.6s" repeatCount="indefinite"/>
+      <animateMotion path="M436,290 Q540,200 750,200" dur="1.6s" repeatCount="indefinite"/>
     </circle>
     <circle r="1.5" fill="#86efac">
       <animate attributeName="opacity" values="0.1;0.4;0.4;0.1" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
-      <animateMotion path="M0,0 Q104,-90 314,-90" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
+      <animateMotion path="M436,290 Q540,200 750,200" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
     </circle>
   </g>
   <!-- Attacker recovery (red, very fast) -->
@@ -157,15 +157,15 @@
     <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.26;0.28;0.40;0.42;1" dur="18s" repeatCount="indefinite"/>
     <circle r="4" fill="#ef4444">
       <animate attributeName="opacity" values="0.1;0.9;0.9;0.1" dur="0.4s" repeatCount="indefinite"/>
-      <animateMotion path="M0,0 Q84,70 194,90" dur="0.4s" repeatCount="indefinite"/>
+      <animateMotion path="M436,370 Q520,440 630,460" dur="0.4s" repeatCount="indefinite"/>
     </circle>
     <circle r="2.5" fill="#fca5a5">
       <animate attributeName="opacity" values="0.1;0.6;0.6;0.1" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
-      <animateMotion path="M0,0 Q84,70 194,90" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
+      <animateMotion path="M436,370 Q520,440 630,460" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
     </circle>
     <circle r="1.5" fill="#fca5a5">
       <animate attributeName="opacity" values="0.1;0.4;0.4;0.1" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
-      <animateMotion path="M0,0 Q84,70 194,90" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
+      <animateMotion path="M436,370 Q520,440 630,460" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
     </circle>
   </g>
   <!-- Attacker → Recovery output (red) -->

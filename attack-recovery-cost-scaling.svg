@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 1200 700" width="1200" height="700"
      font-family="system-ui, -apple-system, sans-serif">
-  <title>Watchtower Fee Exhaustion — Splitting Attack</title>
+  <title>Per-UTXO Recovery-Cost Scaling — Splitting Attack (Z3 · TM4+TM7)</title>
   <desc>Animated diagram showing how an attacker creates dust-sized UTXOs via splitting, exhausting the watchtower's recovery budget. CCV and OP_VAULT shown in parallel lanes with different thresholds. CTV is immune (no revault capability).</desc>
 
   <defs>
@@ -54,7 +54,7 @@
   <rect width="1200" height="700" fill="url(#dots)"/>
 
   <!-- ============================================================
-       WATCHTOWER FEE EXHAUSTION (TM4 + TM7)
+       PER-UTXO RECOVERY-COST SCALING (Z3 · TM4 + TM7)
 
        Layout (3 rows):
          Row 0 (y~130): CTV immunity badge (static green shield)
@@ -82,7 +82,7 @@
        ============================================================ -->
 
   <!-- ============ TITLE ============ -->
-  <text x="600" y="40" fill="#1e293b" font-size="20" text-anchor="middle" font-weight="700">Watchtower Fee Exhaustion — Splitting Attack</text>
+  <text x="600" y="40" fill="#1e293b" font-size="20" text-anchor="middle" font-weight="700">Per-UTXO Recovery-Cost Scaling — Splitting Attack</text>
 
   <!-- ============ LANE LABELS ============ -->
   <rect x="30" y="115" width="60" height="28" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.2"/>
