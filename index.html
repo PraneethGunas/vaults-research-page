@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bitcoin Vault Covenants — An Empirical Evaluation</title>
-  <meta name="description" content="First empirical comparison of four Bitcoin covenant vault designs (CTV, CCV, OP_VAULT, CAT+CSFS) plus Simplicity on Elements as a cross-substrate reference. 7-axis design space, 6 attack classes, 15 experiments, 11 threat models, measured on real nodes.">
+  <meta name="description" content="First empirical comparison of four Bitcoin covenant vault designs (CTV, CCV, OP_VAULT, CAT+CSFS) plus Simplicity on Elements as a cross-substrate reference. Four-axis (f, a, g, b) formal design space, 6 attack classes, 15 experiments, 11 threat models, measured on real nodes.">
   <meta name="author" content="Praneeth Gunasekaran">
   <meta property="og:title" content="Bitcoin Vault Covenants — An Empirical Evaluation">
   <meta property="og:description" content="Built all four proposed Bitcoin vault designs, ran 15 experiments on regtest, and discovered that security rankings invert depending on the fee environment AND on whether the watchtower batches recovery.">
@@ -1269,36 +1269,18 @@
       <div class="section-label">Framing</div>
       <div class="section-title">Design-Space Axes</div>
       <div class="section-subtitle">
-        Every Bitcoin covenant vault is a point in a seven-axis design space.
-        Every attack we observe is a consequence of a specific axis value. This
-        section defines the axes; the next sections measure the consequences.
+        Every Bitcoin covenant vault is characterised by four independent formal choices — a fee model <code>f</code>,
+        an amount-flexibility policy <code>a</code>, a recovery gating <code>g</code>, and a recovery binding <code>b</code> —
+        written <code>D = (f, a, g, b)</code>. Every attack we observe is a mechanical consequence of a specific axis value.
+        Two additional descriptive dimensions (opcode surface, introspection primitive) sit orthogonal to the proof lattice;
+        they are where the developer-footgun and the design-implementability questions live.
       </div>
 
-      <!-- Seven axis cards -->
+      <!-- Four formal axes (f, a, g, b) -->
       <div class="findings-grid">
         <div class="card finding-card">
-          <div class="number"><span class="axis-tag">A1</span></div>
-          <h4>Recovery authorisation</h4>
-          <p class="small">Who may initiate the recovery path?
-            <br><br>
-            Values: <span class="axis-pill">keyless</span> · <span class="axis-pill">recoveryauth-key</span> · <span class="axis-pill">hot-key</span> · <span class="axis-pill">cold-key</span>.
-            <br><br>
-            Controls class <strong>Z2</strong> (permissionless griefing).
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number"><span class="axis-tag">A2</span></div>
-          <h4>Revault support</h4>
-          <p class="small">Does the covenant allow partial withdrawal — splitting one vault UTXO into a withdrawn chunk and a remaining vault UTXO in one transaction?
-            <br><br>
-            Values: <span class="axis-pill">yes</span> · <span class="axis-pill">no</span>.
-            <br><br>
-            Controls class <strong>Z3</strong> (per-UTXO recovery-cost scaling).
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number"><span class="axis-tag">A3</span></div>
-          <h4>Fee-inclusion model</h4>
+          <div class="number"><span class="axis-tag">f</span></div>
+          <h4>Fee-inclusion model <span class="small" style="font-weight:normal">(A3)</span></h4>
           <p class="small">Where does the spending transaction's fee come from?
             <br><br>
             Values: <span class="axis-pill">dynamic</span> · <span class="axis-pill">static-precommit</span> · <span class="axis-pill">out-of-band-anchor</span>.
@@ -1307,44 +1289,57 @@
           </p>
         </div>
         <div class="card finding-card">
-          <div class="number"><span class="axis-tag">A4</span></div>
-          <h4>Withdrawal-destination binding</h4>
-          <p class="small">How is the withdrawal destination constrained to a committed value?
+          <div class="number"><span class="axis-tag">a</span></div>
+          <h4>Amount-flexibility policy <span class="small" style="font-weight:normal">(A2)</span></h4>
+          <p class="small">Does the covenant allow partial withdrawal — splitting one vault UTXO into a withdrawn chunk and a remaining vault UTXO in one transaction?
             <br><br>
-            Values: <span class="axis-pill">template-hash-digest</span> · <span class="axis-pill">per-output-amount+script</span> · <span class="axis-pill">dedicated-opcode</span> · <span class="axis-pill">signature-dual-bind</span>.
+            Values: <span class="axis-pill">atomic</span> · <span class="axis-pill">partial</span>.
             <br><br>
-            Controls class <strong>Z4</strong> (hot-key theft via destination substitution).
+            Controls class <strong>Z3</strong> (per-UTXO recovery-cost scaling).
           </p>
         </div>
         <div class="card finding-card">
-          <div class="number"><span class="axis-tag">A5</span></div>
-          <h4>Recovery-destination binding</h4>
-          <p class="small">Same question for the recovery path. Kept separate from A4 because CAT+CSFS occupies different positions on the two sub-axes — strongest on A4, weakest on A5.
+          <div class="number"><span class="axis-tag">g</span></div>
+          <h4>Recovery gating <span class="small" style="font-weight:normal">(A1)</span></h4>
+          <p class="small">Who may initiate the recovery path?
             <br><br>
-            Values: same as A4, plus <span class="axis-pill">plain-signature</span>.
+            Values: <span class="axis-pill">keyless</span> · <span class="axis-pill">recoveryauth-key</span> · <span class="axis-pill">hot-key</span> · <span class="axis-pill">cold-key</span>.
             <br><br>
-            Controls class <strong>Z5</strong> (cold-key theft via unconstrained recovery).
+            Controls class <strong>Z2</strong> (permissionless griefing).
           </p>
         </div>
         <div class="card finding-card">
-          <div class="number"><span class="axis-tag">A6</span></div>
-          <h4>Opcode surface</h4>
-          <p class="small">Is the covenant expressed by a single semantic opcode or a multi-mode polymorphic one with <code>OP_SUCCESSx</code> fallthrough on undefined modes?
+          <div class="number"><span class="axis-tag">b</span></div>
+          <h4>Recovery binding <span class="small" style="font-weight:normal">(A4 + A5)</span></h4>
+          <p class="small">Jointly the withdrawal-destination binding (A4) and recovery-destination binding (A5). Kept as sub-axes at the site level because CAT+CSFS occupies different positions on the two — strongest on A4, weakest on A5.
             <br><br>
+            A4 values: <span class="axis-pill">template-hash-digest</span> · <span class="axis-pill">per-output-amount+script</span> · <span class="axis-pill">dedicated-opcode</span> · <span class="axis-pill">signature-dual-bind</span>.
+            <br>
+            A5 values: same as A4, plus <span class="axis-pill">plain-signature</span>.
+            <br><br>
+            Controls classes <strong>Z4</strong> (hot-key theft) and <strong>Z5</strong> (cold-key theft).
+          </p>
+        </div>
+      </div>
+
+      <!-- Additional descriptive axes -->
+      <div class="card" style="padding:20px 24px; margin-top:24px; background:var(--surface-muted, #fafbfc)">
+        <h4 style="margin:0 0 10px 0">Additional descriptive axes</h4>
+        <p class="small" style="color:var(--text-secondary); margin:0 0 14px 0">
+          Orthogonal to the formal <code>(f, a, g, b)</code> lattice: not used in the proofs, but essential to cross-covenant legibility.
+        </p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px">
+          <div>
+            <div><span class="axis-tag">A6</span> <strong>Opcode surface.</strong></div>
+            <p class="small" style="margin:6px 0 0 0">Is the covenant expressed by a single semantic opcode or a multi-mode polymorphic one with <code>OP_SUCCESSx</code> fallthrough on undefined modes?
             Values: <span class="axis-pill">single-mode</span> · <span class="axis-pill">multi-mode-with-OP_SUCCESS</span>.
-            <br><br>
-            Controls class <strong>Z6</strong> (mode/parameter bypass).
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number"><span class="axis-tag">A7</span></div>
-          <h4>Introspection primitive</h4>
-          <p class="small">How does the script read transaction data?
-            <br><br>
-            Values: <span class="axis-pill">digest-equality</span> (CTV) · <span class="axis-pill">merkle-membership-and-amount</span> (CCV) · <span class="axis-pill">dedicated-opcode</span> (OP_VAULT) · <span class="axis-pill">sighash-preimage-reconstruction</span> (CAT+CSFS).
-            <br><br>
-            Descriptive; governs which other axis values are simultaneously realisable.
-          </p>
+            Controls class <strong>Z6</strong> (mode/parameter bypass) — the developer-footgun class.</p>
+          </div>
+          <div>
+            <div><span class="axis-tag">A7</span> <strong>Introspection primitive.</strong></div>
+            <p class="small" style="margin:6px 0 0 0">How does the script read transaction data?
+            Values: <span class="axis-pill">digest-equality</span> (CTV) · <span class="axis-pill">merkle-membership-and-amount</span> (CCV) · <span class="axis-pill">dedicated-opcode</span> (OP_VAULT) · <span class="axis-pill">sighash-preimage-reconstruction</span> (CAT+CSFS). Governs which of the other axis values are simultaneously realisable.</p>
+          </div>
         </div>
       </div>
 
@@ -1353,8 +1348,9 @@
         <div style="padding:20px 24px; border-bottom:1px solid #e5e7eb">
           <h4 style="margin:0">Position of each Bitcoin covenant</h4>
           <p class="small" style="color:var(--text-secondary); margin:6px 0 0 0">
+            Positions over the four formal axes <code>(f, a, g, b)</code> with <code>b</code> decomposed into its A4/A5 sub-axes, plus the two descriptive dimensions A6, A7.
             Every attack-class susceptibility claim below is a lookup against this table.
-            Simplicity on Elements occupies the strict-best position on A1, A2, A4, A5, and A7 simultaneously (see the
+            Simplicity on Elements occupies the strict-best position on <code>g</code>, <code>a</code>, and <code>b</code> (A4, A5) simultaneously — and on A7 (see the
             <a href="#simplicity" style="color:inherit">Simplicity section</a>); no Bitcoin proposal does.
           </p>
         </div>
@@ -1369,13 +1365,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td><span class="axis-tag">A1</span> Recovery auth</td><td>hot-key</td><td>keyless</td><td>recoveryauth-key</td><td>cold-key</td></tr>
-            <tr><td><span class="axis-tag">A2</span> Revault</td><td>no</td><td>yes</td><td>yes</td><td>no</td></tr>
-            <tr><td><span class="axis-tag">A3</span> Fee model</td><td>out-of-band-anchor</td><td>dynamic</td><td>dynamic</td><td>dynamic</td></tr>
-            <tr><td><span class="axis-tag">A4</span> Withdrawal binding</td><td>template-hash-digest</td><td>per-output-amount+script</td><td>dedicated-opcode</td><td>signature-dual-bind</td></tr>
-            <tr><td><span class="axis-tag">A5</span> Recovery binding</td><td>template-hash-digest</td><td>per-output-amount+script</td><td>dedicated-opcode</td><td>plain-signature</td></tr>
-            <tr><td><span class="axis-tag">A6</span> Opcode surface</td><td>single-mode</td><td>multi-mode-with-OP_SUCCESS</td><td>single-mode</td><td>single-mode</td></tr>
-            <tr><td><span class="axis-tag">A7</span> Introspection primitive</td><td>digest-equality</td><td>merkle-membership-and-amount</td><td>dedicated-opcode</td><td>sighash-preimage-reconstruction</td></tr>
+            <tr><td><span class="axis-tag">f</span> Fee model <span class="small" style="color:var(--text-secondary)">(A3)</span></td><td>out-of-band-anchor</td><td>dynamic</td><td>dynamic</td><td>dynamic</td></tr>
+            <tr><td><span class="axis-tag">a</span> Amount-flexibility <span class="small" style="color:var(--text-secondary)">(A2)</span></td><td>atomic</td><td>partial</td><td>partial</td><td>atomic</td></tr>
+            <tr><td><span class="axis-tag">g</span> Recovery gating <span class="small" style="color:var(--text-secondary)">(A1)</span></td><td>hot-key</td><td>keyless</td><td>recoveryauth-key</td><td>cold-key</td></tr>
+            <tr><td><span class="axis-tag">b</span> Withdrawal binding <span class="small" style="color:var(--text-secondary)">(A4)</span></td><td>template-hash-digest</td><td>per-output-amount+script</td><td>dedicated-opcode</td><td>signature-dual-bind</td></tr>
+            <tr><td><span class="axis-tag">b</span> Recovery binding <span class="small" style="color:var(--text-secondary)">(A5)</span></td><td>template-hash-digest</td><td>per-output-amount+script</td><td>dedicated-opcode</td><td>plain-signature</td></tr>
+            <tr><td><span class="axis-tag">A6</span> Opcode surface <span class="small" style="color:var(--text-secondary)">(descriptive)</span></td><td>single-mode</td><td>multi-mode-with-OP_SUCCESS</td><td>single-mode</td><td>single-mode</td></tr>
+            <tr><td><span class="axis-tag">A7</span> Introspection primitive <span class="small" style="color:var(--text-secondary)">(descriptive)</span></td><td>digest-equality</td><td>merkle-membership-and-amount</td><td>dedicated-opcode</td><td>sighash-preimage-reconstruction</td></tr>
           </tbody>
         </table>
       </div>
@@ -1449,11 +1445,12 @@
 
       <!-- Formal-apparatus note -->
       <div class="card" style="padding:16px 20px; margin-top:20px; font-size:13px; color:var(--text-secondary)">
-        <strong>Formal mapping.</strong> The paper's proofs use <code>(f, a, g, b)</code> over a simpler four-axis lattice;
-        the site's <strong>A1–A7</strong> decompose <code>b</code> into A4+A5 for cross-covenant legibility.
-        <strong>Proposition 1</strong> (griefing-safety incompatibility) projects onto the (A1, A4, A5) sub-lattice:
+        <strong>Formal mapping.</strong> The proof lattice is <code>(f, a, g, b)</code> with
+        <code>f</code> = A3, <code>a</code> = A2, <code>g</code> = A1, and <code>b</code> the joint (A4, A5) sub-lattice.
+        A6 (opcode surface) and A7 (introspection primitive) are orthogonal descriptive dimensions — A6 controls the developer-footgun class Z6, A7 governs realisability.
+        <strong>Proposition 1</strong> (griefing-safety incompatibility) projects onto <code>(g, b)</code>:
         no assignment zeros class Z2 <em>and</em> {Z4 ∪ Z5} simultaneously.
-        <strong>Proposition 2</strong> (fee-dependent inversion) is a joint statement over (A2, A3, defender-batching-strategy);
+        <strong>Proposition 2</strong> (fee-dependent inversion) is a joint statement over <code>(a, f)</code> and the defender-batching strategy;
         the batched-defender ordering flip (see <a href="#findings" style="color:inherit">Finding 09</a>) is its empirical counterpart.
       </div>
     </section>
