@@ -4,17 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bitcoin Vault Covenants — An Empirical Evaluation</title>
-  <meta name="description" content="First empirical comparison of four Bitcoin covenant vault designs (CTV, CCV, OP_VAULT, CAT+CSFS) plus Simplicity on Elements as a cross-substrate reference. Four-axis (f, a, g, b) formal design space, 6 attack classes, 15 experiments, 11 threat models, measured on real nodes.">
+  <title>Bitcoin Vault Covenants — What They Are and How They Work</title>
+  <meta name="description" content="What Bitcoin covenant vaults are, how they protect your funds if your key is stolen, the four designs being proposed, and where each fits. Written for curious readers — not researchers.">
   <meta name="author" content="Praneeth Gunasekaran">
-  <meta property="og:title" content="Bitcoin Vault Covenants — An Empirical Evaluation">
-  <meta property="og:description" content="Built all four proposed Bitcoin vault designs, ran 15 experiments on regtest, and discovered that security rankings invert depending on the fee environment AND on whether the watchtower batches recovery.">
+  <meta property="og:title" content="Bitcoin Vault Covenants — What They Are and How They Work">
+  <meta property="og:description" content="A plain-language guide to Bitcoin covenant vaults — what they are, how they protect your funds if a key is stolen, the four designs being proposed, and where each fits.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://research.praneethg.xyz">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:creator" content="@PraneethGunas">
-  <meta name="twitter:title" content="Bitcoin Vault Covenants — An Empirical Evaluation">
-  <meta name="twitter:description" content="First empirical four-way comparison of Bitcoin covenant vault designs. Security rankings flip based on fees.">
+  <meta name="twitter:title" content="Bitcoin Vault Covenants — What They Are and How They Work">
+  <meta name="twitter:description" content="A plain-language guide to Bitcoin covenant vaults: what they are, what can go wrong, and which designs fit which situations.">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -86,7 +86,9 @@
 
     nav .links {
       display: flex;
-      gap: 28px;
+      gap: 22px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
     }
 
     nav .links a {
@@ -95,6 +97,7 @@
       color: var(--text-secondary);
       text-decoration: none;
       transition: color 0.2s;
+      white-space: nowrap;
     }
 
     nav .links a:hover {
@@ -996,13 +999,13 @@
       <div class="logo">Vault Covenants <span style="font-weight:400;color:var(--text-muted);font-size:13px">by Praneeth
           Gunasekaran</span></div>
       <div class="links">
-        <a href="#findings">Findings</a>
-        <a href="#axes">Design Space</a>
-        <a href="#vaults">Vaults</a>
-        <a href="#attacks">Threat Models</a>
+        <a href="#what-is-a-vault">What's a vault?</a>
+        <a href="#vaults">Designs</a>
+        <a href="#attacks">Attacks</a>
         <a href="#tradeoffs">Tradeoffs</a>
         <a href="#simplicity">Simplicity</a>
-        <a href="#realworld">Use Cases</a>
+        <a href="#realworld">Use cases</a>
+        <a href="#going-deeper">Going deeper</a>
       </div>
     </div>
   </nav>
@@ -1011,11 +1014,14 @@
 
     <!-- ═══════════════════════ HERO ═══════════════════════ -->
     <div class="hero">
-      <h1><span class="gradient">Bitcoin Vault Covenants</span><br>An Empirical Evaluation</h1>
+      <h1><span class="gradient">Bitcoin Vault Covenants</span></h1>
       <p>
-        The first empirical comparison of four Bitcoin covenant vault designs, measured head-to-head
-        on real nodes. 15 experiments, 11 threat models, and a finding that changes the debate:
-        the safest vault depends on the fee environment.
+        A vault is a way of protecting your Bitcoin even if someone steals your key.
+        Spending a vault isn't instant — there's a delay, and during that delay a
+        backup system can detect the theft and redirect the funds to cold storage.
+        Several vault designs are being proposed for Bitcoin; each makes different
+        tradeoffs. This site explains what they are, how they work, and which fit
+        which situations.
       </p>
       <div style="display:flex;justify-content:center">
         <div class="author-card">
@@ -1024,169 +1030,124 @@
             <div class="author-affiliation">MS CS, Virginia Tech &middot; Research Assistant, Commonwealth Cyber Initiative</div>
           </div>
           <div class="author-links">
-            <a href="#" target="_blank">Paper</a>
-            <a href="https://github.com/PraneethGunas/covenant-vault-research" target="_blank">GitHub</a>
+            <a href="#going-deeper">Paper &amp; GitHub</a>
             <a href="https://linkedin.com/in/praneeth-g" target="_blank">LinkedIn</a>
             <a href="https://x.com/PraneethGunas" target="_blank">X</a>
           </div>
         </div>
       </div>
-      <div class="pill-row" style="margin-top:28px">
-        <a href="https://bips.dev/119/" target="_blank" class="pill" style="text-decoration:none;color:inherit">
-          <div class="dot" style="background:var(--ctv)"></div>CTV (BIP 119)
-        </a>
-        <a href="https://bips.dev/443/" target="_blank" class="pill" style="text-decoration:none;color:inherit">
-          <div class="dot" style="background:var(--ccv)"></div>CCV (BIP 443)
-        </a>
-        <a href="https://bips.dev/345/" target="_blank" class="pill" style="text-decoration:none;color:inherit">
-          <div class="dot" style="background:var(--opvault)"></div>OP_VAULT (BIP 345)
-        </a>
-        <a href="https://bips.dev/347/" target="_blank" class="pill" style="text-decoration:none;color:inherit">
-          <div class="dot" style="background:var(--catcsfs)"></div>CAT+CSFS (BIP 347+348)
-        </a>
-        <a href="#simplicity" class="pill" style="text-decoration:none;color:inherit;border-style:dashed;opacity:0.7">
-          <div class="dot" style="background:var(--simplicity)"></div>Simplicity <span style="font-size:10px;color:var(--text-muted);margin-left:2px">(Elements)</span>
-        </a>
-      </div>
     </div>
 
-    <!-- ═══════════════════════ CONTRIBUTIONS ═══════════════════════ -->
-    <section id="contributions">
-      <div class="section-label">What's New</div>
-      <div class="section-title">Research Contributions</div>
-      <div class="section-subtitle">Prior work compared vault designs qualitatively or analyzed them in isolation. This is the first study to build all four, run them on real Bitcoin nodes, and measure the results.</div>
-
-      <div class="contributions-grid">
-        <div class="card contribution-card">
-          <div class="contrib-label novel">Novel</div>
-          <h4>First empirical four-way comparison</h4>
-          <p>5 vault implementations (CTV, CCV, OP_VAULT, CAT+CSFS, Simplicity) tested across 15 experiments on regtest. All prior comparisons were qualitative or feature-matrix based.</p>
-        </div>
-        <div class="card contribution-card">
-          <div class="contrib-label novel">Novel Finding</div>
-          <h4>Security rankings invert with fees</h4>
-          <p>At low fees, CCV/OP_VAULT are safer. At high fees, CTV is safer. The crossover occurs at 50-100 sat/vB. No prior work identified this inversion.</p>
-        </div>
-        <div class="card contribution-card">
-          <div class="contrib-label novel">First Measurements</div>
-          <h4>Concrete lifecycle costs</h4>
-          <p>First published vsize data for all four designs: CTV 368 vB, CAT+CSFS 553 vB, CCV 565 vB, OP_VAULT 567 vB. OP_VAULT trigger 292 vB, recovery 246 vB; its fee-input overhead is 80-90 vB/tx.</p>
-        </div>
-        <div class="card contribution-card">
-          <div class="contrib-label">Implementation</div>
-          <h4>Two original vault implementations</h4>
-          <p>Built the first working CAT+CSFS vault (dual Schnorr verification) and a Simplicity vault on Elements. Plus Alloy formal verification models for the four Bitcoin designs plus Simplicity as a cross-substrate reference.</p>
-        </div>
+    <!-- ═══════════════════════ WHAT IS A VAULT ═══════════════════════ -->
+    <section id="what-is-a-vault">
+      <div class="section-label">Start here</div>
+      <div class="section-title">What's a vault?</div>
+      <div style="max-width:780px;margin:0 auto">
+        <p style="margin-bottom:1em">
+          If you own Bitcoin, you own a private key. Lose it, and your coins are gone.
+          Have it stolen, and they're gone faster — there's no bank to call.
+        </p>
+        <p style="margin-bottom:1em">
+          A <em>vault</em> adds a time delay to withdrawals. When someone tries to
+          spend from your vault — even with the right key — there's a waiting period.
+          During that period, a monitoring service (a "<em>watchtower</em>") can notice
+          an unauthorised attempt and redirect the funds to a safer cold-storage
+          address. To make a vault possible, Bitcoin script needs a "<em>covenant</em>":
+          a rule that constrains not just <em>who</em> can spend a coin but <em>how</em>
+          the spending transaction has to look. Today's Bitcoin script doesn't quite
+          support that, which is why new soft-fork proposals (BIPs) are being debated.
+        </p>
+        <p>
+          Four designs are currently on the table:
+          <a href="https://bips.dev/119/" target="_blank" style="color:var(--ctv)">CTV</a>,
+          <a href="https://bips.dev/443/" target="_blank" style="color:var(--ccv)">CCV</a>,
+          <a href="https://bips.dev/345/" target="_blank" style="color:var(--opvault)">OP_VAULT</a>, and
+          <a href="https://bips.dev/347/" target="_blank" style="color:var(--catcsfs)">CAT+CSFS</a>.
+          They differ in how they enforce the delay and who can trigger the emergency
+          redirect. Those choices have real consequences for safety, cost, and what
+          kinds of users can deploy them. A fifth design,
+          <a href="#simplicity" style="color:var(--simplicity)">Simplicity</a>, is
+          deployed on Elements (a Bitcoin-adjacent sidechain) and serves as a useful
+          point of comparison.
+        </p>
+      </div>
+      <div class="pill-row" style="margin-top:28px;opacity:0.85">
+        <a href="https://bips.dev/119/" target="_blank" class="pill" style="text-decoration:none;color:inherit;font-size:12px">
+          <div class="dot" style="background:var(--ctv)"></div>CTV (BIP 119)
+        </a>
+        <a href="https://bips.dev/443/" target="_blank" class="pill" style="text-decoration:none;color:inherit;font-size:12px">
+          <div class="dot" style="background:var(--ccv)"></div>CCV (BIP 443)
+        </a>
+        <a href="https://bips.dev/345/" target="_blank" class="pill" style="text-decoration:none;color:inherit;font-size:12px">
+          <div class="dot" style="background:var(--opvault)"></div>OP_VAULT (BIP 345)
+        </a>
+        <a href="https://bips.dev/347/" target="_blank" class="pill" style="text-decoration:none;color:inherit;font-size:12px">
+          <div class="dot" style="background:var(--catcsfs)"></div>CAT+CSFS (BIP 347+348)
+        </a>
+        <a href="#simplicity" class="pill" style="text-decoration:none;color:inherit;border-style:dashed;opacity:0.7;font-size:12px">
+          <div class="dot" style="background:var(--simplicity)"></div>Simplicity <span style="font-size:10px;color:var(--text-muted);margin-left:2px">(Elements)</span>
+        </a>
       </div>
     </section>
 
     <!-- ═══════════════════════ FINDINGS ═══════════════════════ -->
     <section id="findings">
-      <div class="section-label">What We Found</div>
-      <div class="section-title">Eight Insights From Regtest</div>
+      <div class="section-label">What We Learned</div>
+      <div class="section-title">What we learned</div>
 
       <div class="findings-grid">
         <div class="card finding-card">
           <div class="number">01</div>
-          <h4>Safety rankings flip based on fees</h4>
+          <h4>The safest design depends on the fee environment</h4>
           <p>
-            Low fees (&lt;50 sat/vB) &rarr; CCV and OP_VAULT are safer (pinning is cheap, splitting is infeasible).
-            High fees (&gt;100 sat/vB) &rarr; CTV is safer (per-UTXO recovery-cost scaling becomes viable against the others).
-            The crossover occurs around 50&ndash;100 sat/vB. There is no universally safest vault.
+            When Bitcoin fees are low, CCV and OP_VAULT are safer choices. When fees
+            are high, CTV is safer. The two curves cross somewhere in the middle.
+            There is no single "safest" vault — the answer changes with the cost of
+            posting a transaction. The chart below shows this shift.
           </p>
         </div>
         <div class="card finding-card">
           <div class="number">02</div>
-          <h4>Griefing resistance and fund safety are mutually exclusive</h4>
+          <h4>OP_VAULT is the most expensive to operate</h4>
           <p>
-            No vault can simultaneously achieve permissionless recoverability (fund safety under key loss) and
-            griefing resistance (bounded adversary advantage without keys). OP_VAULT blocks griefing best
-            (authorized recovery) but key loss disables recovery. CCV protects funds best under key loss
-            (keyless recovery) but anyone can grief. This is a necessary design tradeoff, not an implementation gap.
+            OP_VAULT requires every transaction it produces to attach a separate
+            fee-paying input, which adds overhead the other designs don't pay.
+            Over a full vault lifecycle, OP_VAULT costs about 36% more than CCV.
+            That cost is inherent to the design, not an implementation detail.
           </p>
         </div>
         <div class="card finding-card">
           <div class="number">03</div>
-          <h4>OP_VAULT's fee-input overhead costs 36% more per lifecycle</h4>
+          <h4>CCV has a subtle safety trap for developers</h4>
           <p>
-            BIP-345's value preservation rule requires exogenous fee payment via a separate input, adding 80&ndash;90 vB
-            to every transaction. Trigger: 292 vB vs CCV's 154. Recovery: 246 vB vs CCV's 122. This is inherent
-            to the design, not an implementation artifact &mdash; and the gap compounds in multi-round scenarios.
+            CCV uses a "mode byte" to choose which check to run. Bitcoin reserves
+            the unused values for future upgrades — so picking an unused mode
+            silently skips the check entirely. A single off-by-one mistake in the
+            vault script disables all protection. Library helpers exist to prevent
+            this, but anyone writing CCV scripts from scratch needs to be careful.
           </p>
         </div>
         <div class="card finding-card">
           <div class="number">04</div>
-          <h4>CCV mode values are a developer footgun</h4>
+          <h4>CAT+CSFS has the weakest cold-key recovery</h4>
           <p>
-            CCV mode flags outside {-1, 0, 1, 2} trigger OP_SUCCESS &mdash; specified BIP-443 behavior for forward-compatible
-            soft-fork extensions. We verified this on a production-shaped vault taptree: mode=3 bypasses all covenant
-            checks. 110 vB, no signature required. The pymatt library prevents misuse via named constants, but raw
-            script authors must validate mode values explicitly.
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number">05</div>
-          <h4>Composability comes at the cost of destination flexibility</h4>
-          <p>
-            CAT+CSFS builds a vault from general-purpose opcodes &mdash; no dedicated opcode needed. But the destination
-            is baked into the script as a hash constant. Changing where funds go requires recovery + re-vaulting.
-            Purpose-built opcodes (CCV, OP_VAULT) allow trigger-time destination choice.
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number">06</div>
-          <h4>CAT+CSFS recovery is the weakest of all four designs</h4>
-          <p>
-            The recovery leaf is a bare <code>cold_pk OP_CHECKSIG</code> &mdash; no output constraints, no timelock,
-            no introspection. A compromised cold key means immediate, unrestricted theft indistinguishable from
-            legitimate recovery. CCV (keyless, constrained) and OP_VAULT (keyed, constrained) both survive cold key loss.
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number">07</div>
-          <h4>Single-use addresses disqualify two vaults from deposit systems</h4>
-          <p>
-            CTV and CAT+CSFS permanently lose funds on address reuse &mdash; CTV at the script level, CAT+CSFS at the
-            signature level. For any customer-facing deposit system, only CCV and OP_VAULT are viable without
-            strict wallet-layer enforcement of single-use discipline.
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number">08</div>
-          <h4>Constraining both spending paths costs witness size</h4>
-          <p>
-            Simplicity's 865 vB lifecycle (on Elements) is 2.4x CTV's, but every spending path &mdash; trigger and
-            recovery &mdash; is output-locked via <code>jet::outputs_hash()</code>. CAT+CSFS achieves hot-key safety
-            with similar composability but leaves recovery unconstrained. The witness-size cost of typed
-            functional programs is the price of comprehensive output enforcement.
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number">09</div>
-          <h4>Defender batching flips the security ranking a second time <span class="class-tag" style="margin-left:6px">novel</span></h4>
-          <p>
-            The fee-dependent inversion (Finding 01) is the <em>first</em> flip.
-            Under class <strong>Z3</strong> (per-UTXO recovery-cost scaling), a
-            <em>second</em> inversion appears once the watchtower batches
-            recovery transactions: CCV is safer than OP_VAULT when recovery is
-            <em>unbatched</em>, but OP_VAULT overtakes CCV when recovery is
-            <em>batched</em>. The single-block-feasibility fee rate
-            <code>r<sup>†</sup></code> rises by <strong>1.8&times;</strong> for
-            CCV and <strong>2.7&times;</strong> for OP_VAULT under batching.
-            Batching is a defender parameter, not a covenant property &mdash; so
-            the &ldquo;safer&rdquo; covenant depends on the watchtower's
-            operational policy, not on the script alone. No prior work modelled
-            this.
+            CAT+CSFS binds the <em>hot</em> spending path tightly — a stolen hot key
+            can only redirect to the pre-committed address. But the <em>cold</em>
+            recovery path is a plain signature with no output restriction. If the
+            cold key is stolen, the attacker can redirect funds anywhere. The other
+            three designs force recovery into a specific pre-committed address,
+            which contains the damage.
           </p>
         </div>
       </div>
 
       <!-- Fee sensitivity chart -->
       <div class="card" style="padding:28px">
-        <h4 style="font-size:15px; font-weight:700; margin-bottom:4px">Fee-Dependent Security Inversion</h4>
-        <p class="small muted" style="margin-bottom:20px">How each vault's danger level shifts with fee environment.
-          Higher = more vulnerable. This chart shows the <em>first</em> inversion (fee rate);
-          Finding 09 describes a <em>second</em> inversion across defender batching strategy.</p>
+        <h4 style="font-size:15px; font-weight:700; margin-bottom:4px">How each vault's safety shifts with fees</h4>
+        <p class="small muted" style="margin-bottom:20px">Higher line = more vulnerable in that fee environment.
+          CTV (red) stays dangerous at any fee level because of a specific attack on its fee mechanism.
+          CCV (blue) and OP_VAULT (amber) are safe when fees are low, but both become vulnerable as fees climb.
+          The lines cross in the middle band — that's the region where "which is safer" flips.</p>
         <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
           <line x1="80" y1="20" x2="80" y2="280" stroke="#e5e7eb" stroke-width="1" />
           <line x1="80" y1="280" x2="760" y2="280" stroke="#e5e7eb" stroke-width="1" />
@@ -1198,14 +1159,14 @@
           <text x="70" y="154" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">50%</text>
           <text x="70" y="89" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">75%</text>
           <text x="70" y="24" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">100%</text>
-          <text x="24" y="150" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif" transform="rotate(-90 24 150)">Danger Level</text>
-          <text x="80" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">1</text>
-          <text x="216" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">10</text>
-          <text x="352" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">50</text>
-          <text x="488" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">100</text>
-          <text x="624" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">300</text>
-          <text x="760" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">500</text>
-          <text x="420" y="325" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Fee Rate (sat/vB)</text>
+          <text x="24" y="150" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif" transform="rotate(-90 24 150)">How vulnerable</text>
+          <text x="80" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Very low</text>
+          <text x="216" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Low</text>
+          <text x="352" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Medium-low</text>
+          <text x="488" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Medium</text>
+          <text x="624" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">High</text>
+          <text x="760" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Very high</text>
+          <text x="420" y="325" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Fee environment</text>
           <polyline points="80,33 216,36 352,39 488,41 624,44 760,46" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
           <polyline points="80,254 216,228 352,176 488,124 624,72 760,52" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
           <polyline points="80,241 216,210 352,150 488,98 624,52 760,36" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -1248,225 +1209,18 @@
       </div>
     </section>
 
-    <!-- ═══════════════════════ RESOURCES ═══════════════════════ -->
-    <div class="resources-bar">
-      <a href="#" target="_blank">
-        <span class="res-icon">&#128196;</span> Paper (PDF)
-      </a>
-      <a href="https://github.com/PraneethGunas/covenant-vault-research" target="_blank">
-        <span class="res-icon">&#128187;</span> GitHub
-      </a>
-      <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/DESIGN.md" target="_blank">
-        <span class="res-icon">&#128209;</span> Design Doc
-      </a>
-      <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/REFERENCES.md" target="_blank">
-        <span class="res-icon">&#128218;</span> References
-      </a>
-    </div>
-
-    <!-- ═══════════════════════ DESIGN-SPACE AXES ═══════════════════════ -->
-    <section id="axes">
-      <div class="section-label">Framing</div>
-      <div class="section-title">Design-Space Axes</div>
-      <div class="section-subtitle">
-        Every Bitcoin covenant vault is characterised by four independent formal choices — a fee model <code>f</code>,
-        an amount-flexibility policy <code>a</code>, a recovery gating <code>g</code>, and a recovery binding <code>b</code> —
-        written <code>D = (f, a, g, b)</code>. Every attack we observe is a mechanical consequence of a specific axis value.
-        Two additional descriptive dimensions (opcode surface, introspection primitive) sit orthogonal to the proof lattice;
-        they are where the developer-footgun and the design-implementability questions live.
-      </div>
-
-      <!-- Four formal axes (f, a, g, b) -->
-      <div class="findings-grid">
-        <div class="card finding-card">
-          <div class="number"><span class="axis-tag">f</span></div>
-          <h4>Fee-inclusion model <span class="small" style="font-weight:normal">(A3)</span></h4>
-          <p class="small">Where does the spending transaction's fee come from?
-            <br><br>
-            Values: <span class="axis-pill">dynamic</span> · <span class="axis-pill">static-precommit</span> · <span class="axis-pill">out-of-band-anchor</span>.
-            <br><br>
-            Controls class <strong>Z1</strong> (fee-channel pinning).
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number"><span class="axis-tag">a</span></div>
-          <h4>Amount-flexibility policy <span class="small" style="font-weight:normal">(A2)</span></h4>
-          <p class="small">Does the covenant allow partial withdrawal — splitting one vault UTXO into a withdrawn chunk and a remaining vault UTXO in one transaction?
-            <br><br>
-            Values: <span class="axis-pill">atomic</span> · <span class="axis-pill">partial</span>.
-            <br><br>
-            Controls class <strong>Z3</strong> (per-UTXO recovery-cost scaling).
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number"><span class="axis-tag">g</span></div>
-          <h4>Recovery gating <span class="small" style="font-weight:normal">(A1)</span></h4>
-          <p class="small">Who may initiate the recovery path?
-            <br><br>
-            Values: <span class="axis-pill">keyless</span> · <span class="axis-pill">recoveryauth-key</span> · <span class="axis-pill">hot-key</span> · <span class="axis-pill">cold-key</span>.
-            <br><br>
-            Controls class <strong>Z2</strong> (permissionless griefing).
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number"><span class="axis-tag">b</span></div>
-          <h4>Recovery binding <span class="small" style="font-weight:normal">(A4 + A5)</span></h4>
-          <p class="small">Jointly the withdrawal-destination binding (A4) and recovery-destination binding (A5). Kept as sub-axes at the site level because CAT+CSFS occupies different positions on the two — strongest on A4, weakest on A5.
-            <br><br>
-            A4 values: <span class="axis-pill">template-hash-digest</span> · <span class="axis-pill">per-output-amount+script</span> · <span class="axis-pill">dedicated-opcode</span> · <span class="axis-pill">signature-dual-bind</span>.
-            <br>
-            A5 values: same as A4, plus <span class="axis-pill">plain-signature</span>.
-            <br><br>
-            Controls classes <strong>Z4</strong> (hot-key theft) and <strong>Z5</strong> (cold-key theft).
-          </p>
-        </div>
-      </div>
-
-      <!-- Additional descriptive axes -->
-      <div class="card" style="padding:20px 24px; margin-top:24px; background:var(--surface-muted, #fafbfc)">
-        <h4 style="margin:0 0 10px 0">Additional descriptive axes</h4>
-        <p class="small" style="color:var(--text-secondary); margin:0 0 14px 0">
-          Orthogonal to the formal <code>(f, a, g, b)</code> lattice: not used in the proofs, but essential to cross-covenant legibility.
-        </p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px">
-          <div>
-            <div><span class="axis-tag">A6</span> <strong>Opcode surface.</strong></div>
-            <p class="small" style="margin:6px 0 0 0">Is the covenant expressed by a single semantic opcode or a multi-mode polymorphic one with <code>OP_SUCCESSx</code> fallthrough on undefined modes?
-            Values: <span class="axis-pill">single-mode</span> · <span class="axis-pill">multi-mode-with-OP_SUCCESS</span>.
-            Controls class <strong>Z6</strong> (mode/parameter bypass) — the developer-footgun class.</p>
-          </div>
-          <div>
-            <div><span class="axis-tag">A7</span> <strong>Introspection primitive.</strong></div>
-            <p class="small" style="margin:6px 0 0 0">How does the script read transaction data?
-            Values: <span class="axis-pill">digest-equality</span> (CTV) · <span class="axis-pill">merkle-membership-and-amount</span> (CCV) · <span class="axis-pill">dedicated-opcode</span> (OP_VAULT) · <span class="axis-pill">sighash-preimage-reconstruction</span> (CAT+CSFS). Governs which of the other axis values are simultaneously realisable.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Four-covenant position table -->
-      <div class="card" style="padding:0; overflow:hidden; margin-top:36px">
-        <div style="padding:20px 24px; border-bottom:1px solid #e5e7eb">
-          <h4 style="margin:0">Position of each Bitcoin covenant</h4>
-          <p class="small" style="color:var(--text-secondary); margin:6px 0 0 0">
-            Positions over the four formal axes <code>(f, a, g, b)</code> with <code>b</code> decomposed into its A4/A5 sub-axes, plus the two descriptive dimensions A6, A7.
-            Every attack-class susceptibility claim below is a lookup against this table.
-            Simplicity on Elements occupies the strict-best position on <code>g</code>, <code>a</code>, and <code>b</code> (A4, A5) simultaneously — and on A7 (see the
-            <a href="#simplicity" style="color:inherit">Simplicity section</a>); no Bitcoin proposal does.
-          </p>
-        </div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Axis</th>
-              <th style="color:var(--ctv)">CTV</th>
-              <th style="color:var(--ccv)">CCV</th>
-              <th style="color:var(--opv)">OP_VAULT</th>
-              <th style="color:var(--cat)">CAT+CSFS</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td><span class="axis-tag">f</span> Fee model <span class="small" style="color:var(--text-secondary)">(A3)</span></td><td>out-of-band-anchor</td><td>dynamic</td><td>dynamic</td><td>dynamic</td></tr>
-            <tr><td><span class="axis-tag">a</span> Amount-flexibility <span class="small" style="color:var(--text-secondary)">(A2)</span></td><td>atomic</td><td>partial</td><td>partial</td><td>atomic</td></tr>
-            <tr><td><span class="axis-tag">g</span> Recovery gating <span class="small" style="color:var(--text-secondary)">(A1)</span></td><td>hot-key</td><td>keyless</td><td>recoveryauth-key</td><td>cold-key</td></tr>
-            <tr><td><span class="axis-tag">b</span> Withdrawal binding <span class="small" style="color:var(--text-secondary)">(A4)</span></td><td>template-hash-digest</td><td>per-output-amount+script</td><td>dedicated-opcode</td><td>signature-dual-bind</td></tr>
-            <tr><td><span class="axis-tag">b</span> Recovery binding <span class="small" style="color:var(--text-secondary)">(A5)</span></td><td>template-hash-digest</td><td>per-output-amount+script</td><td>dedicated-opcode</td><td>plain-signature</td></tr>
-            <tr><td><span class="axis-tag">A6</span> Opcode surface <span class="small" style="color:var(--text-secondary)">(descriptive)</span></td><td>single-mode</td><td>multi-mode-with-OP_SUCCESS</td><td>single-mode</td><td>single-mode</td></tr>
-            <tr><td><span class="axis-tag">A7</span> Introspection primitive <span class="small" style="color:var(--text-secondary)">(descriptive)</span></td><td>digest-equality</td><td>merkle-membership-and-amount</td><td>dedicated-opcode</td><td>sighash-preimage-reconstruction</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Attack-class derivation table -->
-      <div class="card" style="padding:0; overflow:hidden; margin-top:28px">
-        <div style="padding:20px 24px; border-bottom:1px solid #e5e7eb">
-          <h4 style="margin:0">Attack classes derived from axis positions</h4>
-          <p class="small" style="color:var(--text-secondary); margin:6px 0 0 0">
-            Six attack classes Z1–Z6, each a mechanical consequence of an axis value.
-            Move the axis, the class moves with it. Threat models TM1–TM11
-            remain as citation anchors below; classes are the explanatory abstraction.
-          </p>
-        </div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Class</th>
-              <th>Name</th>
-              <th>Enabling axis-value</th>
-              <th>Susceptible</th>
-              <th>Immune (axis reason)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span class="class-tag">Z1</span></td>
-              <td>Fee-channel pinning</td>
-              <td><span class="axis-pill">A3 = out-of-band-anchor</span></td>
-              <td>CTV</td>
-              <td>CCV, OPV, CAT+CSFS — A3 = dynamic</td>
-            </tr>
-            <tr>
-              <td><span class="class-tag">Z2</span></td>
-              <td>Permissionless griefing</td>
-              <td><span class="axis-pill">A1 = keyless</span></td>
-              <td>CCV</td>
-              <td>OPV (A1 = recoveryauth-key), CTV (A1 = hot-key), CAT+CSFS (A1 = cold-key)</td>
-            </tr>
-            <tr>
-              <td><span class="class-tag">Z3</span></td>
-              <td>Per-UTXO recovery-cost scaling</td>
-              <td><span class="axis-pill">A2 = yes</span></td>
-              <td>CCV, OPV</td>
-              <td>CTV, CAT+CSFS — A2 = no; partial withdrawal not expressible</td>
-            </tr>
-            <tr>
-              <td><span class="class-tag">Z4</span></td>
-              <td>Hot-key theft via destination substitution</td>
-              <td><span class="axis-pill">A4 &ne; signature-dual-bind</span></td>
-              <td>CTV, CCV, OPV</td>
-              <td>CAT+CSFS — A4 = signature-dual-bind; Schnorr EUF-CMA forces output-binding</td>
-            </tr>
-            <tr>
-              <td><span class="class-tag">Z5</span></td>
-              <td>Cold-key theft via unconstrained recovery</td>
-              <td><span class="axis-pill">A5 = plain-signature</span></td>
-              <td>CAT+CSFS</td>
-              <td>CTV (A5 = template-hash-digest), CCV (A5 = per-output-amount+script), OPV (A5 = dedicated-opcode)</td>
-            </tr>
-            <tr>
-              <td><span class="class-tag">Z6</span></td>
-              <td>Mode/parameter bypass</td>
-              <td><span class="axis-pill">A6 = multi-mode-with-OP_SUCCESS</span></td>
-              <td>CCV</td>
-              <td>CTV, OPV, CAT+CSFS — A6 = single-mode</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Formal-apparatus note -->
-      <div class="card" style="padding:16px 20px; margin-top:20px; font-size:13px; color:var(--text-secondary)">
-        <strong>Formal mapping.</strong> The proof lattice is <code>(f, a, g, b)</code> with
-        <code>f</code> = A3, <code>a</code> = A2, <code>g</code> = A1, and <code>b</code> the joint (A4, A5) sub-lattice.
-        A6 (opcode surface) and A7 (introspection primitive) are orthogonal descriptive dimensions — A6 controls the developer-footgun class Z6, A7 governs realisability.
-        <strong>Proposition 1</strong> (griefing-safety incompatibility) projects onto <code>(g, b)</code>:
-        no assignment zeros class Z2 <em>and</em> {Z4 ∪ Z5} simultaneously.
-        <strong>Proposition 2</strong> (fee-dependent inversion) is a joint statement over <code>(a, f)</code> and the defender-batching strategy;
-        the batched-defender ordering flip (see <a href="#findings" style="color:inherit">Finding 09</a>) is its empirical counterpart.
-      </div>
-    </section>
-
     <!-- ═══════════════════════ OVERVIEW ═══════════════════════ -->
     <section>
       <div class="vault-grid">
         <div class="card vault-card">
-          <div class="tag" style="color:var(--ctv)">CTV · BIP 119</div>
+          <div class="tag" style="color:var(--ctv)"><a href="https://bips.dev/119/" target="_blank" style="color:inherit;text-decoration:none">CTV · BIP 119</a></div>
           <h3>The Deterministic One</h3>
           <p>Pre-commits the entire transaction tree at vault creation. No partial withdrawals, no batching. Simple and
             rigid.</p>
           <div class="stat-row">
             <div class="stat">
               <div class="num" style="color:var(--ctv)">368</div>
-              <div class="label">vB lifecycle</div>
+              <div class="label">bytes total</div>
             </div>
             <div class="stat">
               <div class="num" style="color:var(--ctv)">2</div>
@@ -1477,20 +1231,16 @@
               <div class="label">revaults</div>
             </div>
           </div>
-          <div class="axis-row">
-            <strong>Axis position:</strong>
-            <span class="axis-pill">A1=hot-key</span><span class="axis-pill">A2=no</span><span class="axis-pill">A3=out-of-band-anchor</span><span class="axis-pill">A4=template-hash-digest</span><span class="axis-pill">A5=template-hash-digest</span><span class="axis-pill">A6=single-mode</span><span class="axis-pill">A7=digest-equality</span>
-          </div>
         </div>
         <div class="card vault-card">
-          <div class="tag" style="color:var(--ccv)">CCV · BIP 443</div>
+          <div class="tag" style="color:var(--ccv)"><a href="https://bips.dev/443/" target="_blank" style="color:inherit;text-decoration:none">CCV · BIP 443</a></div>
           <h3>The Flexible One</h3>
           <p>Contract verification for state transitions. Partial withdrawals via revault, batched triggers, keyless recovery.
             The measured lifecycle includes a trigger-and-revault step unique to CCV.</p>
           <div class="stat-row">
             <div class="stat">
               <div class="num" style="color:var(--ccv)">565</div>
-              <div class="label">vB lifecycle</div>
+              <div class="label">bytes total</div>
             </div>
             <div class="stat">
               <div class="num" style="color:var(--ccv)">1</div>
@@ -1501,20 +1251,16 @@
               <div class="label">revaults</div>
             </div>
           </div>
-          <div class="axis-row">
-            <strong>Axis position:</strong>
-            <span class="axis-pill">A1=keyless</span><span class="axis-pill">A2=yes</span><span class="axis-pill">A3=dynamic</span><span class="axis-pill">A4=per-output-amount+script</span><span class="axis-pill">A5=per-output-amount+script</span><span class="axis-pill">A6=multi-mode-with-OP_SUCCESS</span><span class="axis-pill">A7=merkle-membership-and-amount</span>
-          </div>
         </div>
         <div class="card vault-card">
-          <div class="tag" style="color:var(--opvault)">OP_VAULT · BIP 345</div>
+          <div class="tag" style="color:var(--opvault)"><a href="https://bips.dev/345/" target="_blank" style="color:inherit;text-decoration:none">OP_VAULT · BIP 345</a></div>
           <h3>The Purpose-Built One</h3>
           <p>Dedicated opcode pair for vaults. Authorized recovery blocks griefing, but three keys means three things
             that can break.</p>
           <div class="stat-row">
             <div class="stat">
               <div class="num" style="color:var(--opvault)">567</div>
-              <div class="label">vB lifecycle</div>
+              <div class="label">bytes total</div>
             </div>
             <div class="stat">
               <div class="num" style="color:var(--opvault)">3</div>
@@ -1525,19 +1271,15 @@
               <div class="label">revaults</div>
             </div>
           </div>
-          <div class="axis-row">
-            <strong>Axis position:</strong>
-            <span class="axis-pill">A1=recoveryauth-key</span><span class="axis-pill">A2=yes</span><span class="axis-pill">A3=dynamic</span><span class="axis-pill">A4=dedicated-opcode</span><span class="axis-pill">A5=dedicated-opcode</span><span class="axis-pill">A6=single-mode</span><span class="axis-pill">A7=dedicated-opcode</span>
-          </div>
         </div>
         <div class="card vault-card">
-          <div class="tag" style="color:var(--catcsfs)">CAT+CSFS · BIP 347+348</div>
+          <div class="tag" style="color:var(--catcsfs)"><a href="https://bips.dev/347/" target="_blank" style="color:inherit;text-decoration:none">CAT+CSFS · BIP 347+348</a></div>
           <h3>The Composed One</h3>
           <p>General-purpose opcodes (OP_CAT + OP_CSFS) composed into a vault via dual Schnorr verification. Destination locked at creation. Conservative and introspective.</p>
           <div class="stat-row">
             <div class="stat">
               <div class="num" style="color:var(--catcsfs)">553</div>
-              <div class="label">vB lifecycle</div>
+              <div class="label">bytes total</div>
             </div>
             <div class="stat">
               <div class="num" style="color:var(--catcsfs)">2</div>
@@ -1547,10 +1289,6 @@
               <div class="num" style="color:var(--catcsfs)">0</div>
               <div class="label">revaults</div>
             </div>
-          </div>
-          <div class="axis-row">
-            <strong>Axis position:</strong>
-            <span class="axis-pill">A1=cold-key</span><span class="axis-pill">A2=no</span><span class="axis-pill">A3=dynamic (SIGHASH_SINGLE|ACP)</span><span class="axis-pill">A4=signature-dual-bind</span><span class="axis-pill">A5=plain-signature</span><span class="axis-pill">A6=single-mode</span><span class="axis-pill">A7=sighash-preimage-reconstruction</span>
           </div>
         </div>
       </div>
@@ -1739,7 +1477,7 @@
           forge a valid trigger. OP_VAULT_RECOVER checks the recoveryauth signature and ensures funds move to the
           committed recovery address. The recovery address is baked into the vault at creation and is immutable — even
           with both the trigger key and recoveryauth key compromised, an attacker cannot redirect recovery funds. This
-          is why dual-key compromise (TM6) results in denial-of-service rather than theft: the attacker can trigger and
+          is why a combined hot-and-cold key compromise results in denial-of-service rather than theft: the attacker can trigger and
           then recover in a loop, but funds always land at the legitimate recovery address. The fee wallet pattern uses
           a separate UTXO to pay transaction fees, avoiding the need to deduct fees from the vault amount, but adding an
           extra input to every transaction.
@@ -1908,12 +1646,10 @@
           mechanisms.
         </p>
       </div>
-
-      <!-- TM1 -->
       <div class="svg-block">
         <div style="margin-bottom:12px"><span class="tm-tag critical">CRITICAL</span> <strong
-            style="margin-left:6px">Fee Pinning (TM1)</strong>
-          <span class="class-tag">Z1</span><span class="axis-pill">A3 = out-of-band-anchor</span></div>
+            style="margin-left:6px">Fee Pinning</strong>
+          </div>
         <div class="svg-description">
           Fee pinning exploits CTV's transaction structure to block emergency recovery. When the unvault transaction
           broadcasts, its output can be spent by anyone who knows the pre-committed template — because CTV scripts are
@@ -1962,12 +1698,10 @@
           <div class="svg-display"><img src="attack-fee-pinning.svg" alt="Fee pinning attack" loading="lazy"></div>
         </div>
       </div>
-
-      <!-- TM8 -->
       <div class="svg-block">
         <div style="margin-bottom:12px"><span class="tm-tag critical">CRITICAL</span> <strong
-            style="margin-left:6px">CCV Mode Bypass (TM8)</strong>
-          <span class="class-tag">Z6</span><span class="axis-pill">A6 = multi-mode-with-OP_SUCCESS</span></div>
+            style="margin-left:6px">CCV Mode Bypass</strong>
+          </div>
         <div class="svg-description">
           CCV mode bypass is the most consequential developer footgun we documented. The CCV opcode accepts a mode byte that
           controls verification behavior: mode 0 checks scriptPubKey, mode 1 checks amount, mode 2 checks both. Any mode
@@ -2032,12 +1766,10 @@
           </div>
         </div>
       </div>
-
-      <!-- TM3+TM5 -->
       <div class="svg-block">
         <div style="margin-bottom:12px"><span class="tm-tag severe">SEVERE</span> <strong
-            style="margin-left:6px">Trigger Key Theft (TM3 + TM5)</strong>
-          <span class="class-tag">Z4</span><span class="axis-pill">A4 &ne; signature-dual-bind</span></div>
+            style="margin-left:6px">Trigger Key Theft</strong>
+          </div>
         <div class="svg-description">
           Trigger key theft is the canonical vault attack: an adversary compromises the hot key used to initiate
           withdrawals and attempts to steal funds before the watchtower can react. In all four vault designs, the
@@ -2084,7 +1816,7 @@
               <td class="val">~0.57×</td>
             </tr>
           </table>
-          <div class="evidence-note">Watchtower wins the race in all cases — timelocks give blocks, not seconds, to respond. The cost difference matters in sustained multi-round attacks (see TM4). CAT+CSFS recovery is cheap because the recover leaf is a simple CHECKSIG — no introspection overhead.</div>
+          <div class="evidence-note">Watchtower wins the race in all cases — timelocks give blocks, not seconds, to respond. The cost difference matters in sustained multi-round attacks (see the per-UTXO recovery-cost scaling section below). CAT+CSFS recovery is cheap because the recover leaf is a simple CHECKSIG — no introspection overhead.</div>
         </div>
         <div class="svg-wrap">
           <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
@@ -2095,12 +1827,10 @@
               loading="lazy"></div>
         </div>
       </div>
-
-      <!-- TM2 -->
       <div class="svg-block">
         <div style="margin-bottom:12px"><span class="tm-tag severe">SEVERE</span> <strong
-            style="margin-left:6px">Recovery Griefing (TM2)</strong>
-          <span class="class-tag">Z2</span><span class="axis-pill">A1 = keyless</span></div>
+            style="margin-left:6px">Recovery Griefing</strong>
+          </div>
         <div class="svg-description">
           Recovery griefing is the direct consequence of CCV's keyless recovery design. Since anyone can trigger
           recovery without any key or signature — they just need to know the vault's address and construct a valid
@@ -2165,12 +1895,10 @@
               loading="lazy"></div>
         </div>
       </div>
-
-      <!-- TM4+TM7 -->
       <div class="svg-block">
         <div style="margin-bottom:12px"><span class="tm-tag severe">SEVERE</span> <strong
-            style="margin-left:6px">Per-UTXO Recovery-Cost Scaling (TM4 + TM7)</strong>
-          <span class="class-tag">Z3</span><span class="axis-pill">A2 = yes</span></div>
+            style="margin-left:6px">Per-UTXO Recovery-Cost Scaling</strong>
+          </div>
         <div class="svg-description">
           Per-UTXO recovery-cost scaling turns CCV and OP_VAULT's partial withdrawal feature into an attack vector. The attacker,
           holding the trigger key, splits the vault into hundreds or thousands of small UTXOs using repeated partial
@@ -2231,7 +1959,7 @@
               <div class="context">Fails 2× faster than CCV</div>
             </div>
           </div>
-          <div class="evidence-note">50 actual splits executed on regtest — vsize constant across all rounds. Batched recovery saves 40–45% but cannot prevent exhaustion at sustained high fees. CTV is immune (no partial withdrawals).</div>
+          <div class="evidence-note">50 actual splits executed in our tests — size constant across all rounds. Batched recovery saves 40–45% but cannot prevent exhaustion at sustained high fees. CTV is immune (no partial withdrawals).</div>
         </div>
         <div class="svg-wrap">
           <button class="restart-btn" onclick="restartSvg(this)" title="Restart animation"><svg viewBox="0 0 24 24">
@@ -2242,12 +1970,10 @@
               loading="lazy"></div>
         </div>
       </div>
-
-      <!-- TM6 -->
       <div class="svg-block">
         <div style="margin-bottom:12px"><span class="tm-tag high">HIGH</span> <strong style="margin-left:6px">Dual-Key
-            Compromise (TM6)</strong>
-          <span class="class-tag orphan">orphan</span><span class="axis-pill">class: operational</span></div>
+            Compromise</strong>
+          </div>
         <div class="svg-description">
           Dual-key compromise examines what happens when an attacker obtains both the trigger key and the recoveryauth
           key in an OP_VAULT system. This sounds like it should be game over — and in CTV it is, because holding both
@@ -2307,12 +2033,10 @@
               loading="lazy"></div>
         </div>
       </div>
-
-      <!-- TM11 -->
       <div class="svg-block">
         <div style="margin-bottom:12px"><span class="tm-tag high">HIGH</span> <strong
-            style="margin-left:6px">Cold Key Recovery Theft (TM11)</strong>
-          <span class="class-tag">Z5</span><span class="axis-pill">A5 = plain-signature</span></div>
+            style="margin-left:6px">Cold Key Recovery Theft</strong>
+          </div>
         <div class="svg-description">
           This is the most severe CAT+CSFS vulnerability. The recovery leaf uses a simple <code>cold_pk OP_CHECKSIG</code>
           with SIGHASH_DEFAULT — there is no CAT, no CSFS, no output introspection of any kind. A compromised cold key
@@ -2364,7 +2088,7 @@
           </table>
           <div class="evidence-stat-row">
             <div class="stat">
-              <div class="label">Recovery vsize</div>
+              <div class="label">Recovery size</div>
               <div class="value">125 vB</div>
               <div class="context">From vault or vault-loop</div>
             </div>
@@ -2394,12 +2118,10 @@
           <div class="svg-display"><img src="attack-cat-csfs-cold-key-recovery.svg" alt="Cold key recovery theft attack" loading="lazy"></div>
         </div>
       </div>
-
-      <!-- TM9 -->
       <div class="svg-block">
         <div style="margin-bottom:12px"><span class="tm-tag" style="background:#dcfce7; color:#16a34a">IMPOSSIBLE</span> <strong
-            style="margin-left:6px">Hot Key Theft — Output Redirection (TM9)</strong>
-          <span class="class-tag">Z4 immunity</span><span class="axis-pill">A4 = signature-dual-bind</span></div>
+            style="margin-left:6px">Hot Key Theft — Output Redirection</strong>
+          </div>
         <div class="svg-description">
           CAT+CSFS's strongest defensive property: even with a fully compromised hot key, the attacker cannot redirect
           vault funds to an attacker-controlled address. The trigger leaf embeds <code>sha_single_output</code> as a script
@@ -2440,7 +2162,7 @@
           </table>
           <div class="evidence-stat-row">
             <div class="stat">
-              <div class="label">Trigger vsize</div>
+              <div class="label">Trigger size</div>
               <div class="value">221 vB</div>
               <div class="context">Normal trigger transaction</div>
             </div>
@@ -2465,12 +2187,10 @@
           <div class="svg-display"><img src="attack-cat-csfs-hot-key-theft.svg" alt="Hot key theft impossibility" loading="lazy"></div>
         </div>
       </div>
-
-      <!-- TM10 -->
       <div class="svg-block">
         <div style="margin-bottom:12px"><span class="tm-tag" style="background:#dcfce7; color:#16a34a">IMPOSSIBLE</span> <strong
-            style="margin-left:6px">Witness Manipulation — Preimage Forgery (TM10)</strong>
-          <span class="class-tag orphan">orphan</span><span class="axis-pill">class: cryptographic-verification</span></div>
+            style="margin-left:6px">Witness Manipulation — Preimage Forgery</strong>
+          </div>
         <div class="svg-description">
           Tests whether an attacker can tamper with the sighash preimage components to bypass the CAT+CSFS covenant. The
           preimage is split into three witness items: prefix (untrusted, ~94 bytes), <code>sha_single_output</code> (trusted,
@@ -2620,7 +2340,7 @@
           For N partial withdrawals from a 0.5 BTC vault, CCV's cumulative cost scales sub-linearly (the revault output
           shrinks with each step), while CTV/CAT+CSFS scale linearly at N × full_cycle_cost. This capability gap is also
           relevant to griefing economics: an attacker triggering CCV/OP_VAULT vaults can use partial triggers to split UTXOs,
-          multiplying the watchtower's recovery burden (see TM4/TM7).
+          multiplying the watchtower's recovery burden (see the per-UTXO recovery-cost scaling attack).
         </div>
         <div class="evidence-panel">
           <h5>Partial Withdrawal Cost Model (5M sat steps from 50M sat vault)</h5>
@@ -2646,7 +2366,7 @@
               <div class="context">vs CTV's 10 × full cycle</div>
             </div>
           </div>
-          <div class="evidence-note">CCV and OP_VAULT support native partial withdrawal. CTV and CAT+CSFS require full vault destruction and recreation for each partial withdrawal. 10 actual revault steps executed on regtest — vsize constant per step.</div>
+          <div class="evidence-note">CCV and OP_VAULT support native partial withdrawal. CTV and CAT+CSFS require full vault destruction and recreation for each partial withdrawal. 10 actual revault steps executed in our tests — size constant per step.</div>
         </div>
       </div>
 
@@ -3163,26 +2883,22 @@
       <div class="section-label">Beyond Bitcoin</div>
       <div class="section-title">Simplicity on Elements</div>
       <div class="section-subtitle">
-        Simplicity is a typed functional language for blockchain covenants, deployed on Elements/Liquid &mdash; a
-        federated sidechain. It is not a Bitcoin opcode proposal. We include it as a cross-substrate
-        <strong>existence proof</strong>: Simplicity's atomic-vault program occupies the strict-best position on
-        <span class="axis-pill">A1</span><span class="axis-pill">A2</span><span class="axis-pill">A4</span><span class="axis-pill">A5</span><span class="axis-pill">A7</span> simultaneously,
-        whereas no Bitcoin proposal does. This demonstrates the
-        dominant corner <em>is</em> occupiable; the gap identified in this work is about the unoccupied status on
-        Bitcoin, not about theoretical impossibility. The measurements below are from Elements regtest and
-        are not directly comparable to Bitcoin regtest due to differences in fee markets, witness structure, and
-        consensus model.
+        Simplicity is a typed functional language for blockchain covenants, deployed on
+        Elements/Liquid &mdash; a Bitcoin-adjacent sidechain. It is not a Bitcoin opcode proposal.
+        We include it as a useful point of comparison: a Simplicity vault already ships on Liquid
+        and closes all of the attack classes covered above on that substrate. Getting the same
+        combination of protections onto Bitcoin itself isn't possible with any current BIP. The
+        measurements below are from Elements and aren't directly comparable to Bitcoin due to
+        differences in fee markets, witness structure, and consensus model.
       </div>
 
       <div class="card" style="padding:16px 20px; margin-bottom:32px; font-size:13px; color:var(--text-secondary); background:#fafafa">
-        <strong>Axis position:</strong>
-        <span class="axis-pill">A1=cold-key</span><span class="axis-pill">A2=no</span><span class="axis-pill">A3=dynamic</span><span class="axis-pill">A4=dedicated-jets-combinator</span><span class="axis-pill">A5=dedicated-jets-combinator</span><span class="axis-pill">A6=single-mode</span><span class="axis-pill">A7=typed-combinator-introspection</span>
-        <br>
-        <span class="small" style="display:block; margin-top:8px">
-          Immune by construction to every attack class Z1&ndash;Z6. The substrate trade-off is consensus: Simplicity on Liquid is
-          live under federation trust; Bitcoin covenants remain under proof-of-work consensus review. Porting the optimal corner to
-          Bitcoin requires either Simplicity's taproot leaf type (draft BIP, not under active review) or a CAT+CSFS-based bound-recovery
-          construction (Poelstra's sketch) that moves <span class="axis-pill">A5=signature-dual-bind</span>.
+        <span class="small" style="display:block">
+          Immune by construction to every attack we document on this page. The trade-off is the
+          consensus model: Liquid runs under federation trust rather than proof-of-work. Getting
+          a comparable design onto Bitcoin itself would require either Simplicity's taproot-leaf
+          type (a draft proposal, not under active review) or a CAT+CSFS-based bound-recovery
+          construction (Poelstra's sketch).
         </span>
       </div>
 
@@ -3197,7 +2913,7 @@
         <div class="stat-row">
           <div class="stat">
             <div class="num" style="color:var(--simplicity)">865</div>
-            <div class="label">vB lifecycle</div>
+            <div class="label">bytes total</div>
           </div>
           <div class="stat">
             <div class="num" style="color:var(--simplicity)">2</div>
@@ -3213,7 +2929,7 @@
       <!-- Simplicity lifecycle SVG -->
       <div class="svg-block">
         <div class="svg-description">
-          The Simplicity vault lifecycle operates on Elements regtest. Funds enter the vault through a deposit
+          The Simplicity vault lifecycle runs on Elements. Funds enter the vault through a deposit
           to a P2TR output whose spending conditions are defined by a Simplicity program — a typed functional
           DAG rather than a stack-based Bitcoin Script. The vault program embeds two BIP-340 Schnorr public keys
           (hot and cold, derived from separate BIP-39 mnemonics) and two pre-computed output hashes as compile-time
@@ -3451,7 +3167,7 @@
           <div class="rec" style="background:#eff6ff; color:#2563eb">
             Best fit: <strong>CCV</strong> — batched triggers across multiple vault UTXOs in a single transaction.
             Partial withdrawal means payroll doesn't require a full vault cycle. 106 vB per additional vault in a batch
-            vs OP_VAULT's 94 vB. Your team needs to audit CCV mode flags carefully (TM8), but the operational savings
+            vs OP_VAULT's 94 vB. Your team needs to audit CCV mode flags carefully (the mode-bypass footgun described above), but the operational savings
             are substantial at scale.
           </div>
         </div>
@@ -3641,14 +3357,31 @@
       </div>
     </section>
 
-    <!-- ═══════════════════════ METHODOLOGY ═══════════════════════ -->
-    <section style="padding-top:60px">
-      <div class="card" style="padding:24px; text-align:center; max-width:640px; margin:0 auto">
-        <p class="small muted">
-          All measurements from regtest. Transaction sizes (vsize) are structurally valid.
-          15 experiments, 11 threat models, 5 vault implementations — 4 Bitcoin covenant designs
-          plus Simplicity on Elements regtest (federated sidechain).
+    <!-- ═══════════════════════ GOING DEEPER ═══════════════════════ -->
+    <section id="going-deeper" style="padding-top:60px">
+      <div class="section-label">For the curious</div>
+      <div class="section-title">Going deeper</div>
+      <div style="max-width:720px;margin:0 auto 24px">
+        <p class="small muted" style="margin-bottom:16px">
+          Everything on this page is a plain-language summary. For the deeper
+          technical treatment &mdash; measurement methodology, formal verification,
+          the full threat analysis, and every number behind the charts &mdash; the
+          research paper and repository cover the ground in full.
         </p>
+      </div>
+      <div class="resources-bar">
+        <a href="#" target="_blank">
+          <span class="res-icon">&#128196;</span> Paper (PDF)
+        </a>
+        <a href="https://github.com/PraneethGunas/covenant-vault-research" target="_blank">
+          <span class="res-icon">&#128187;</span> GitHub
+        </a>
+        <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/DESIGN.md" target="_blank">
+          <span class="res-icon">&#128209;</span> Design Doc
+        </a>
+        <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/REFERENCES.md" target="_blank">
+          <span class="res-icon">&#128218;</span> References
+        </a>
       </div>
     </section>
 
