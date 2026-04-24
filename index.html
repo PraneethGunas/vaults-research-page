@@ -806,13 +806,45 @@
     /* ── Footer ──────────────────────────────────────────── */
     footer {
       margin-top: var(--section-gap);
-      padding: 48px 0;
+      padding: 72px 0 48px;
+      border-top: 1px solid var(--card-border);
+      background: #fafafa;
+    }
+
+    footer .footer-deeper {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 40px;
+    }
+
+    footer .footer-heading {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin: 8px 0 14px;
+      color: var(--text);
+    }
+
+    footer .footer-lede {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    footer .footer-credits {
+      max-width: 900px;
+      margin: 0 auto;
+      padding-top: 32px;
+      border-top: 1px solid var(--card-border);
       text-align: center;
     }
 
-    footer p {
-      font-size: 13px;
+    footer .footer-credits p {
+      font-size: 12px;
       color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 8px;
     }
 
     footer a {
@@ -3350,60 +3382,56 @@
       </div>
     </section>
 
-    <!-- ═══════════════════════ GOING DEEPER ═══════════════════════ -->
-    <section id="going-deeper" style="padding-top:60px">
-      <div class="section-label">For the curious</div>
-      <div class="section-title">Going deeper</div>
-      <div style="max-width:720px;margin:0 auto 24px">
-        <p class="small muted" style="margin-bottom:16px">
+  </div>
+
+  <footer id="going-deeper">
+    <div class="container">
+
+      <!-- Going deeper: paper + repo pointers -->
+      <div class="footer-deeper">
+        <div class="section-label">For the curious</div>
+        <h3 class="footer-heading">Going deeper</h3>
+        <p class="footer-lede">
           Everything on this page is a plain-language summary. For the deeper
           technical treatment &mdash; measurement methodology, formal verification,
           the full threat analysis, and every number behind the charts &mdash; the
           research paper and repository cover the ground in full.
         </p>
+        <div class="resources-bar">
+          <a href="#" target="_blank">
+            <span class="res-icon">&#128196;</span> Paper (PDF)
+          </a>
+          <a href="https://github.com/PraneethGunas/covenant-vault-research" target="_blank">
+            <span class="res-icon">&#128187;</span> GitHub
+          </a>
+          <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/DESIGN.md" target="_blank">
+            <span class="res-icon">&#128209;</span> Design Doc
+          </a>
+          <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/REFERENCES.md" target="_blank">
+            <span class="res-icon">&#128218;</span> References
+          </a>
+        </div>
       </div>
-      <div class="resources-bar">
-        <a href="#" target="_blank">
-          <span class="res-icon">&#128196;</span> Paper (PDF)
-        </a>
-        <a href="https://github.com/PraneethGunas/covenant-vault-research" target="_blank">
-          <span class="res-icon">&#128187;</span> GitHub
-        </a>
-        <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/DESIGN.md" target="_blank">
-          <span class="res-icon">&#128209;</span> Design Doc
-        </a>
-        <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/REFERENCES.md" target="_blank">
-          <span class="res-icon">&#128218;</span> References
-        </a>
+
+      <!-- Credits -->
+      <div class="footer-credits">
+        <p>
+          Covenant designs by
+          <a href="https://github.com/JeremyRubin" target="_blank">Jeremy Rubin</a> (CTV &middot; BIP 119),
+          <a href="https://github.com/bigspider" target="_blank">Salvatore Ingala</a> (CCV &middot; BIP 443),
+          <a href="https://github.com/jamesob" target="_blank">James O'Beirne</a> (OP_VAULT &middot; BIP 345),
+          Möser&ndash;Eyal&ndash;Sirer / <a href="https://medium.com/blockstream/cat-and-schnorr-tricks-i-faf1b59bd298" target="_blank">Andrew Poelstra</a> (CAT+CSFS &middot; BIP 347 + 348),
+          and <a href="https://github.com/roconnor-blockstream" target="_blank">Russell O'Connor</a> (Simplicity).
+        </p>
+        <p>
+          Built on
+          <a href="https://github.com/jamesob/simple-ctv-vault" target="_blank">simple-ctv-vault</a>,
+          <a href="https://github.com/Merkleize/pymatt" target="_blank">pymatt</a>,
+          <a href="https://github.com/jamesob/opvault-demo" target="_blank">opvault-demo</a>,
+          <a href="https://github.com/PraneethGunas/cat-csfs-vault" target="_blank">simple-cat-csfs-vault</a>, and
+          <a href="https://github.com/PraneethGunas/simple-simplicity-vault" target="_blank">simple-simplicity-vault</a>.
+        </p>
       </div>
-    </section>
-
-  </div>
-
-  <footer>
-    <div class="container">
-      <p>Bitcoin Vault Covenant Comparison</p>
-      <p style="margin-top:8px">
-        Built on <a href="https://github.com/jamesob/simple-ctv-vault" target="_blank">simple-ctv-vault</a>,
-        <a href="https://github.com/Merkleize/pymatt" target="_blank">pymatt</a>,
-        <a href="https://github.com/jamesob/opvault-demo" target="_blank">opvault-demo</a>,
-        <a href="https://github.com/PraneethGunas/cat-csfs-vault" target="_blank">simple-cat-csfs-vault</a>, and
-        <a href="https://github.com/PraneethGunas/simple-simplicity-vault" target="_blank">simple-simplicity-vault</a>
-      </p>
-      <p style="margin-top:8px">
-        Covenant designs by
-        <a href="https://github.com/JeremyRubin" target="_blank">Jeremy Rubin</a> (CTV · BIP 119),
-        <a href="https://github.com/bigspider" target="_blank">Salvatore Ingala</a> (CCV · BIP 443),
-        <a href="https://github.com/jamesob" target="_blank">James O'Beirne</a> (OP_VAULT · BIP 345),
-        Möser-Eyal-Sirer / <a href="https://medium.com/blockstream/cat-and-schnorr-tricks-i-faf1b59bd298" target="_blank">Andrew Poelstra</a> (CAT+CSFS · BIP 347 + 348), and
-        <a href="https://github.com/roconnor-blockstream" target="_blank">Russell O'Connor</a> (Simplicity)
-      </p>
-      <p style="margin-top:8px">
-        <a href="https://github.com/PraneethGunas/covenant-vault-research" target="_blank">GitHub</a> ·
-        <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/DESIGN.md" target="_blank">Design Doc</a> ·
-        <a href="https://github.com/PraneethGunas/covenant-vault-research/blob/main/REFERENCES.md" target="_blank">References</a> ·
-        <a href="#" target="_blank">Paper</a>
-      </p>
     </div>
   </footer>
 
