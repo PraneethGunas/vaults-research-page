@@ -1046,171 +1046,34 @@
     <section id="what-is-a-vault">
       <div class="section-label">Start here</div>
       <div class="section-title">What's a vault?</div>
-      <div style="max-width:780px;margin:0 auto">
-        <p style="margin-bottom:1em">
-          If you own Bitcoin, you own a private key. Lose it, and your coins are gone.
-          Have it stolen, and they're gone faster — there's no bank to call.
-        </p>
-        <p style="margin-bottom:1em">
-          A <em>vault</em> adds a time delay to withdrawals. When someone tries to
-          spend from your vault — even with the right key — there's a waiting period.
-          During that period, a monitoring service (a "<em>watchtower</em>") can notice
-          an unauthorised attempt and redirect the funds to a safer cold-storage
-          address. To make a vault possible, Bitcoin script needs a "<em>covenant</em>":
-          a rule that constrains not just <em>who</em> can spend a coin but <em>how</em>
-          the spending transaction has to look. Today's Bitcoin script doesn't quite
-          support that, which is why new soft-fork proposals (BIPs) are being debated.
-        </p>
-        <p>
-          Four designs are currently on the table:
-          <a href="https://bips.dev/119/" target="_blank" style="color:var(--ctv)">CTV</a>,
-          <a href="https://bips.dev/443/" target="_blank" style="color:var(--ccv)">CCV</a>,
-          <a href="https://bips.dev/345/" target="_blank" style="color:var(--opvault)">OP_VAULT</a>, and
-          <a href="https://bips.dev/347/" target="_blank" style="color:var(--catcsfs)">CAT+CSFS</a>.
-          They differ in how they enforce the delay and who can trigger the emergency
-          redirect. Those choices have real consequences for safety, cost, and what
-          kinds of users can deploy them. A fifth design,
-          <a href="#simplicity" style="color:var(--simplicity)">Simplicity</a>, is
-          deployed on Elements (a Bitcoin-adjacent sidechain) and serves as a useful
-          point of comparison.
-        </p>
-      </div>
-      <div class="pill-row" style="margin-top:28px;opacity:0.85">
-        <a href="https://bips.dev/119/" target="_blank" class="pill" style="text-decoration:none;color:inherit;font-size:12px">
-          <div class="dot" style="background:var(--ctv)"></div>CTV (BIP 119)
-        </a>
-        <a href="https://bips.dev/443/" target="_blank" class="pill" style="text-decoration:none;color:inherit;font-size:12px">
-          <div class="dot" style="background:var(--ccv)"></div>CCV (BIP 443)
-        </a>
-        <a href="https://bips.dev/345/" target="_blank" class="pill" style="text-decoration:none;color:inherit;font-size:12px">
-          <div class="dot" style="background:var(--opvault)"></div>OP_VAULT (BIP 345)
-        </a>
-        <a href="https://bips.dev/347/" target="_blank" class="pill" style="text-decoration:none;color:inherit;font-size:12px">
-          <div class="dot" style="background:var(--catcsfs)"></div>CAT+CSFS (BIP 347+348)
-        </a>
-        <a href="#simplicity" class="pill" style="text-decoration:none;color:inherit;border-style:dashed;opacity:0.7;font-size:12px">
-          <div class="dot" style="background:var(--simplicity)"></div>Simplicity <span style="font-size:10px;color:var(--text-muted);margin-left:2px">(Elements)</span>
-        </a>
-      </div>
-    </section>
-
-    <!-- ═══════════════════════ FINDINGS ═══════════════════════ -->
-    <section id="findings">
-      <div class="section-label">What We Learned</div>
-      <div class="section-title">What we learned</div>
-
-      <div class="findings-grid">
-        <div class="card finding-card">
-          <div class="number">01</div>
-          <h4>The safest design depends on the fee environment</h4>
-          <p>
-            When Bitcoin fees are low, CCV and OP_VAULT are safer choices. When fees
-            are high, CTV is safer. The two curves cross somewhere in the middle.
-            There is no single "safest" vault — the answer changes with the cost of
-            posting a transaction. The chart below shows this shift.
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number">02</div>
-          <h4>OP_VAULT is the most expensive to operate</h4>
-          <p>
-            OP_VAULT requires every transaction it produces to attach a separate
-            fee-paying input, which adds overhead the other designs don't pay.
-            Over a full vault lifecycle, OP_VAULT costs about 36% more than CCV.
-            That cost is inherent to the design, not an implementation detail.
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number">03</div>
-          <h4>CCV has a subtle safety trap for developers</h4>
-          <p>
-            CCV uses a "mode byte" to choose which check to run. Bitcoin reserves
-            the unused values for future upgrades — so picking an unused mode
-            silently skips the check entirely. A single off-by-one mistake in the
-            vault script disables all protection. Library helpers exist to prevent
-            this, but anyone writing CCV scripts from scratch needs to be careful.
-          </p>
-        </div>
-        <div class="card finding-card">
-          <div class="number">04</div>
-          <h4>CAT+CSFS has the weakest cold-key recovery</h4>
-          <p>
-            CAT+CSFS binds the <em>hot</em> spending path tightly — a stolen hot key
-            can only redirect to the pre-committed address. But the <em>cold</em>
-            recovery path is a plain signature with no output restriction. If the
-            cold key is stolen, the attacker can redirect funds anywhere. The other
-            three designs force recovery into a specific pre-committed address,
-            which contains the damage.
-          </p>
-        </div>
-      </div>
-
-      <!-- Fee sensitivity chart -->
-      <div class="card" style="padding:28px">
-        <h4 style="font-size:15px; font-weight:700; margin-bottom:4px">How each vault's safety shifts with fees</h4>
-        <p class="small muted" style="margin-bottom:20px">Higher line = more vulnerable in that fee environment.
-          CTV (red) stays dangerous at any fee level because of a specific attack on its fee mechanism.
-          CCV (blue) and OP_VAULT (amber) are safe when fees are low, but both become vulnerable as fees climb.
-          The lines cross in the middle band — that's the region where "which is safer" flips.</p>
-        <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
-          <line x1="80" y1="20" x2="80" y2="280" stroke="#e5e7eb" stroke-width="1" />
-          <line x1="80" y1="280" x2="760" y2="280" stroke="#e5e7eb" stroke-width="1" />
-          <line x1="80" y1="215" x2="760" y2="215" stroke="#f3f4f6" stroke-width="1" />
-          <line x1="80" y1="150" x2="760" y2="150" stroke="#f3f4f6" stroke-width="1" />
-          <line x1="80" y1="85" x2="760" y2="85" stroke="#f3f4f6" stroke-width="1" />
-          <text x="70" y="284" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">0%</text>
-          <text x="70" y="219" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">25%</text>
-          <text x="70" y="154" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">50%</text>
-          <text x="70" y="89" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">75%</text>
-          <text x="70" y="24" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">100%</text>
-          <text x="24" y="150" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif" transform="rotate(-90 24 150)">How vulnerable</text>
-          <text x="80" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Very low</text>
-          <text x="216" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Low</text>
-          <text x="352" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Medium-low</text>
-          <text x="488" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Medium</text>
-          <text x="624" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">High</text>
-          <text x="760" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Very high</text>
-          <text x="420" y="325" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Fee environment</text>
-          <polyline points="80,33 216,36 352,39 488,41 624,44 760,46" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-          <polyline points="80,254 216,228 352,176 488,124 624,72 760,52" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-          <polyline points="80,241 216,210 352,150 488,98 624,52 760,36" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-          <rect x="300" y="20" width="120" height="260" fill="#fef3c7" opacity="0.2" rx="4" />
-          <text x="360" y="14" text-anchor="middle" font-size="10" fill="#ca8a04" font-family="Inter,system-ui,sans-serif" font-weight="600">crossover zone</text>
-          <circle cx="80" cy="33" r="3.5" fill="#ef4444" />
-          <circle cx="216" cy="36" r="3.5" fill="#ef4444" />
-          <circle cx="352" cy="39" r="3.5" fill="#ef4444" />
-          <circle cx="488" cy="41" r="3.5" fill="#ef4444" />
-          <circle cx="624" cy="44" r="3.5" fill="#ef4444" />
-          <circle cx="760" cy="46" r="3.5" fill="#ef4444" />
-          <circle cx="80" cy="254" r="3.5" fill="#3b82f6" />
-          <circle cx="216" cy="228" r="3.5" fill="#3b82f6" />
-          <circle cx="352" cy="176" r="3.5" fill="#3b82f6" />
-          <circle cx="488" cy="124" r="3.5" fill="#3b82f6" />
-          <circle cx="624" cy="72" r="3.5" fill="#3b82f6" />
-          <circle cx="760" cy="52" r="3.5" fill="#3b82f6" />
-          <circle cx="80" cy="241" r="3.5" fill="#f59e0b" />
-          <circle cx="216" cy="210" r="3.5" fill="#f59e0b" />
-          <circle cx="352" cy="150" r="3.5" fill="#f59e0b" />
-          <circle cx="488" cy="98" r="3.5" fill="#f59e0b" />
-          <circle cx="624" cy="52" r="3.5" fill="#f59e0b" />
-          <circle cx="760" cy="36" r="3.5" fill="#f59e0b" />
-          <line x1="520" y1="12" x2="540" y2="12" stroke="#ef4444" stroke-width="2.5" />
-          <text x="546" y="16" font-size="11" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">CTV</text>
-          <line x1="590" y1="12" x2="610" y2="12" stroke="#3b82f6" stroke-width="2.5" />
-          <text x="616" y="16" font-size="11" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">CCV</text>
-          <line x1="656" y1="12" x2="676" y2="12" stroke="#f59e0b" stroke-width="2.5" />
-          <text x="682" y="16" font-size="11" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">OP_VAULT</text>
-          <polyline points="80,46 216,49 352,52 488,54 624,57 760,59" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8,4" />
-          <circle cx="80" cy="46" r="3.5" fill="#10b981" />
-          <circle cx="216" cy="49" r="3.5" fill="#10b981" />
-          <circle cx="352" cy="52" r="3.5" fill="#10b981" />
-          <circle cx="488" cy="54" r="3.5" fill="#10b981" />
-          <circle cx="624" cy="57" r="3.5" fill="#10b981" />
-          <circle cx="760" cy="59" r="3.5" fill="#10b981" />
-          <line x1="520" y1="26" x2="540" y2="26" stroke="#10b981" stroke-width="2.5" stroke-dasharray="8,4" />
-          <text x="546" y="30" font-size="11" fill="#10b981" font-family="Inter,system-ui,sans-serif" font-weight="600">CAT+CSFS</text>
-        </svg>
-      </div>
+      <p style="margin-bottom:1em">
+        If you own Bitcoin, you own a private key. Lose it, and your coins are
+        gone. Have it stolen, and they're gone faster — there's no bank to call.
+      </p>
+      <p style="margin-bottom:1em">
+        A <em>vault</em> adds a time delay to withdrawals. When someone tries to
+        spend from your vault — even with the right key — there's a waiting period.
+        During that period, a monitoring service (a "<em>watchtower</em>") can
+        notice an unauthorised attempt and redirect the funds to a safer
+        cold-storage address. To make a vault possible, Bitcoin script needs a
+        "<em>covenant</em>": a rule that constrains not just <em>who</em> can
+        spend a coin but <em>how</em> the spending transaction has to look.
+        Today's Bitcoin script doesn't quite support that, which is why new
+        soft-fork proposals (BIPs) are being debated.
+      </p>
+      <p>
+        Four designs are currently on the table:
+        <a href="https://bips.dev/119/" target="_blank" style="color:var(--ctv)">CTV</a>,
+        <a href="https://bips.dev/443/" target="_blank" style="color:var(--ccv)">CCV</a>,
+        <a href="https://bips.dev/345/" target="_blank" style="color:var(--opvault)">OP_VAULT</a>, and
+        <a href="https://bips.dev/347/" target="_blank" style="color:var(--catcsfs)">CAT+CSFS</a>.
+        They differ in how they enforce the delay and who can trigger the
+        emergency redirect. Those choices have real consequences for safety,
+        cost, and what kinds of users can deploy them. A fifth design,
+        <a href="#simplicity" style="color:var(--simplicity)">Simplicity</a>, is
+        deployed on Elements (a Bitcoin-adjacent sidechain) and serves as a
+        useful point of comparison.
+      </p>
     </section>
 
     <!-- ═══════════════════════ OVERVIEW ═══════════════════════ -->
@@ -2417,6 +2280,125 @@
         </div>
       </div>
     </section>
+    <!-- ═══════════════════════ FINDINGS ═══════════════════════ -->
+    <section id="findings">
+      <div class="section-label">What We Learned</div>
+      <div class="section-title">What we learned</div>
+
+      <div class="findings-grid">
+        <div class="card finding-card">
+          <div class="number">01</div>
+          <h4>The safest design depends on the fee environment</h4>
+          <p>
+            When Bitcoin fees are low, CCV and OP_VAULT are safer choices. When fees
+            are high, CTV is safer. The two curves cross somewhere in the middle.
+            There is no single "safest" vault — the answer changes with the cost of
+            posting a transaction. The chart below shows this shift.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">02</div>
+          <h4>OP_VAULT is the most expensive to operate</h4>
+          <p>
+            OP_VAULT requires every transaction it produces to attach a separate
+            fee-paying input, which adds overhead the other designs don't pay.
+            Over a full vault lifecycle, OP_VAULT costs about 36% more than CCV.
+            That cost is inherent to the design, not an implementation detail.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">03</div>
+          <h4>CCV has a subtle safety trap for developers</h4>
+          <p>
+            CCV uses a "mode byte" to choose which check to run. Bitcoin reserves
+            the unused values for future upgrades — so picking an unused mode
+            silently skips the check entirely. A single off-by-one mistake in the
+            vault script disables all protection. Library helpers exist to prevent
+            this, but anyone writing CCV scripts from scratch needs to be careful.
+          </p>
+        </div>
+        <div class="card finding-card">
+          <div class="number">04</div>
+          <h4>CAT+CSFS has the weakest cold-key recovery</h4>
+          <p>
+            CAT+CSFS binds the <em>hot</em> spending path tightly — a stolen hot key
+            can only redirect to the pre-committed address. But the <em>cold</em>
+            recovery path is a plain signature with no output restriction. If the
+            cold key is stolen, the attacker can redirect funds anywhere. The other
+            three designs force recovery into a specific pre-committed address,
+            which contains the damage.
+          </p>
+        </div>
+      </div>
+
+      <!-- Fee sensitivity chart -->
+      <div class="card" style="padding:28px">
+        <h4 style="font-size:15px; font-weight:700; margin-bottom:4px">How each vault's safety shifts with fees</h4>
+        <p class="small muted" style="margin-bottom:20px">Higher line = more vulnerable in that fee environment.
+          CTV (red) stays dangerous at any fee level because of a specific attack on its fee mechanism.
+          CCV (blue) and OP_VAULT (amber) are safe when fees are low, but both become vulnerable as fees climb.
+          The lines cross in the middle band — that's the region where "which is safer" flips.</p>
+        <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+          <line x1="80" y1="20" x2="80" y2="280" stroke="#e5e7eb" stroke-width="1" />
+          <line x1="80" y1="280" x2="760" y2="280" stroke="#e5e7eb" stroke-width="1" />
+          <line x1="80" y1="215" x2="760" y2="215" stroke="#f3f4f6" stroke-width="1" />
+          <line x1="80" y1="150" x2="760" y2="150" stroke="#f3f4f6" stroke-width="1" />
+          <line x1="80" y1="85" x2="760" y2="85" stroke="#f3f4f6" stroke-width="1" />
+          <text x="70" y="284" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">0%</text>
+          <text x="70" y="219" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">25%</text>
+          <text x="70" y="154" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">50%</text>
+          <text x="70" y="89" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">75%</text>
+          <text x="70" y="24" text-anchor="end" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">100%</text>
+          <text x="24" y="150" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif" transform="rotate(-90 24 150)">How vulnerable</text>
+          <text x="80" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Very low</text>
+          <text x="216" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Low</text>
+          <text x="352" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Medium-low</text>
+          <text x="488" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Medium</text>
+          <text x="624" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">High</text>
+          <text x="760" y="300" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Very high</text>
+          <text x="420" y="325" text-anchor="middle" font-size="11" fill="#9ca3af" font-family="Inter,system-ui,sans-serif">Fee environment</text>
+          <polyline points="80,33 216,36 352,39 488,41 624,44 760,46" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <polyline points="80,254 216,228 352,176 488,124 624,72 760,52" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <polyline points="80,241 216,210 352,150 488,98 624,52 760,36" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <rect x="300" y="20" width="120" height="260" fill="#fef3c7" opacity="0.2" rx="4" />
+          <text x="360" y="14" text-anchor="middle" font-size="10" fill="#ca8a04" font-family="Inter,system-ui,sans-serif" font-weight="600">crossover zone</text>
+          <circle cx="80" cy="33" r="3.5" fill="#ef4444" />
+          <circle cx="216" cy="36" r="3.5" fill="#ef4444" />
+          <circle cx="352" cy="39" r="3.5" fill="#ef4444" />
+          <circle cx="488" cy="41" r="3.5" fill="#ef4444" />
+          <circle cx="624" cy="44" r="3.5" fill="#ef4444" />
+          <circle cx="760" cy="46" r="3.5" fill="#ef4444" />
+          <circle cx="80" cy="254" r="3.5" fill="#3b82f6" />
+          <circle cx="216" cy="228" r="3.5" fill="#3b82f6" />
+          <circle cx="352" cy="176" r="3.5" fill="#3b82f6" />
+          <circle cx="488" cy="124" r="3.5" fill="#3b82f6" />
+          <circle cx="624" cy="72" r="3.5" fill="#3b82f6" />
+          <circle cx="760" cy="52" r="3.5" fill="#3b82f6" />
+          <circle cx="80" cy="241" r="3.5" fill="#f59e0b" />
+          <circle cx="216" cy="210" r="3.5" fill="#f59e0b" />
+          <circle cx="352" cy="150" r="3.5" fill="#f59e0b" />
+          <circle cx="488" cy="98" r="3.5" fill="#f59e0b" />
+          <circle cx="624" cy="52" r="3.5" fill="#f59e0b" />
+          <circle cx="760" cy="36" r="3.5" fill="#f59e0b" />
+          <line x1="520" y1="12" x2="540" y2="12" stroke="#ef4444" stroke-width="2.5" />
+          <text x="546" y="16" font-size="11" fill="#ef4444" font-family="Inter,system-ui,sans-serif" font-weight="600">CTV</text>
+          <line x1="590" y1="12" x2="610" y2="12" stroke="#3b82f6" stroke-width="2.5" />
+          <text x="616" y="16" font-size="11" fill="#3b82f6" font-family="Inter,system-ui,sans-serif" font-weight="600">CCV</text>
+          <line x1="656" y1="12" x2="676" y2="12" stroke="#f59e0b" stroke-width="2.5" />
+          <text x="682" y="16" font-size="11" fill="#f59e0b" font-family="Inter,system-ui,sans-serif" font-weight="600">OP_VAULT</text>
+          <polyline points="80,46 216,49 352,52 488,54 624,57 760,59" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8,4" />
+          <circle cx="80" cy="46" r="3.5" fill="#10b981" />
+          <circle cx="216" cy="49" r="3.5" fill="#10b981" />
+          <circle cx="352" cy="52" r="3.5" fill="#10b981" />
+          <circle cx="488" cy="54" r="3.5" fill="#10b981" />
+          <circle cx="624" cy="57" r="3.5" fill="#10b981" />
+          <circle cx="760" cy="59" r="3.5" fill="#10b981" />
+          <line x1="520" y1="26" x2="540" y2="26" stroke="#10b981" stroke-width="2.5" stroke-dasharray="8,4" />
+          <text x="546" y="30" font-size="11" fill="#10b981" font-family="Inter,system-ui,sans-serif" font-weight="600">CAT+CSFS</text>
+        </svg>
+      </div>
+    </section>
+
 
     <!-- Findings section moved to top (after Contributions) -->
     <section id="findings-old-removed" style="display:none">
