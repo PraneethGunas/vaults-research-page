@@ -353,15 +353,18 @@
     }
 
     .vault-card .stat .num {
-      font-size: 22px;
+      font-size: 14px;
       font-weight: 700;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.2px;
+      line-height: 1.3;
     }
 
     .vault-card .stat .label {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
-      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
     }
 
     /* ── Severity tags ───────────────────────────────────── */
@@ -1086,16 +1089,16 @@
             rigid.</p>
           <div class="stat-row">
             <div class="stat">
-              <div class="num" style="color:var(--ctv)">368</div>
-              <div class="label">bytes total</div>
+              <div class="label">Recovery gate</div>
+              <div class="num" style="color:var(--ctv)">Cold key</div>
             </div>
             <div class="stat">
-              <div class="num" style="color:var(--ctv)">2</div>
-              <div class="label">keys</div>
+              <div class="label">Revault</div>
+              <div class="num" style="color:var(--ctv)">No</div>
             </div>
             <div class="stat">
-              <div class="num" style="color:var(--ctv)">0</div>
-              <div class="label">revaults</div>
+              <div class="label">Fee model</div>
+              <div class="num" style="color:var(--ctv)">Anchor</div>
             </div>
           </div>
         </div>
@@ -1106,16 +1109,16 @@
             The measured lifecycle includes a trigger-and-revault step unique to CCV.</p>
           <div class="stat-row">
             <div class="stat">
-              <div class="num" style="color:var(--ccv)">565</div>
-              <div class="label">bytes total</div>
+              <div class="label">Recovery gate</div>
+              <div class="num" style="color:var(--ccv)">Keyless</div>
             </div>
             <div class="stat">
-              <div class="num" style="color:var(--ccv)">1</div>
-              <div class="label">key</div>
+              <div class="label">Revault</div>
+              <div class="num" style="color:var(--ccv)">Yes</div>
             </div>
             <div class="stat">
-              <div class="num" style="color:var(--ccv)">∞</div>
-              <div class="label">revaults</div>
+              <div class="label">Fee model</div>
+              <div class="num" style="color:var(--ccv)">In-value</div>
             </div>
           </div>
         </div>
@@ -1126,16 +1129,16 @@
             that can break.</p>
           <div class="stat-row">
             <div class="stat">
-              <div class="num" style="color:var(--opvault)">567</div>
-              <div class="label">bytes total</div>
+              <div class="label">Recovery gate</div>
+              <div class="num" style="color:var(--opvault)">Dedicated key</div>
             </div>
             <div class="stat">
-              <div class="num" style="color:var(--opvault)">3</div>
-              <div class="label">keys</div>
+              <div class="label">Revault</div>
+              <div class="num" style="color:var(--opvault)">Yes</div>
             </div>
             <div class="stat">
-              <div class="num" style="color:var(--opvault)">∞</div>
-              <div class="label">revaults</div>
+              <div class="label">Fee model</div>
+              <div class="num" style="color:var(--opvault)">Fee wallet</div>
             </div>
           </div>
         </div>
@@ -1145,16 +1148,16 @@
           <p>General-purpose opcodes (OP_CAT + OP_CSFS) composed into a vault via dual Schnorr verification. Destination locked at creation. Conservative and introspective.</p>
           <div class="stat-row">
             <div class="stat">
-              <div class="num" style="color:var(--catcsfs)">553</div>
-              <div class="label">bytes total</div>
+              <div class="label">Recovery gate</div>
+              <div class="num" style="color:var(--catcsfs)">Cold key</div>
             </div>
             <div class="stat">
-              <div class="num" style="color:var(--catcsfs)">2</div>
-              <div class="label">keys</div>
+              <div class="label">Revault</div>
+              <div class="num" style="color:var(--catcsfs)">No</div>
             </div>
             <div class="stat">
-              <div class="num" style="color:var(--catcsfs)">0</div>
-              <div class="label">revaults</div>
+              <div class="label">Fee model</div>
+              <div class="num" style="color:var(--catcsfs)">Sighash-ACP</div>
             </div>
           </div>
         </div>
