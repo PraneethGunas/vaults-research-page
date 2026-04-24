@@ -1081,7 +1081,7 @@
       <div class="vault-grid">
         <div class="card vault-card">
           <div class="tag" style="color:var(--ctv)"><a href="https://bips.dev/119/" target="_blank" style="color:inherit;text-decoration:none">CTV · BIP 119</a></div>
-          <h3>The Deterministic One</h3>
+          <h3>Simplest possible covenant</h3>
           <p>Pre-commits the entire transaction tree at vault creation. No partial withdrawals, no batching. Simple and
             rigid.</p>
           <div class="stat-row">
@@ -1101,7 +1101,7 @@
         </div>
         <div class="card vault-card">
           <div class="tag" style="color:var(--ccv)"><a href="https://bips.dev/443/" target="_blank" style="color:inherit;text-decoration:none">CCV · BIP 443</a></div>
-          <h3>The Flexible One</h3>
+          <h3>Recursion and partial withdrawal</h3>
           <p>Contract verification for state transitions. Partial withdrawals via revault, batched triggers, keyless recovery.
             The measured lifecycle includes a trigger-and-revault step unique to CCV.</p>
           <div class="stat-row">
@@ -1121,7 +1121,7 @@
         </div>
         <div class="card vault-card">
           <div class="tag" style="color:var(--opvault)"><a href="https://bips.dev/345/" target="_blank" style="color:inherit;text-decoration:none">OP_VAULT · BIP 345</a></div>
-          <h3>The Purpose-Built One</h3>
+          <h3>Vaults as a first-class primitive</h3>
           <p>Dedicated opcode pair for vaults. Authorized recovery blocks griefing, but three keys means three things
             that can break.</p>
           <div class="stat-row">
@@ -1141,7 +1141,7 @@
         </div>
         <div class="card vault-card">
           <div class="tag" style="color:var(--catcsfs)"><a href="https://bips.dev/347/" target="_blank" style="color:inherit;text-decoration:none">CAT+CSFS · BIP 347+348</a></div>
-          <h3>The Composed One</h3>
+          <h3>Covenants from general parts</h3>
           <p>General-purpose opcodes (OP_CAT + OP_CSFS) composed into a vault via dual Schnorr verification. Destination locked at creation. Conservative and introspective.</p>
           <div class="stat-row">
             <div class="stat">
